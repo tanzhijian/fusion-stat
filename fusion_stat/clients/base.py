@@ -12,15 +12,17 @@ class Client(ABC):
     def __init__(
         self,
         client_cls: type[httpx.AsyncClient] = httpx.AsyncClient,
+        **kwargs: typing.Any,
     ) -> None:
         self.client_cls = client_cls
+        self.kwargs = kwargs
 
     @abstractmethod
-    async def get(self, url: str) -> typing.Any:
+    async def get(self, url: str, **kwargs: typing.Any) -> typing.Any:
         ...
 
     async def __aenter__(self: U) -> U:
-        self.client = self.client_cls()
+        self.client = self.client_cls(**self.kwargs)
         return self
 
     async def __aexit__(
@@ -31,8 +33,8 @@ class Client(ABC):
     ) -> None:
         await self.client.aclose()
 
-    async def _get(self, url: str) -> httpx.Response:
-        response = await self.client.get(url)
+    async def _get(self, url: str, **kwargs: typing.Any) -> httpx.Response:
+        response = await self.client.get(url, **kwargs)
         response.raise_for_status()
         return response
 
@@ -41,11 +43,12 @@ class JSONClient(Client):
     def __init__(
         self,
         client_cls: type[httpx.AsyncClient] = httpx.AsyncClient,
+        **kwargs: typing.Any,
     ) -> None:
-        super().__init__(client_cls)
+        super().__init__(client_cls, **kwargs)
 
-    async def get(self, url: str) -> typing.Any:
-        response = await self._get(url)
+    async def get(self, url: str, **kwargs: typing.Any) -> typing.Any:
+        response = await self._get(url, **kwargs)
         return response.json()
 
 
@@ -53,9 +56,10 @@ class HTMLClient(Client):
     def __init__(
         self,
         client_cls: type[httpx.AsyncClient] = httpx.AsyncClient,
+        **kwargs: typing.Any,
     ) -> None:
-        super().__init__(client_cls)
+        super().__init__(client_cls, **kwargs)
 
-    async def get(self, url: str) -> str:
-        response = await self._get(url)
+    async def get(self, url: str, **kwargs: typing.Any) -> str:
+        response = await self._get(url, **kwargs)
         return response.text
