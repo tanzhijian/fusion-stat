@@ -1,6 +1,7 @@
 import typing
 
 import httpx
+from httpx._types import ProxiesTypes
 
 from .base import JSONClient
 
@@ -9,12 +10,12 @@ class FotMob(JSONClient):
     def __init__(
         self,
         client_cls: type[httpx.AsyncClient] = httpx.AsyncClient,
-        **kwargs: typing.Any,
+        proxies: ProxiesTypes | None = None,
     ) -> None:
         super().__init__(
             client_cls,
             base_url="https://www.fotmob.com/api",
-            **kwargs,
+            proxies=proxies,
         )
 
     async def get_competition(self, code: str) -> typing.Any:
