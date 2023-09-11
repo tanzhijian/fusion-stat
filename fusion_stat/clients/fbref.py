@@ -23,9 +23,38 @@ class FBref(HTMLClient):
         season: str | None = None,
     ) -> str:
         if season:
-            path = f"/comps/{code}/{season}/{season}-{name}-Stats"
+            path = "/comps" + f"/{code}/{season}/{season}-{name}-Stats"
         else:
-            path = f"/comps/{code}/{name}-Stats"
+            path = "/comps" + f"/{code}/{name}-Stats"
 
+        text = await self.get(path)
+        return text
+
+    async def get_team(
+        self,
+        code: str,
+        name: str,
+        season: str | None = None,
+    ) -> str:
+        if season:
+            path = "/squads" + f"/{code}/{season}/{name}-Stats"
+        else:
+            path = "/squads" + f"/{code}/{name}-Stats"
+
+        text = await self.get(path)
+        return text
+
+    async def get_player(self, code: str, name: str) -> str:
+        path = f"/players/{code}/{name}"
+        text = await self.get(path)
+        return text
+
+    async def get_matches(self, date: str) -> str:
+        path = f"/matches/{date}"
+        text = await self.get(path)
+        return text
+
+    async def get_match(self, code: str) -> str:
+        path = f"/matches/{code}"
         text = await self.get(path)
         return text
