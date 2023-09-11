@@ -1,6 +1,5 @@
 import json
 import typing
-import asyncio
 from pathlib import Path
 
 import pytest
@@ -11,16 +10,6 @@ from fusion_stat.clients import FotMob
 
 
 pytestmark = pytest.mark.asyncio
-
-
-@pytest.fixture(scope="session")
-def event_loop() -> (
-    typing.Generator[asyncio.AbstractEventLoop, typing.Any, None]
-):
-    policy = asyncio.get_event_loop_policy()
-    loop = policy.new_event_loop()
-    yield loop
-    loop.close()
 
 
 @pytest_asyncio.fixture(scope="session")
