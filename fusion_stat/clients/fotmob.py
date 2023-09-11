@@ -23,3 +23,27 @@ class FotMob(JSONClient):
         params = {"id": code}
         json = await self.get(path, params=params)
         return json
+
+    async def get_team(self, code: str) -> typing.Any:
+        path = "/teams"
+        params = {"id": code}
+        json = await self.get(path, params=params)
+        return json
+
+    async def get_player(self, code: str) -> typing.Any:
+        path = "/playerData"
+        params = {"id": code}
+        json = await self.get(path, params=params)
+        return json
+
+    async def get_matches(self, date: str | None = None) -> typing.Any:
+        path = "/matches"
+        params = {"date": date}
+        json = await self.get(path, params=params)
+        return json
+
+    async def get_match(self, code: str) -> typing.Any:
+        path = "/matchDetails"
+        params = {"matchId": code}
+        json = await self.get(path, params=params)
+        return json
