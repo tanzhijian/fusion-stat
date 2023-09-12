@@ -30,31 +30,28 @@ def mock(file: str, httpx_mock: HTTPXMock) -> None:
 async def test_get_competition(fotmob: FotMob, httpx_mock: HTTPXMock) -> None:
     mock("leagues?id=47.json", httpx_mock)
     competition = await fotmob.get_competition("47")
-    assert competition["seostr"] == "premier-league"
+    assert competition.name == "Premier League"
 
 
 async def test_get_team(httpx_mock: HTTPXMock, fotmob: FotMob) -> None:
     mock("teams?id=9825.json", httpx_mock)
     team = await fotmob.get_team("9825")
-    assert team["seostr"] == "arsenal"
+    assert team.name == "Arsenal"
 
 
 async def test_get_player(httpx_mock: HTTPXMock, fotmob: FotMob) -> None:
     mock("playerData?id=961995.json", httpx_mock)
     player = await fotmob.get_player("961995")
-    assert player["name"] == "Bukayo Saka"
+    assert player.name == "Bukayo Saka"
 
 
 async def test_get_matches(httpx_mock: HTTPXMock, fotmob: FotMob) -> None:
     mock("matches?date=20230903.json", httpx_mock)
     matches = await fotmob.get_matches("20230903")
-    assert matches["date"] == "20230903"
+    assert matches.date == "20230903"
 
 
 async def test_get_match(httpx_mock: HTTPXMock, fotmob: FotMob) -> None:
     mock("matchDetails?matchId=4193490.json", httpx_mock)
     match = await fotmob.get_match("4193490")
-    assert (
-        match["general"]["matchName"]
-        == "Arsenal-vs-Manchester United_Sun, Sep 3, 2023, 15:30 UTC"
-    )
+    assert match.home_team == "Arsenal"
