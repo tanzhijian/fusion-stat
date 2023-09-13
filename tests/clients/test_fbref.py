@@ -29,47 +29,47 @@ def mock(file: str, httpx_mock: HTTPXMock) -> None:
 async def test_get_competition(httpx_mock: HTTPXMock, fbref: FBref) -> None:
     mock("comps_9_Premier-League-Stats.html", httpx_mock)
     competition = await fbref.get_competition("9", "Premier-League")
-    assert len(competition) > 0
+    assert competition.name == "Premier League"
 
     httpx_mock.add_response(
         url=(
             "https://fbref.com/en/comps/9/2022-2023/"
             "2022-2023-Premier-League-Stats"
         ),
-        text="pl 2022",
+        text=competition.content,
     )
-    competition = await fbref.get_competition(
+    competition_2022 = await fbref.get_competition(
         "9", "Premier-League", "2022-2023"
     )
-    assert competition == "pl 2022"
+    assert competition_2022.name == "Premier League"
 
 
 async def test_get_team(httpx_mock: HTTPXMock, fbref: FBref) -> None:
     mock("squads_18bb7c10_Arsenal-Stats.html", httpx_mock)
     team = await fbref.get_team("18bb7c10", "Arsenal")
-    assert len(team) > 0
+    assert team.name == "Arsenal"
 
     httpx_mock.add_response(
         url="https://fbref.com/en/squads/18bb7c10/2022-2023/Arsenal-Stats",
-        text="arsenal 2022",
+        text=team.content,
     )
-    team = await fbref.get_team("18bb7c10", "Arsenal", "2022-2023")
-    assert team == "arsenal 2022"
+    team_2022 = await fbref.get_team("18bb7c10", "Arsenal", "2022-2023")
+    assert team_2022.name == "Arsenal"
 
 
 async def test_get_player(httpx_mock: HTTPXMock, fbref: FBref) -> None:
     mock("players_bc7dc64d_Bukayo-Saka.html", httpx_mock)
     player = await fbref.get_player("bc7dc64d", "Bukayo-Saka")
-    assert len(player) > 0
+    assert player.name == "Bukayo Saka"
 
 
 async def test_get_matches(httpx_mock: HTTPXMock, fbref: FBref) -> None:
     mock("matches_2023-09-03.html", httpx_mock)
     matches = await fbref.get_matches("2023-09-03")
-    assert len(matches) > 0
+    assert matches.date == "Sunday September 3, 2023"
 
 
 async def test_get_match(httpx_mock: HTTPXMock, fbref: FBref) -> None:
     mock("matches_74125d47.html", httpx_mock)
     match = await fbref.get_match("74125d47")
-    assert len(match) > 0
+    assert match.home_team == "Arsenal"
