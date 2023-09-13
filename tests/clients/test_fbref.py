@@ -1,4 +1,5 @@
 import typing
+from pathlib import Path
 
 import pytest
 import pytest_asyncio
@@ -16,13 +17,19 @@ async def fbref() -> typing.AsyncGenerator[FBref, typing.Any]:
         yield fb
 
 
-async def test_get_competition(httpx_mock: HTTPXMock, fbref: FBref) -> None:
+def mock(file: str, httpx_mock: HTTPXMock) -> None:
+    with open(Path(f"tests/data/fbref/{file}")) as f:
+        text = f.read()
     httpx_mock.add_response(
-        url="https://fbref.com/en/comps/9/Premier-League-Stats",
-        text="pl",
+        url=f"https://fbref.com/en/{file.replace('_', '/').split('.')[0]}",
+        text=text,
     )
+
+
+async def test_get_competition(httpx_mock: HTTPXMock, fbref: FBref) -> None:
+    mock("comps_9_Premier-League-Stats.html", httpx_mock)
     competition = await fbref.get_competition("9", "Premier-League")
-    assert competition == "pl"
+    assert len(competition) > 0
 
     httpx_mock.add_response(
         url=(
@@ -38,12 +45,9 @@ async def test_get_competition(httpx_mock: HTTPXMock, fbref: FBref) -> None:
 
 
 async def test_get_team(httpx_mock: HTTPXMock, fbref: FBref) -> None:
-    httpx_mock.add_response(
-        url="https://fbref.com/en/squads/18bb7c10/Arsenal-Stats",
-        text="arsenal",
-    )
+    mock("squads_18bb7c10_Arsenal-Stats.html", httpx_mock)
     team = await fbref.get_team("18bb7c10", "Arsenal")
-    assert team == "arsenal"
+    assert len(team) > 0
 
     httpx_mock.add_response(
         url="https://fbref.com/en/squads/18bb7c10/2022-2023/Arsenal-Stats",
@@ -54,27 +58,18 @@ async def test_get_team(httpx_mock: HTTPXMock, fbref: FBref) -> None:
 
 
 async def test_get_player(httpx_mock: HTTPXMock, fbref: FBref) -> None:
-    httpx_mock.add_response(
-        url="https://fbref.com/en/players/bc7dc64d/Bukayo-Saka",
-        text="saka",
-    )
+    mock("players_bc7dc64d_Bukayo-Saka.html", httpx_mock)
     player = await fbref.get_player("bc7dc64d", "Bukayo-Saka")
-    assert player == "saka"
+    assert len(player) > 0
 
 
 async def test_get_matches(httpx_mock: HTTPXMock, fbref: FBref) -> None:
-    httpx_mock.add_response(
-        url="https://fbref.com/en/matches/2023-09-03",
-        text="20230903",
-    )
+    mock("matches_2023-09-03.html", httpx_mock)
     matches = await fbref.get_matches("2023-09-03")
-    assert matches == "20230903"
+    assert len(matches) > 0
 
 
 async def test_get_match(httpx_mock: HTTPXMock, fbref: FBref) -> None:
-    httpx_mock.add_response(
-        url="https://fbref.com/en/matches/74125d47",
-        text="Arsenal vs Man United",
-    )
-    matches = await fbref.get_matches("74125d47")
-    assert matches == "Arsenal vs Man United"
+    mock("matches_74125d47.html", httpx_mock)
+    match = await fbref.get_match("74125d47")
+    assert len(match) > 0

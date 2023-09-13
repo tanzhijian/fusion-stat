@@ -11,6 +11,7 @@ packages = [{include = "fusion_stat"}]
 python = "^3.10"
 httpx = "^0.24.1"
 pydantic = "^2.3.0"
+parsel = "^1.8.1"
 
 
 [tool.poetry.group.dev.dependencies]
