@@ -41,12 +41,17 @@ async def test_get_team(httpx_mock: HTTPXMock, fotmob: FotMob) -> None:
     mock("teams?id=9825.json", httpx_mock)
     team = await fotmob.get_team("9825")
     assert team.name == "Arsenal"
+    coach = team.players[0]
+    assert coach.is_staff
+    player = team.players[1]
+    assert not player.is_staff
 
 
 async def test_get_player(httpx_mock: HTTPXMock, fotmob: FotMob) -> None:
     mock("playerData?id=961995.json", httpx_mock)
     player = await fotmob.get_player("961995")
     assert player.name == "Bukayo Saka"
+    assert not player.is_staff
 
 
 async def test_get_matches(httpx_mock: HTTPXMock, fotmob: FotMob) -> None:
@@ -61,4 +66,4 @@ async def test_get_matches(httpx_mock: HTTPXMock, fotmob: FotMob) -> None:
 async def test_get_match(httpx_mock: HTTPXMock, fotmob: FotMob) -> None:
     mock("matchDetails?matchId=4193490.json", httpx_mock)
     match = await fotmob.get_match("4193490")
-    assert match.home_team == "Arsenal"
+    assert match.home.name == "Arsenal"

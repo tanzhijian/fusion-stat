@@ -18,6 +18,13 @@ class Team(BaseModel):
     names: set[str]
 
 
+class Player(BaseModel):
+    id: str
+    name: str
+    country: str
+    is_staff: bool
+
+
 class Match(BaseModel):
     id: str
     utc_time: str
@@ -39,20 +46,18 @@ class CompetitionDetails(Competition):
     matches: list[Match]
 
 
-class TeamDetails(BaseModel):
+class TeamDetails(Team):
     content: typing.Any
-    name: str
+    players: list[Player]
 
 
-class Player(BaseModel):
+class PlayerDetails(Player):
     content: typing.Any
-    name: str
+    position: str
 
 
-class MatchDetails(BaseModel):
+class MatchDetails(Match):
     content: typing.Any
-    home_team: str
-    away_team: str
 
 
 class Matches(BaseModel):
@@ -85,7 +90,7 @@ class FotMob(JSONClient):
         json = await self.get(path, params=params)
         return self._parse_team(json)
 
-    async def get_player(self, id: str) -> Player:
+    async def get_player(self, id: str) -> PlayerDetails:
         path = "/playerData"
         params = {"id": id}
         json = await self.get(path, params=params)
@@ -154,12 +159,44 @@ class FotMob(JSONClient):
         )
 
     def _parse_team(self, json: typing.Any) -> TeamDetails:
+        id = str(json["details"]["id"])
         name = json["details"]["name"]
-        return TeamDetails(content=json, name=name)
+        names = {name, json["details"]["shortName"]}
 
-    def _parse_player(self, json: typing.Any) -> Player:
+        players = []
+        for role in json["squad"]:
+            for player in role[1:]:
+                players.append(
+                    Player(
+                        id=str(player[0]["id"]),
+                        name=player[0]["name"],
+                        country=player[0]["cname"],
+                        is_staff=player[0].get("role") is None,
+                    )
+                )
+
+        return TeamDetails(
+            content=json,
+            id=id,
+            name=name,
+            names=names,
+            players=players,
+        )
+
+    def _parse_player(self, json: typing.Any) -> PlayerDetails:
+        id = str(json["id"])
         name = json["name"]
-        return Player(content=json, name=name)
+        country = json["meta"]["personJSONLD"]["nationality"]["name"]
+        position = json["origin"]["positionDesc"]["primaryPosition"]["label"]
+        is_staff = position == "Coach"
+        return PlayerDetails(
+            content=json,
+            id=id,
+            name=name,
+            country=country,
+            is_staff=is_staff,
+            position=position,
+        )
 
     def _parse_matches(self, json: typing.Any) -> Matches:
         date = json["date"]
@@ -203,10 +240,40 @@ class FotMob(JSONClient):
         return Matches(content=json, date=date, matches=matches)
 
     def _parse_match(self, json: typing.Any) -> MatchDetails:
-        home_team = json["general"]["homeTeam"]["name"]
-        away_team = json["general"]["awayTeam"]["name"]
+        id = str(json["general"]["matchId"])
+        utc_time = json["header"]["status"]["utcTime"]
+        finished = json["header"]["status"]["finished"]
+        started = json["header"]["status"]["started"]
+        cancelled = json["header"]["status"]["cancelled"]
+        score = json["header"]["status"].get("scoreStr")
+
+        competition = Competition(
+            id=str(json["general"]["leagueId"]),
+            name=json["general"]["leagueName"],
+        )
+
+        home_team = json["header"]["teams"][0]
+        home = Team(
+            id=str(home_team["id"]),
+            name=home_team["name"],
+            names={home_team["name"]},
+        )
+        away_team = json["header"]["teams"][1]
+        away = Team(
+            id=str(away_team["id"]),
+            name=away_team["name"],
+            names={away_team["name"]},
+        )
+
         return MatchDetails(
             content=json,
-            home_team=home_team,
-            away_team=away_team,
+            id=id,
+            utc_time=utc_time,
+            finished=finished,
+            started=started,
+            cancelled=cancelled,
+            score=score,
+            competition=competition,
+            home=home,
+            away=away,
         )
