@@ -34,6 +34,7 @@ async def test_get_competition(fotmob: FotMob, httpx_mock: HTTPXMock) -> None:
     assert coms.names == {"Premier League"}
     assert coms.teams[0].name == "Manchester City"
     assert coms.matches[0].home.name == "Burnley"
+    assert coms.matches[0].competition.id == "47"
 
 
 async def test_get_team(httpx_mock: HTTPXMock, fotmob: FotMob) -> None:
@@ -52,6 +53,9 @@ async def test_get_matches(httpx_mock: HTTPXMock, fotmob: FotMob) -> None:
     mock("matches?date=20230903.json", httpx_mock)
     matches = await fotmob.get_matches("20230903")
     assert matches.date == "20230903"
+    match = matches.matches[0]
+    assert match.competition.id == "47"
+    assert match.home.name == "Crystal Palace"
 
 
 async def test_get_match(httpx_mock: HTTPXMock, fotmob: FotMob) -> None:

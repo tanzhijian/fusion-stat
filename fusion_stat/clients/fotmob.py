@@ -7,35 +7,39 @@ from pydantic import BaseModel
 from .base import JSONClient
 
 
-class TeamSlim(BaseModel):
+class Competition(BaseModel):
+    id: str
+    name: str
+
+
+class Team(BaseModel):
     id: str
     name: str
     names: set[str]
 
 
-class MatchSlim(BaseModel):
+class Match(BaseModel):
     id: str
     utc_time: str
     finished: bool
     started: bool
     cancelled: bool
     score: str | None
-    home: TeamSlim
-    away: TeamSlim
+    competition: Competition
+    home: Team
+    away: Team
 
 
-class Competition(BaseModel):
+class CompetitionDetails(Competition):
     content: typing.Any
-    id: str
     type: str
     season: str
-    name: str
     names: set[str]
-    teams: list[TeamSlim]
-    matches: list[MatchSlim]
+    teams: list[Team]
+    matches: list[Match]
 
 
-class Team(BaseModel):
+class TeamDetails(BaseModel):
     content: typing.Any
     name: str
 
@@ -45,7 +49,7 @@ class Player(BaseModel):
     name: str
 
 
-class Match(BaseModel):
+class MatchDetails(BaseModel):
     content: typing.Any
     home_team: str
     away_team: str
@@ -54,6 +58,7 @@ class Match(BaseModel):
 class Matches(BaseModel):
     content: typing.Any
     date: str
+    matches: list[Match]
 
 
 class FotMob(JSONClient):
@@ -68,21 +73,21 @@ class FotMob(JSONClient):
             proxies=proxies,
         )
 
-    async def get_competition(self, code: str) -> Competition:
+    async def get_competition(self, id: str) -> CompetitionDetails:
         path = "/leagues"
-        params = {"id": code}
+        params = {"id": id}
         json = await self.get(path, params=params)
         return self._parse_competition(json)
 
-    async def get_team(self, code: str) -> Team:
+    async def get_team(self, id: str) -> TeamDetails:
         path = "/teams"
-        params = {"id": code}
+        params = {"id": id}
         json = await self.get(path, params=params)
         return self._parse_team(json)
 
-    async def get_player(self, code: str) -> Player:
+    async def get_player(self, id: str) -> Player:
         path = "/playerData"
-        params = {"id": code}
+        params = {"id": id}
         json = await self.get(path, params=params)
         return self._parse_player(json)
 
@@ -92,13 +97,13 @@ class FotMob(JSONClient):
         json = await self.get(path, params=params)
         return self._parse_matches(json)
 
-    async def get_match(self, code: str) -> Match:
+    async def get_match(self, id: str) -> MatchDetails:
         path = "/matchDetails"
-        params = {"matchId": code}
+        params = {"matchId": id}
         json = await self.get(path, params=params)
         return self._parse_match(json)
 
-    def _parse_competition(self, json: typing.Any) -> Competition:
+    def _parse_competition(self, json: typing.Any) -> CompetitionDetails:
         id = str(json["details"]["id"])
         type = json["details"]["type"]
         season = json["details"]["selectedSeason"]
@@ -106,7 +111,7 @@ class FotMob(JSONClient):
         names = {name, json["details"]["shortName"]}
 
         teams = [
-            TeamSlim(
+            Team(
                 id=str(team["id"]),
                 name=team["name"],
                 names={team["name"], team["shortName"]},
@@ -115,19 +120,20 @@ class FotMob(JSONClient):
         ]
 
         matches = [
-            MatchSlim(
+            Match(
                 id=str(match["id"]),
                 utc_time=match["status"]["utcTime"],
                 finished=match["status"]["finished"],
                 started=match["status"]["started"],
                 cancelled=match["status"]["cancelled"],
                 score=match["status"].get("scoreStr"),
-                home=TeamSlim(
+                competition=Competition(id=id, name=name),
+                home=Team(
                     id=str(match["home"]["id"]),
                     name=match["home"]["name"],
                     names={match["home"]["name"], match["home"]["shortName"]},
                 ),
-                away=TeamSlim(
+                away=Team(
                     id=str(match["away"]["id"]),
                     name=match["away"]["name"],
                     names={match["away"]["name"], match["away"]["shortName"]},
@@ -136,7 +142,7 @@ class FotMob(JSONClient):
             for match in json["matches"]["allMatches"]
         ]
 
-        return Competition(
+        return CompetitionDetails(
             content=json,
             id=id,
             type=type,
@@ -147,9 +153,9 @@ class FotMob(JSONClient):
             matches=matches,
         )
 
-    def _parse_team(self, json: typing.Any) -> Team:
+    def _parse_team(self, json: typing.Any) -> TeamDetails:
         name = json["details"]["name"]
-        return Team(content=json, name=name)
+        return TeamDetails(content=json, name=name)
 
     def _parse_player(self, json: typing.Any) -> Player:
         name = json["name"]
@@ -157,12 +163,49 @@ class FotMob(JSONClient):
 
     def _parse_matches(self, json: typing.Any) -> Matches:
         date = json["date"]
-        return Matches(content=json, date=date)
 
-    def _parse_match(self, json: typing.Any) -> Match:
+        matches = []
+        for league in json["leagues"]:
+            competition_id = str(league["id"])
+            competition_name = league["name"]
+            for match in league["matches"]:
+                matches.append(
+                    Match(
+                        id=str(match["id"]),
+                        utc_time=match["status"]["utcTime"],
+                        finished=match["status"]["finished"],
+                        started=match["status"]["started"],
+                        cancelled=match["status"]["cancelled"],
+                        score=match["status"].get("scoreStr"),
+                        competition=Competition(
+                            id=competition_id,
+                            name=competition_name,
+                        ),
+                        home=Team(
+                            id=str(match["home"]["id"]),
+                            name=match["home"]["longName"],
+                            names={
+                                match["home"]["longName"],
+                                match["home"]["name"],
+                            },
+                        ),
+                        away=Team(
+                            id=str(match["away"]["id"]),
+                            name=match["away"]["longName"],
+                            names={
+                                match["away"]["longName"],
+                                match["away"]["name"],
+                            },
+                        ),
+                    )
+                )
+
+        return Matches(content=json, date=date, matches=matches)
+
+    def _parse_match(self, json: typing.Any) -> MatchDetails:
         home_team = json["general"]["homeTeam"]["name"]
         away_team = json["general"]["awayTeam"]["name"]
-        return Match(
+        return MatchDetails(
             content=json,
             home_team=home_team,
             away_team=away_team,
