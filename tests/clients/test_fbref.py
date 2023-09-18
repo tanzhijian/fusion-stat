@@ -72,6 +72,9 @@ async def test_get_player(httpx_mock: HTTPXMock, fbref: FBref) -> None:
     mock("players_bc7dc64d_Bukayo-Saka.html", httpx_mock)
     player = await fbref.get_player("bc7dc64d", "Bukayo-Saka")
     assert player.name == "Bukayo Saka"
+    assert player.id == "bc7dc64d"
+    assert int(player.shooting.shots) == 266
+    assert player.shooting.xg >= 0
 
 
 async def test_get_matches(httpx_mock: HTTPXMock, fbref: FBref) -> None:

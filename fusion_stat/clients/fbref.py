@@ -98,7 +98,7 @@ class FBref(HTMLClient):
     async def get_player(self, id: str, name: str) -> Player:
         path = f"/players/{id}/{name}"
         selector = await self.get(path)
-        return self._parse_player(selector)
+        return self._parse_player(id, selector)
 
     async def get_matches(self, date: str) -> Matches:
         path = f"/matches/{date}"
@@ -183,15 +183,19 @@ class FBref(HTMLClient):
             players=players,
         )
 
-    def _parse_player(self, selector: Selector) -> Player:
-        name = selector.xpath("//h1/span/text()").get()
-        if name is None:
-            raise ValueError("player name not found")
+    def _parse_player(self, id: str, selector: Selector) -> Player:
+        name = self._get_element_text(selector.xpath("//h1/span/text()"))
+
+        tr = selector.xpath(
+            '//table[starts-with(@id,"stats_shooting_")]/tfoot/tr[1]'
+        )
+        shooting = self._parse_shooting(tr)
+
         return PlayerDetails(
             content=selector.get(),
-            id="23",
+            id=id,
             name=name,
-            shooting=Shooting(shots=10.0, xg=1.2),
+            shooting=shooting,
         )
 
     def _parse_matches(self, selector: Selector) -> Matches:
