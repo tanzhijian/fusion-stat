@@ -13,6 +13,12 @@ class Shooting(BaseModel):
     xg: float
 
 
+class Player(BaseModel):
+    id: str
+    name: str
+    shooting: Shooting
+
+
 class Team(BaseModel):
     id: str
     name: str
@@ -23,11 +29,6 @@ class Competition(BaseModel):
     id: str
     name: str
     teams: list[Team]
-
-
-class Player(BaseModel):
-    content: typing.Any
-    name: str
 
 
 class MatchDetails(BaseModel):
@@ -46,6 +47,11 @@ class CompetitionDetails(Competition):
 
 
 class TeamDetails(Team):
+    content: typing.Any
+    players: list[Player]
+
+
+class PlayerDetails(Player):
     content: typing.Any
 
 
@@ -87,7 +93,7 @@ class FBref(HTMLClient):
             path = "/squads" + f"/{code}/{name}-Stats"
 
         selector = await self.get(path)
-        return self._parse_team(selector)
+        return self._parse_team(code, selector)
 
     async def get_player(self, code: str, name: str) -> Player:
         path = f"/players/{code}/{name}"
@@ -143,23 +149,61 @@ class FBref(HTMLClient):
             teams=teams,
         )
 
-    def _parse_team(self, selector: Selector) -> TeamDetails:
-        h1 = selector.xpath("//h1/span/text()")[0].get()
-        if h1 is None:
-            raise ValueError("team name not found")
-        name = " ".join(h1.split(" ")[1:-1])
+    def _parse_team(self, code: str, selector: Selector) -> TeamDetails:
+        h1 = self._get_element_text(selector.xpath("//h1/span/text()"))
+        team_name = " ".join(h1.split(" ")[1:-1])
+
+        table = selector.xpath('//table[starts-with(@id,"stats_shooting_")]')
+
+        team_tr = table.xpath("./tfoot/tr[1]")
+        team_shots = self._get_element_text(
+            team_tr.xpath('./td[@data-stat="shots"]/text()')
+        )
+        team_xg = self._get_element_text(
+            team_tr.xpath('./td[@data-stat="xg"]/text()')
+        )
+        team_shooting = Shooting(shots=float(team_shots), xg=float(team_xg))
+
+        players = []
+        trs = table.xpath("./tbody/tr")
+        for tr in trs:
+            href = self._get_element_text(tr.xpath("./th/a/@href"))
+            name = self._get_element_text(tr.xpath("./th/a/text()"))
+            shots = self._get_element_text(
+                tr.xpath('./td[@data-stat="shots"]/text()')
+            )
+            xg = self._get_element_text(
+                tr.xpath('./td[@data-stat="xg"]/text()')
+            )
+            players.append(
+                Player(
+                    id=href.split("/")[3],
+                    name=name,
+                    shooting=Shooting(
+                        shots=float(shots),
+                        xg=float(xg),
+                    ),
+                )
+            )
+
         return TeamDetails(
             content=selector.get(),
-            id="23",
-            name=name,
-            shooting=Shooting(shots=12.0, xg=1.1),
+            id=code,
+            name=team_name,
+            shooting=team_shooting,
+            players=players,
         )
 
     def _parse_player(self, selector: Selector) -> Player:
         name = selector.xpath("//h1/span/text()").get()
         if name is None:
             raise ValueError("player name not found")
-        return Player(content=selector.get(), name=name)
+        return PlayerDetails(
+            content=selector.get(),
+            id="23",
+            name=name,
+            shooting=Shooting(shots=10.0, xg=1.2),
+        )
 
     def _parse_matches(self, selector: Selector) -> Matches:
         date = selector.xpath(

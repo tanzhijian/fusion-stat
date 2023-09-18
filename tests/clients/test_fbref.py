@@ -53,6 +53,12 @@ async def test_get_team(httpx_mock: HTTPXMock, fbref: FBref) -> None:
     mock("squads_18bb7c10_Arsenal-Stats.html", httpx_mock)
     team = await fbref.get_team("18bb7c10", "Arsenal")
     assert team.name == "Arsenal"
+    assert team.id == "18bb7c10"
+    assert isinstance(team.shooting.shots, float)
+    assert team.shooting.xg > 0
+    player = team.players[0]
+    assert player.id == "466fb2c5"
+    assert isinstance(player.shooting.shots, float)
 
     httpx_mock.add_response(
         url="https://fbref.com/en/squads/18bb7c10/2022-2023/Arsenal-Stats",
