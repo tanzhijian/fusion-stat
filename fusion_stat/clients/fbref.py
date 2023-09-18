@@ -3,7 +3,7 @@ import typing
 import httpx
 from httpx._types import ProxiesTypes
 from pydantic import BaseModel
-from parsel import Selector
+from parsel import Selector, SelectorList
 
 from .base import HTMLClient
 
@@ -69,34 +69,34 @@ class FBref(HTMLClient):
 
     async def get_competition(
         self,
-        code: str,
+        id: str,
         name: str,
         season: str | None = None,
     ) -> CompetitionDetails:
         if season:
-            path = "/comps" + f"/{code}/{season}/{season}-{name}-Stats"
+            path = "/comps" + f"/{id}/{season}/{season}-{name}-Stats"
         else:
-            path = "/comps" + f"/{code}/{name}-Stats"
+            path = "/comps" + f"/{id}/{name}-Stats"
 
         selector = await self.get(path)
-        return self._parse_competition(code, selector)
+        return self._parse_competition(id, selector)
 
     async def get_team(
         self,
-        code: str,
+        id: str,
         name: str,
         season: str | None = None,
     ) -> TeamDetails:
         if season:
-            path = "/squads" + f"/{code}/{season}/{name}-Stats"
+            path = "/squads" + f"/{id}/{season}/{name}-Stats"
         else:
-            path = "/squads" + f"/{code}/{name}-Stats"
+            path = "/squads" + f"/{id}/{name}-Stats"
 
         selector = await self.get(path)
-        return self._parse_team(code, selector)
+        return self._parse_team(id, selector)
 
-    async def get_player(self, code: str, name: str) -> Player:
-        path = f"/players/{code}/{name}"
+    async def get_player(self, id: str, name: str) -> Player:
+        path = f"/players/{id}/{name}"
         selector = await self.get(path)
         return self._parse_player(selector)
 
@@ -105,14 +105,26 @@ class FBref(HTMLClient):
         selector = await self.get(path)
         return self._parse_matches(selector)
 
-    async def get_match(self, code: str) -> MatchDetails:
-        path = f"/matches/{code}"
+    async def get_match(self, id: str) -> MatchDetails:
+        path = f"/matches/{id}"
         selector = await self.get(path)
         return self._parse_match(selector)
 
+    def _parse_shooting(
+        self, tr: Selector | SelectorList[Selector]
+    ) -> Shooting:
+        shots = self._get_element_text(
+            tr.xpath('./td[@data-stat="shots"]/text()')
+        )
+        xg = self._get_element_text(tr.xpath('./td[@data-stat="xg"]/text()'))
+        return Shooting(
+            shots=float(shots),
+            xg=float(xg),
+        )
+
     def _parse_competition(
         self,
-        code: str,
+        id: str,
         selector: Selector,
     ) -> CompetitionDetails:
         h1 = self._get_element_text(selector.xpath("//h1/text()"))
@@ -125,70 +137,47 @@ class FBref(HTMLClient):
         for tr in trs:
             href = self._get_element_text(tr.xpath("./th/a/@href"))
             name = self._get_element_text(tr.xpath("./th/a/text()"))
-            shots = self._get_element_text(
-                tr.xpath('./td[@data-stat="shots"]/text()')
-            )
-            xg = self._get_element_text(
-                tr.xpath('./td[@data-stat="xg"]/text()')
-            )
+            shooting = self._parse_shooting(tr)
             teams.append(
                 Team(
                     id=href.split("/")[3],
                     name=name,
-                    shooting=Shooting(
-                        shots=float(shots),
-                        xg=float(xg),
-                    ),
+                    shooting=shooting,
                 )
             )
 
         return CompetitionDetails(
             content=selector.get(),
-            id=code,
+            id=id,
             name=competition_name,
             teams=teams,
         )
 
-    def _parse_team(self, code: str, selector: Selector) -> TeamDetails:
+    def _parse_team(self, id: str, selector: Selector) -> TeamDetails:
         h1 = self._get_element_text(selector.xpath("//h1/span/text()"))
         team_name = " ".join(h1.split(" ")[1:-1])
 
         table = selector.xpath('//table[starts-with(@id,"stats_shooting_")]')
 
-        team_tr = table.xpath("./tfoot/tr[1]")
-        team_shots = self._get_element_text(
-            team_tr.xpath('./td[@data-stat="shots"]/text()')
-        )
-        team_xg = self._get_element_text(
-            team_tr.xpath('./td[@data-stat="xg"]/text()')
-        )
-        team_shooting = Shooting(shots=float(team_shots), xg=float(team_xg))
+        team_shooting = self._parse_shooting(table.xpath("./tfoot/tr[1]"))
 
         players = []
         trs = table.xpath("./tbody/tr")
         for tr in trs:
             href = self._get_element_text(tr.xpath("./th/a/@href"))
             name = self._get_element_text(tr.xpath("./th/a/text()"))
-            shots = self._get_element_text(
-                tr.xpath('./td[@data-stat="shots"]/text()')
-            )
-            xg = self._get_element_text(
-                tr.xpath('./td[@data-stat="xg"]/text()')
-            )
+            shooting = self._parse_shooting(tr)
             players.append(
                 Player(
                     id=href.split("/")[3],
                     name=name,
-                    shooting=Shooting(
-                        shots=float(shots),
-                        xg=float(xg),
-                    ),
+                    shooting=shooting,
                 )
             )
 
         return TeamDetails(
             content=selector.get(),
-            id=code,
+            id=id,
             name=team_name,
             shooting=team_shooting,
             players=players,
