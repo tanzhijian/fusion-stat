@@ -3,19 +3,26 @@ import typing
 import httpx
 from httpx._types import ProxiesTypes
 from pydantic import BaseModel
-from parsel import Selector
+from parsel import Selector, SelectorList
 
 from .base import HTMLClient
 
 
-class Competition(BaseModel):
-    content: typing.Any
-    name: str
+class Shooting(BaseModel):
+    shots: float
+    xg: float
 
 
 class Team(BaseModel):
-    content: typing.Any
+    id: str
     name: str
+    shooting: Shooting
+
+
+class Competition(BaseModel):
+    id: str
+    name: str
+    teams: list[Team]
 
 
 class Player(BaseModel):
@@ -32,6 +39,14 @@ class MatchDetails(BaseModel):
 class Matches(BaseModel):
     content: typing.Any
     date: str
+
+
+class CompetitionDetails(Competition):
+    content: typing.Any
+
+
+class TeamDetails(Team):
+    content: typing.Any
 
 
 class FBref(HTMLClient):
@@ -51,21 +66,21 @@ class FBref(HTMLClient):
         code: str,
         name: str,
         season: str | None = None,
-    ) -> Competition:
+    ) -> CompetitionDetails:
         if season:
             path = "/comps" + f"/{code}/{season}/{season}-{name}-Stats"
         else:
             path = "/comps" + f"/{code}/{name}-Stats"
 
         text = await self.get(path)
-        return self._parse_competition(text)
+        return self._parse_competition(code, text)
 
     async def get_team(
         self,
         code: str,
         name: str,
         season: str | None = None,
-    ) -> Team:
+    ) -> TeamDetails:
         if season:
             path = "/squads" + f"/{code}/{season}/{name}-Stats"
         else:
@@ -89,21 +104,60 @@ class FBref(HTMLClient):
         text = await self.get(path)
         return self._parse_match(text)
 
-    def _parse_competition(self, text: str) -> Competition:
-        selector = Selector(text)
-        h1 = selector.xpath("//h1/text()").get()
-        if h1 is None:
-            raise ValueError("competition name not found")
-        name = " ".join(h1.split(" ")[1:-1])
-        return Competition(content=text, name=name)
+    @staticmethod
+    def _get_element_text(selector_list: SelectorList[Selector]) -> str:
+        if (text := selector_list.get()) is None:
+            raise ValueError("tag not found")
+        return text
 
-    def _parse_team(self, text: str) -> Team:
+    def _parse_competition(self, code: str, text: str) -> CompetitionDetails:
+        selector = Selector(text)
+        h1 = self._get_element_text(selector.xpath("//h1/text()"))
+        competition_name = " ".join(h1.split(" ")[1:-1])
+
+        teams = []
+        trs = selector.xpath(
+            '//table[@id="stats_squads_shooting_for"]/tbody/tr'
+        )
+        for tr in trs:
+            href = self._get_element_text(tr.xpath("./th/a/@href"))
+            name = self._get_element_text(tr.xpath("./th/a/text()"))
+            shots = self._get_element_text(
+                tr.xpath('./td[@data-stat="shots"]/text()')
+            )
+            xg = self._get_element_text(
+                tr.xpath('./td[@data-stat="xg"]/text()')
+            )
+            teams.append(
+                Team(
+                    id=href.split("/")[3],
+                    name=name,
+                    shooting=Shooting(
+                        shots=float(shots),
+                        xg=float(xg),
+                    ),
+                )
+            )
+
+        return CompetitionDetails(
+            content=text,
+            id=code,
+            name=competition_name,
+            teams=teams,
+        )
+
+    def _parse_team(self, text: str) -> TeamDetails:
         selector = Selector(text)
         h1 = selector.xpath("//h1/span/text()")[0].get()
         if h1 is None:
             raise ValueError("team name not found")
         name = " ".join(h1.split(" ")[1:-1])
-        return Team(content=text, name=name)
+        return TeamDetails(
+            content=text,
+            id="23",
+            name=name,
+            shooting=Shooting(shots=12.0, xg=1.1),
+        )
 
     def _parse_player(self, text: str) -> Player:
         selector = Selector(text)

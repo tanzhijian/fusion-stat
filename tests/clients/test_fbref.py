@@ -30,6 +30,11 @@ async def test_get_competition(httpx_mock: HTTPXMock, fbref: FBref) -> None:
     mock("comps_9_Premier-League-Stats.html", httpx_mock)
     competition = await fbref.get_competition("9", "Premier-League")
     assert competition.name == "Premier League"
+    assert competition.id == "9"
+    team = competition.teams[0]
+    assert team.id == "18bb7c10"
+    assert isinstance(team.shooting.shots, float)
+    assert team.shooting.xg > 0
 
     httpx_mock.add_response(
         url=(
