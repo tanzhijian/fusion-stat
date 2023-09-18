@@ -4,6 +4,7 @@ from types import TracebackType
 
 import httpx
 from httpx._types import URLTypes
+from parsel import Selector, SelectorList
 
 
 U = typing.TypeVar("U", bound="Client")
@@ -63,6 +64,12 @@ class HTMLClient(Client):
     ) -> None:
         super().__init__(client_cls, **kwargs)
 
-    async def get(self, url: URLTypes, **kwargs: typing.Any) -> str:
+    async def get(self, url: URLTypes, **kwargs: typing.Any) -> Selector:
         response = await self._get(url, **kwargs)
-        return response.text
+        return Selector(response.text)
+
+    @staticmethod
+    def _get_element_text(selector_list: SelectorList[Selector]) -> str:
+        if (text := selector_list.get()) is None:
+            raise ValueError("tag not found")
+        return text

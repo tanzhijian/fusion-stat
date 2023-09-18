@@ -18,4 +18,4 @@ async def test_html_client(httpx_mock: HTTPXMock) -> None:
     httpx_mock.add_response(text="foo")
     async with HTMLClient() as client:
         response = await client.get("https://url.url")
-        assert response == "foo"
+        assert response.get() == "<html><body><p>foo</p></body></html>"

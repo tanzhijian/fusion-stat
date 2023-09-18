@@ -3,7 +3,7 @@ import typing
 import httpx
 from httpx._types import ProxiesTypes
 from pydantic import BaseModel
-from parsel import Selector, SelectorList
+from parsel import Selector
 
 from .base import HTMLClient
 
@@ -42,7 +42,7 @@ class Matches(BaseModel):
 
 
 class CompetitionDetails(Competition):
-    content: typing.Any
+    content: str
 
 
 class TeamDetails(Team):
@@ -72,8 +72,8 @@ class FBref(HTMLClient):
         else:
             path = "/comps" + f"/{code}/{name}-Stats"
 
-        text = await self.get(path)
-        return self._parse_competition(code, text)
+        selector = await self.get(path)
+        return self._parse_competition(code, selector)
 
     async def get_team(
         self,
@@ -86,32 +86,29 @@ class FBref(HTMLClient):
         else:
             path = "/squads" + f"/{code}/{name}-Stats"
 
-        text = await self.get(path)
-        return self._parse_team(text)
+        selector = await self.get(path)
+        return self._parse_team(selector)
 
     async def get_player(self, code: str, name: str) -> Player:
         path = f"/players/{code}/{name}"
-        text = await self.get(path)
-        return self._parse_player(text)
+        selector = await self.get(path)
+        return self._parse_player(selector)
 
     async def get_matches(self, date: str) -> Matches:
         path = f"/matches/{date}"
-        text = await self.get(path)
-        return self._parse_matches(text)
+        selector = await self.get(path)
+        return self._parse_matches(selector)
 
     async def get_match(self, code: str) -> MatchDetails:
         path = f"/matches/{code}"
-        text = await self.get(path)
-        return self._parse_match(text)
+        selector = await self.get(path)
+        return self._parse_match(selector)
 
-    @staticmethod
-    def _get_element_text(selector_list: SelectorList[Selector]) -> str:
-        if (text := selector_list.get()) is None:
-            raise ValueError("tag not found")
-        return text
-
-    def _parse_competition(self, code: str, text: str) -> CompetitionDetails:
-        selector = Selector(text)
+    def _parse_competition(
+        self,
+        code: str,
+        selector: Selector,
+    ) -> CompetitionDetails:
         h1 = self._get_element_text(selector.xpath("//h1/text()"))
         competition_name = " ".join(h1.split(" ")[1:-1])
 
@@ -140,48 +137,44 @@ class FBref(HTMLClient):
             )
 
         return CompetitionDetails(
-            content=text,
+            content=selector.get(),
             id=code,
             name=competition_name,
             teams=teams,
         )
 
-    def _parse_team(self, text: str) -> TeamDetails:
-        selector = Selector(text)
+    def _parse_team(self, selector: Selector) -> TeamDetails:
         h1 = selector.xpath("//h1/span/text()")[0].get()
         if h1 is None:
             raise ValueError("team name not found")
         name = " ".join(h1.split(" ")[1:-1])
         return TeamDetails(
-            content=text,
+            content=selector.get(),
             id="23",
             name=name,
             shooting=Shooting(shots=12.0, xg=1.1),
         )
 
-    def _parse_player(self, text: str) -> Player:
-        selector = Selector(text)
+    def _parse_player(self, selector: Selector) -> Player:
         name = selector.xpath("//h1/span/text()").get()
         if name is None:
             raise ValueError("player name not found")
-        return Player(content=text, name=name)
+        return Player(content=selector.get(), name=name)
 
-    def _parse_matches(self, text: str) -> Matches:
-        selector = Selector(text)
+    def _parse_matches(self, selector: Selector) -> Matches:
         date = selector.xpath(
             '//div[@id="content"]/div[@class="prevnext"]/span/text()'
         ).get()
         if date is None:
             raise ValueError("matches date not found")
-        return Matches(content=text, date=date)
+        return Matches(content=selector.get(), date=date)
 
-    def _parse_match(self, text: str) -> MatchDetails:
-        selector = Selector(text)
+    def _parse_match(self, selector: Selector) -> MatchDetails:
         home_team, away_team = selector.xpath(
             '//div[@class="scorebox"]//strong/a/text()'
         ).getall()[:2]
         return MatchDetails(
-            content=text,
+            content=selector.get(),
             home_team=home_team,
             away_team=away_team,
         )
