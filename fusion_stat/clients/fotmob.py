@@ -3,8 +3,10 @@ import typing
 import httpx
 from httpx._types import ProxiesTypes
 from pydantic import BaseModel
+from thefuzz import process
 
 from .base import JSONClient
+from fusion_stat.config import COMPETITIONS
 
 
 class Competition(BaseModel):
@@ -78,6 +80,11 @@ class FotMob(JSONClient):
             proxies=proxies,
         )
 
+    async def get_competitions(self) -> list[Competition]:
+        path = "/allLeagues"
+        json = await self.get(path)
+        return self._parse_competitions(json)
+
     async def get_competition(self, id: str) -> CompetitionDetails:
         path = "/leagues"
         params = {"id": id}
@@ -107,6 +114,20 @@ class FotMob(JSONClient):
         params = {"matchId": id}
         json = await self.get(path, params=params)
         return self._parse_match(json)
+
+    def _parse_competitions(self, json: typing.Any) -> list[Competition]:
+        competitions = []
+        selection = json["popular"]
+        for competition in selection:
+            score = process.extractOne(competition["name"], COMPETITIONS)[-1]
+            if score > 80:
+                competitions.append(
+                    Competition(
+                        id=str(competition["id"]),
+                        name=competition["name"],
+                    )
+                )
+        return competitions
 
     def _parse_competition(self, json: typing.Any) -> CompetitionDetails:
         id = str(json["details"]["id"])

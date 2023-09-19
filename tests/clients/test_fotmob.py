@@ -27,14 +27,20 @@ def mock(file: str, httpx_mock: HTTPXMock) -> None:
     )
 
 
+async def test_get_competitions(fotmob: FotMob, httpx_mock: HTTPXMock) -> None:
+    mock("allLeagues.json", httpx_mock)
+    coms = await fotmob.get_competitions()
+    assert len(coms) == 6
+
+
 async def test_get_competition(fotmob: FotMob, httpx_mock: HTTPXMock) -> None:
     mock("leagues?id=47.json", httpx_mock)
-    coms = await fotmob.get_competition("47")
-    assert coms.name == "Premier League"
-    assert coms.names == {"Premier League"}
-    assert coms.teams[0].name == "Manchester City"
-    assert coms.matches[0].home.name == "Burnley"
-    assert coms.matches[0].competition.id == "47"
+    com = await fotmob.get_competition("47")
+    assert com.name == "Premier League"
+    assert com.names == {"Premier League"}
+    assert com.teams[0].name == "Manchester City"
+    assert com.matches[0].home.name == "Burnley"
+    assert com.matches[0].competition.id == "47"
 
 
 async def test_get_team(httpx_mock: HTTPXMock, fotmob: FotMob) -> None:
