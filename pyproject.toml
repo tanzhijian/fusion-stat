@@ -12,7 +12,7 @@ python = "^3.10"
 httpx = "^0.25.0"
 pydantic = "^2.3.0"
 parsel = "^1.8.1"
-thefuzz = "^0.20.0"
+rapidfuzz = "^3.3.0"
 
 
 [tool.poetry.group.dev.dependencies]

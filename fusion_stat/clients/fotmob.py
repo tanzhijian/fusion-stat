@@ -3,10 +3,10 @@ import typing
 import httpx
 from httpx._types import ProxiesTypes
 from pydantic import BaseModel
-from thefuzz import process
 
 from .base import JSONClient
 from fusion_stat.config import COMPETITIONS
+from fusion_stat.utils import is_in
 
 
 class Competition(BaseModel):
@@ -119,8 +119,7 @@ class FotMob(JSONClient):
         competitions = []
         selection = json["popular"]
         for competition in selection:
-            score = process.extractOne(competition["name"], COMPETITIONS)[-1]
-            if score > 80:
+            if is_in(competition["name"], COMPETITIONS):
                 competitions.append(
                     Competition(
                         id=str(competition["id"]),
