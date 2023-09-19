@@ -31,6 +31,8 @@ async def test_get_competitions(fotmob: FotMob, httpx_mock: HTTPXMock) -> None:
     mock("allLeagues.json", httpx_mock)
     coms = await fotmob.get_competitions()
     assert len(coms) == 6
+    bl1 = filter(lambda x: x.name == "Bundesliga", coms)
+    assert next(bl1).id == "54"
 
 
 async def test_get_competition(fotmob: FotMob, httpx_mock: HTTPXMock) -> None:

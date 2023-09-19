@@ -26,12 +26,20 @@ def mock(file: str, httpx_mock: HTTPXMock) -> None:
     )
 
 
+async def test_get_competitions(httpx_mock: HTTPXMock, fbref: FBref) -> None:
+    mock("comps_.html", httpx_mock)
+    coms = await fbref.get_competitions()
+    assert len(coms) == 6
+    bl1 = filter(lambda x: x.name == "Bundesliga", coms)
+    assert next(bl1).id == "20"
+
+
 async def test_get_competition(httpx_mock: HTTPXMock, fbref: FBref) -> None:
     mock("comps_9_Premier-League-Stats.html", httpx_mock)
-    competition = await fbref.get_competition("9", "Premier-League")
-    assert competition.name == "Premier League"
-    assert competition.id == "9"
-    team = competition.teams[0]
+    com = await fbref.get_competition("9", "Premier-League")
+    assert com.name == "Premier League"
+    assert com.id == "9"
+    team = com.teams[0]
     assert team.id == "18bb7c10"
     assert isinstance(team.shooting.shots, float)
     assert team.shooting.xg > 0
@@ -41,7 +49,7 @@ async def test_get_competition(httpx_mock: HTTPXMock, fbref: FBref) -> None:
             "https://fbref.com/en/comps/9/2022-2023/"
             "2022-2023-Premier-League-Stats"
         ),
-        text=competition.content,
+        text=com.content,
     )
     competition_2022 = await fbref.get_competition(
         "9", "Premier-League", "2022-2023"

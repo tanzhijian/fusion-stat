@@ -6,6 +6,8 @@ from pydantic import BaseModel
 from parsel import Selector, SelectorList
 
 from .base import HTMLClient
+from fusion_stat.utils import is_in
+from fusion_stat.config import COMPETITIONS
 
 
 class Shooting(BaseModel):
@@ -28,7 +30,6 @@ class Team(BaseModel):
 class Competition(BaseModel):
     id: str
     name: str
-    teams: list[Team]
 
 
 class MatchDetails(BaseModel):
@@ -44,6 +45,7 @@ class Matches(BaseModel):
 
 class CompetitionDetails(Competition):
     content: str
+    teams: list[Team]
 
 
 class TeamDetails(Team):
@@ -66,6 +68,11 @@ class FBref(HTMLClient):
             base_url="https://fbref.com/en",
             proxies=proxies,
         )
+
+    async def get_competitions(self) -> list[Competition]:
+        path = "/comps/"
+        selector = await self.get(path)
+        return self._parse_competitions(selector)
 
     async def get_competition(
         self,
@@ -121,6 +128,30 @@ class FBref(HTMLClient):
             shots=float(shots),
             xg=float(xg),
         )
+
+    def _parse_competitions(self, selector: Selector) -> list[Competition]:
+        competitions = []
+        index = set()
+        trs = selector.xpath(
+            "//table[@id='comps_intl_club_cup' or @id='comps_club']/tbody/tr"
+        )
+        for tr in trs:
+            href = self._get_element_text(tr.xpath("./th/a/@href")).split("/")
+            id = href[3]
+            if id not in index:
+                index.add(id)
+                gender = self._get_element_text(
+                    tr.xpath("./td[@data-stat='gender']/text()")
+                )
+                name = " ".join(href[-1].split("-")[:-1])
+                if is_in(name, COMPETITIONS) and gender == "M":
+                    competitions.append(
+                        Competition(
+                            id=id,
+                            name=name,
+                        )
+                    )
+        return competitions
 
     def _parse_competition(
         self,
