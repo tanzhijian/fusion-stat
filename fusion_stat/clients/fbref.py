@@ -7,7 +7,7 @@ from parsel import Selector, SelectorList
 from rapidfuzz import process
 
 from .base import HTMLClient
-from fusion_stat.config import COMPETITIONS, SCORE_CUTOFF
+from fusion_stat.config import COMPETITIONS, SCORE_CUTOFF, COMPETITIONS_INDEX
 
 
 class Shooting(BaseModel):
@@ -77,9 +77,12 @@ class FBref(HTMLClient):
     async def get_competition(
         self,
         id: str,
-        name: str,
         season: str | None = None,
     ) -> CompetitionDetails:
+        index = COMPETITIONS_INDEX[id]["fbref"]
+        id = index["id"]
+        name = index["name"].replace(" ", "-")
+
         if season:
             path = "/comps" + f"/{id}/{season}/{season}-{name}-Stats"
         else:

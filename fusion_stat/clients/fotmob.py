@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from rapidfuzz import process
 
 from .base import JSONClient
-from fusion_stat.config import COMPETITIONS, SCORE_CUTOFF
+from fusion_stat.config import COMPETITIONS, SCORE_CUTOFF, COMPETITIONS_INDEX
 
 
 class Competition(BaseModel):
@@ -87,6 +87,7 @@ class FotMob(JSONClient):
 
     async def get_competition(self, id: str) -> CompetitionDetails:
         path = "/leagues"
+        id = COMPETITIONS_INDEX[id]["fotmob"]["id"]
         params = {"id": id}
         json = await self.get(path, params=params)
         return self._parse_competition(json)

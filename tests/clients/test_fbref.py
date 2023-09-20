@@ -36,7 +36,7 @@ async def test_get_competitions(httpx_mock: HTTPXMock, fbref: FBref) -> None:
 
 async def test_get_competition(httpx_mock: HTTPXMock, fbref: FBref) -> None:
     mock("comps_9_Premier-League-Stats.html", httpx_mock)
-    com = await fbref.get_competition("9", "Premier-League")
+    com = await fbref.get_competition("PL")
     assert com.name == "Premier League"
     assert com.id == "9"
     team = com.teams[0]
@@ -51,9 +51,7 @@ async def test_get_competition(httpx_mock: HTTPXMock, fbref: FBref) -> None:
         ),
         text=com.content,
     )
-    competition_2022 = await fbref.get_competition(
-        "9", "Premier-League", "2022-2023"
-    )
+    competition_2022 = await fbref.get_competition("PL", "2022-2023")
     assert competition_2022.name == "Premier League"
 
 

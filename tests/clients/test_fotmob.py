@@ -37,7 +37,7 @@ async def test_get_competitions(fotmob: FotMob, httpx_mock: HTTPXMock) -> None:
 
 async def test_get_competition(fotmob: FotMob, httpx_mock: HTTPXMock) -> None:
     mock("leagues?id=47.json", httpx_mock)
-    com = await fotmob.get_competition("47")
+    com = await fotmob.get_competition("PL")
     assert com.name == "Premier League"
     assert com.names == {"Premier League"}
     assert com.teams[0].name == "Manchester City"
