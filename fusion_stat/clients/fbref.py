@@ -4,10 +4,10 @@ import httpx
 from httpx._types import ProxiesTypes
 from pydantic import BaseModel
 from parsel import Selector, SelectorList
+from rapidfuzz import process
 
 from .base import HTMLClient
-from fusion_stat.utils import is_in
-from fusion_stat.config import COMPETITIONS
+from fusion_stat.config import COMPETITIONS, SCORE_CUTOFF
 
 
 class Shooting(BaseModel):
@@ -144,7 +144,12 @@ class FBref(HTMLClient):
                     tr.xpath("./td[@data-stat='gender']/text()")
                 )
                 name = " ".join(href[-1].split("-")[:-1])
-                if is_in(name, COMPETITIONS) and gender == "M":
+                if (
+                    process.extractOne(
+                        name, COMPETITIONS, score_cutoff=SCORE_CUTOFF
+                    )
+                    and gender == "M"
+                ):
                     competitions.append(
                         Competition(
                             id=id,

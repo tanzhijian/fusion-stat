@@ -1,8 +1,10 @@
+SCORE_CUTOFF = 90
+
 COMPETITIONS = {
-    "Premier League",
-    "LaLiga",
-    "Bundesliga",
-    "Serie A",
-    "Ligue 1",
-    "Champions League",
+    "PL": "Premier League",
+    "LL": "LaLiga",
+    "BL1": "Bundesliga",
+    "SA": "Serie A",
+    "FL1": "Ligue 1",
+    "CL": "Champions League",
 }
