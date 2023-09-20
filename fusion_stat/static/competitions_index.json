@@ -1,0 +1,56 @@
+{
+  "CL": {
+    "fbref": {
+      "id": "8",
+      "name": "Champions League"
+    },
+    "fotmob": {
+      "id": "42"
+    }
+  },
+  "PL": {
+    "fbref": {
+      "id": "9",
+      "name": "Premier League"
+    },
+    "fotmob": {
+      "id": "47"
+    }
+  },
+  "LL": {
+    "fbref": {
+      "id": "12",
+      "name": "La Liga"
+    },
+    "fotmob": {
+      "id": "87"
+    }
+  },
+  "FL1": {
+    "fbref": {
+      "id": "13",
+      "name": "Ligue 1"
+    },
+    "fotmob": {
+      "id": "53"
+    }
+  },
+  "BL1": {
+    "fbref": {
+      "id": "20",
+      "name": "Bundesliga"
+    },
+    "fotmob": {
+      "id": "54"
+    }
+  },
+  "SA": {
+    "fbref": {
+      "id": "11",
+      "name": "Serie A"
+    },
+    "fotmob": {
+      "id": "55"
+    }
+  }
+}
