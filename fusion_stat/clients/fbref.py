@@ -7,6 +7,7 @@ from parsel import Selector, SelectorList
 from rapidfuzz import process
 
 from .base import HTMLClient
+from fusion_stat.models import Competition
 from fusion_stat.config import COMPETITIONS, SCORE_CUTOFF, COMPETITIONS_INDEX
 
 
@@ -25,11 +26,6 @@ class Team(BaseModel):
     id: str
     name: str
     shooting: Shooting
-
-
-class Competition(BaseModel):
-    id: str
-    name: str
 
 
 class MatchDetails(BaseModel):

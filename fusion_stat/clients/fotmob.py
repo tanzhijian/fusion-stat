@@ -6,12 +6,8 @@ from pydantic import BaseModel
 from rapidfuzz import process
 
 from .base import JSONClient
+from fusion_stat.models import Competition
 from fusion_stat.config import COMPETITIONS, SCORE_CUTOFF, COMPETITIONS_INDEX
-
-
-class Competition(BaseModel):
-    id: str
-    name: str
 
 
 class Team(BaseModel):

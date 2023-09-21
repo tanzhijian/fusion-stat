@@ -1,16 +1,17 @@
 import typing
-from abc import ABC, abstractmethod
 from types import TracebackType
 
 import httpx
 from httpx._types import URLTypes
 from parsel import Selector, SelectorList
 
+from fusion_stat.models import Competition
+
 
 U = typing.TypeVar("U", bound="Client")
 
 
-class Client(ABC):
+class Client:
     def __init__(
         self,
         client_cls: type[httpx.AsyncClient] = httpx.AsyncClient,
@@ -19,9 +20,11 @@ class Client(ABC):
         self.client_cls = client_cls
         self.kwargs = kwargs
 
-    @abstractmethod
     async def get(self, url: URLTypes, **kwargs: typing.Any) -> typing.Any:
-        ...
+        raise NotImplementedError
+
+    async def get_competitions(self) -> list[Competition]:
+        raise NotImplementedError
 
     async def __aenter__(self: U) -> U:
         self.client = self.client_cls(**self.kwargs)

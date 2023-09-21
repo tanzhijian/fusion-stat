@@ -1,40 +1,33 @@
-import json
+import typing
 
 import pytest
 from pytest_httpx import HTTPXMock
 
 from fusion_stat.fusion import Competitions
+from tests.clients.test_fotmob import mock as fotmob_mock
+from tests.clients.test_fbref import mock as fbref_mock
 
 
-@pytest.mark.asyncio
-async def test_competitions_get(httpx_mock: HTTPXMock) -> None:
-    with open("tests/data/fotmob/allLeagues.json") as f:
-        data = json.load(f)
-    httpx_mock.add_response(
-        url="https://www.fotmob.com/api/allLeagues", json=data
-    )
-    with open("tests/data/fbref/comps_.html") as f:
-        data = f.read()
-    httpx_mock.add_response(url="https://fbref.com/en/comps/", text=data)
+class TestCompetitions:
+    @pytest.fixture(scope="class")
+    def competitions(self) -> typing.Generator[Competitions, typing.Any, None]:
+        competitions = Competitions()
+        yield competitions
 
-    competitions = Competitions()
-    coms = await competitions.get()
-    assert len(coms.fotmob) == len(coms.fbref) == 6
-    assert coms.fotmob[0].name == "Premier League"
-    assert coms.fbref[0].id == "8"
+    @pytest.mark.asyncio
+    async def test_get(
+        self, competitions: Competitions, httpx_mock: HTTPXMock
+    ) -> None:
+        fotmob_mock("allLeagues.json", httpx_mock)
+        fbref_mock("comps_.html", httpx_mock)
 
+        coms = await competitions.get()
+        assert len(coms.fotmob) == len(coms.fbref) == 6
+        assert coms.fotmob[0].name == "Premier League"
+        assert coms.fbref[0].id == "8"
 
-@pytest.mark.asyncio
-async def test_competitions_init_index(httpx_mock: HTTPXMock) -> None:
-    with open("tests/data/fotmob/allLeagues.json") as f:
-        data = json.load(f)
-    httpx_mock.add_response(
-        url="https://www.fotmob.com/api/allLeagues", json=data
-    )
-    with open("tests/data/fbref/comps_.html") as f:
-        data = f.read()
-    httpx_mock.add_response(url="https://fbref.com/en/comps/", text=data)
-
-    competitions = Competitions()
-    index = await competitions._init_index()
-    assert index["PL"]["fotmob"]["id"] == "47"
+    def test_parse_index(self, competitions: Competitions) -> None:
+        if not competitions.data:
+            raise ValueError
+        index = competitions._parse_index(competitions.data)
+        assert index["PL"]["fotmob"]["id"] == "47"
