@@ -32,6 +32,11 @@ class TestCompetitions:
         assert index["PL"]["fotmob"]["id"] == "47"
 
 
+def test_error_competition() -> None:
+    with pytest.raises(KeyError):
+        Competition("foo")
+
+
 class TestCompetition:
     @pytest.fixture(scope="class")
     def competition(self) -> typing.Generator[Competition, typing.Any, None]:
