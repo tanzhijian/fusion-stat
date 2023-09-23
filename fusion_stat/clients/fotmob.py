@@ -8,11 +8,11 @@ from fusion_stat.config import COMPETITIONS_INDEX
 class FotMob(Client):
     def __init__(
         self,
-        client_cls: type[httpx.AsyncClient] = httpx.AsyncClient,
+        httpx_client_cls: type[httpx.AsyncClient] = httpx.AsyncClient,
         proxies: ProxiesTypes | None = None,
     ) -> None:
         super().__init__(
-            client_cls,
+            httpx_client_cls,
             base_url="https://www.fotmob.com/api",
             proxies=proxies,
         )

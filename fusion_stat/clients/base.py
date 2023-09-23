@@ -11,14 +11,14 @@ U = typing.TypeVar("U", bound="Client")
 class Client:
     def __init__(
         self,
-        client_cls: type[httpx.AsyncClient] = httpx.AsyncClient,
+        httpx_client_cls: type[httpx.AsyncClient] = httpx.AsyncClient,
         **kwargs: typing.Any,
     ) -> None:
-        self.client_cls = client_cls
+        self.httpx_client_cls = httpx_client_cls
         self.kwargs = kwargs
 
     async def __aenter__(self: U) -> U:
-        self.client = self.client_cls(**self.kwargs)
+        self.client = self.httpx_client_cls(**self.kwargs)
         return self
 
     async def __aexit__(
@@ -33,3 +33,6 @@ class Client:
         response = await self.client.get(url, **kwargs)
         response.raise_for_status()
         return response
+
+    async def get_competitions(self) -> httpx.Response:
+        raise NotImplementedError
