@@ -20,10 +20,12 @@ class TestCompetitions:
         fotmob_mock("allLeagues.json", httpx_mock)
         fbref_mock("comps_.html", httpx_mock)
 
-        coms = await competitions.get()
-        assert len(coms.fotmob) == len(coms.fbref) == 6
-        assert coms.fotmob[0].name == "Premier League"
-        assert coms.fbref[0].id == "8"
+        r = await competitions.get()
+        assert r.fotmob["popular"][0]["name"] == "Premier League"
+
+    def test_index(self, competitions: Competitions) -> None:
+        index = competitions.index()
+        assert index["PL"]["fotmob"]["id"] == "47"
 
 
 def test_error_competition() -> None:
@@ -43,5 +45,5 @@ class TestCompetition:
         fotmob_mock("leagues?id=47.json", httpx_mock)
         fbref_mock("comps_9_Premier-League-Stats.html", httpx_mock)
 
-        com = await competition.get()
-        assert com.id == "PL"
+        r = await competition.get()
+        assert r.fotmob["details"]["name"] == "Premier League"

@@ -1,25 +1,15 @@
+import typing
+
+from parsel import Selector
 from pydantic import BaseModel
 
 
-class Competition(BaseModel):
+class Response:
+    def __init__(self, *, fotmob: typing.Any, fbref: str) -> None:
+        self.fotmob = fotmob
+        self.fbref = Selector(fbref)
+
+
+class CompetitionModel(BaseModel):
     id: str
     name: str
-
-
-class Competitions(BaseModel):
-    fotmob: list[Competition]
-    fbref: list[Competition]
-
-
-class Team(BaseModel):
-    id: str
-    name: str
-    names: set[str]
-    shooting: int
-
-
-class CompetitionDetails(Competition):
-    type: str
-    season: str
-    names: set[str]
-    teams: list[Team]
