@@ -3,7 +3,7 @@ import typing
 import pytest
 from pytest_httpx import HTTPXMock
 
-from fusion_stat.fusion import Competitions
+from fusion_stat.fusion import Competitions, Competition
 from tests.clients.test_fotmob import mock as fotmob_mock
 from tests.clients.test_fbref import mock as fbref_mock
 
@@ -24,3 +24,24 @@ class TestCompetitions:
         assert len(coms.fotmob) == len(coms.fbref) == 6
         assert coms.fotmob[0].name == "Premier League"
         assert coms.fbref[0].id == "8"
+
+
+def test_error_competition() -> None:
+    with pytest.raises(KeyError):
+        Competition("foo")
+
+
+class TestCompetition:
+    @pytest.fixture(scope="class")
+    def competition(self) -> typing.Generator[Competition, typing.Any, None]:
+        yield Competition("PL")
+
+    @pytest.mark.asyncio
+    async def test_get(
+        self, competition: Competition, httpx_mock: HTTPXMock
+    ) -> None:
+        fotmob_mock("leagues?id=47.json", httpx_mock)
+        fbref_mock("comps_9_Premier-League-Stats.html", httpx_mock)
+
+        com = await competition.get()
+        assert com.id == "PL"

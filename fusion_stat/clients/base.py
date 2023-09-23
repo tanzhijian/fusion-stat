@@ -36,3 +36,6 @@ class Client:
 
     async def get_competitions(self) -> httpx.Response:
         raise NotImplementedError
+
+    async def get_competition(self, id: str) -> httpx.Response:
+        raise NotImplementedError
