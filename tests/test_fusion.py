@@ -1,11 +1,29 @@
 import typing
+import json
+from pathlib import Path
 
 import pytest
 from pytest_httpx import HTTPXMock
 
 from fusion_stat.fusion import Competitions, Competition
-from tests.clients.test_fotmob import mock as fotmob_mock
-from tests.clients.test_fbref import mock as fbref_mock
+
+
+def fotmob_mock(file: str, httpx_mock: HTTPXMock) -> None:
+    with open(Path(f"tests/data/fotmob/{file}")) as f:
+        data = json.load(f)
+    httpx_mock.add_response(
+        url=f"https://www.fotmob.com/api/{file.split('.')[0]}",
+        json=data,
+    )
+
+
+def fbref_mock(file: str, httpx_mock: HTTPXMock) -> None:
+    with open(Path(f"tests/data/fbref/{file}")) as f:
+        text = f.read()
+    httpx_mock.add_response(
+        url=f"https://fbref.com/en/{file.replace('_', '/').split('.')[0]}",
+        text=text,
+    )
 
 
 class TestCompetitions:
