@@ -2,6 +2,7 @@ import typing
 import asyncio
 
 import httpx
+from httpx._types import ProxiesTypes
 from parsel import Selector, SelectorList
 from rapidfuzz import process
 
@@ -15,15 +16,23 @@ from .models import (
 
 
 class Competitions:
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        httpx_client_cls: type[httpx.AsyncClient] = httpx.AsyncClient,
+        proxies: ProxiesTypes | None = None,
+    ) -> None:
+        self.httpx_client_cls = httpx_client_cls
+        self.proxies = proxies
         self.data: CompetitionsModel | None = None
 
-    @staticmethod
     async def _create_task(
+        self,
         client_cls: type[Client],
-        **kwargs: typing.Any,
     ) -> httpx.Response:
-        async with client_cls(**kwargs) as client:
+        async with client_cls(
+            httpx_client_cls=self.httpx_client_cls,
+            proxies=self.proxies,
+        ) as client:
             competitions = await client.get_competitions()
         return competitions
 
