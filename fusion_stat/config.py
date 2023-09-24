@@ -21,5 +21,8 @@ COMPETITIONS = {
 
 
 COMPETITIONS_INDEX = read_json(
-    Path(Path.cwd(), "fusion_stat/static/competitions_index.json")
+    Path(
+        Path(__file__).resolve().parent,
+        "static/competitions_index.json",
+    )
 )

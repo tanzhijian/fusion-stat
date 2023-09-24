@@ -65,3 +65,10 @@ class TestCompetition:
 
         r = await competition.get()
         assert r.fotmob["details"]["name"] == "Premier League"
+
+    def test_info(self, competition: Competition) -> None:
+        assert competition.info["id"] == "PL"
+        assert "Premier League" in competition.info["names"]
+
+    def test_teams(self, competition: Competition) -> None:
+        assert competition.teams[0]["name"] == "Manchester City"

@@ -10,7 +10,14 @@ from rapidfuzz import process
 from .clients.base import Client
 from .clients import FotMob, FBref
 from .config import COMPETITIONS, SCORE_CUTOFF
-from .models import Response, CompetitionModel
+from .models import (
+    Response,
+    CompetitionModel,
+    CompetitionDetailsModel,
+    FBrefShootingModel,
+    FBrefTeamModel,
+    FotMobTeamModel,
+)
 
 
 class FusionStat(ABC):
@@ -161,6 +168,84 @@ class Competition(FusionStat):
         ) as client:
             competition = await client.get_competition(self.id)
         return competition
+
+    @property
+    def info(self) -> dict[str, str]:
+        name = self.response.fotmob["details"]["name"]
+        fbref_h1 = _get_element_text(self.response.fbref.xpath("//h1/text()"))
+
+        competition = CompetitionDetailsModel(
+            id=self.id,
+            name=name,
+            type=self.response.fotmob["details"]["type"],
+            season=self.response.fotmob["details"]["selectedSeason"],
+            names={
+                name,
+                self.response.fotmob["details"]["shortName"],
+                " ".join(fbref_h1.split(" ")[1:-1]),
+            },
+        )
+        return competition.model_dump()
+
+    @property
+    def teams(self) -> list[dict[str, typing.Any]]:
+        fotmob = self._parse_fotmob_teams()
+        fbref = self._parse_fbref_teams()
+
+        teams = []
+        for fotmob_team in fotmob:
+            fbref_team = process.extractOne(
+                fotmob_team, fbref, processor=lambda x: x.name
+            )[0]
+
+            team = {
+                "name": fotmob_team.name,
+                "shots": fbref_team.shooting.shots,
+                "xg": fbref_team.shooting.xg,
+            }
+            teams.append(team)
+        return teams
+
+    def _parse_fotmob_teams(self) -> list[FotMobTeamModel]:
+        teams = [
+            FotMobTeamModel(
+                id=str(team["id"]),
+                name=team["name"],
+                names={team["name"], team["shortName"]},
+            )
+            for team in self.response.fotmob["table"][0]["data"]["table"][
+                "all"
+            ]
+        ]
+        return teams
+
+    def _parse_fbref_teams(self) -> list[FBrefTeamModel]:
+        teams = []
+        trs = self.response.fbref.xpath(
+            '//table[@id="stats_squads_shooting_for"]/tbody/tr'
+        )
+        for tr in trs:
+            href = _get_element_text(tr.xpath("./th/a/@href"))
+            name = _get_element_text(tr.xpath("./th/a/text()"))
+            shooting = self._parse_fbref_shooting(tr)
+            teams.append(
+                FBrefTeamModel(
+                    id=href.split("/")[3],
+                    name=name,
+                    shooting=shooting,
+                )
+            )
+        return teams
+
+    def _parse_fbref_shooting(
+        self, tr: Selector | SelectorList[Selector]
+    ) -> FBrefShootingModel:
+        shots = _get_element_text(tr.xpath('./td[@data-stat="shots"]/text()'))
+        xg = _get_element_text(tr.xpath('./td[@data-stat="xg"]/text()'))
+        return FBrefShootingModel(
+            shots=float(shots),
+            xg=float(xg),
+        )
 
 
 def _get_element_text(selector_list: SelectorList[Selector]) -> str:

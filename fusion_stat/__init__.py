@@ -1,4 +1,4 @@
-from .fusion import Competitions
+from .fusion import Competitions, Competition
 
 
-__all__ = ("Competitions",)
+__all__ = ("Competitions", "Competition")

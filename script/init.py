@@ -10,7 +10,13 @@ async def main() -> None:
     await competitions.get()
     index = competitions.index()
 
-    with open(Path("fusion_stat/static/competitions_index.json"), "w") as f:
+    with open(
+        Path(
+            Path(__file__).resolve().parent,
+            "static/competitions_index.json",
+        ),
+        "w",
+    ) as f:
         f.write(json.dumps(index, indent=2, ensure_ascii=False))
 
 
