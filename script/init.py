@@ -12,8 +12,8 @@ async def main() -> None:
 
     with open(
         Path(
-            Path(__file__).resolve().parent,
-            "static/competitions_index.json",
+            Path(__file__).resolve().parent.parent,
+            "fusion_stat/static/competitions_index.json",
         ),
         "w",
     ) as f:

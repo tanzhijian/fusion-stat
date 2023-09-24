@@ -9,16 +9,6 @@
       "name": "Premier League"
     }
   },
-  "CL": {
-    "fotmob": {
-      "id": "42",
-      "name": "Champions League"
-    },
-    "fbref": {
-      "id": "8",
-      "name": "Champions League"
-    }
-  },
   "LL": {
     "fotmob": {
       "id": "87",
@@ -57,6 +47,16 @@
     "fbref": {
       "id": "13",
       "name": "Ligue 1"
+    }
+  },
+  "CL": {
+    "fotmob": {
+      "id": "42",
+      "name": "Champions League"
+    },
+    "fbref": {
+      "id": "8",
+      "name": "Champions League"
     }
   }
 }
