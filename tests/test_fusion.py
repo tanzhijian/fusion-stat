@@ -71,4 +71,4 @@ class TestCompetition:
         assert "Premier League" in competition.info["names"]
 
     def test_teams(self, competition: Competition) -> None:
-        assert competition.teams[0]["name"] == "Manchester City"
+        assert competition.teams["Manchester City"]["xg"] == 8.6

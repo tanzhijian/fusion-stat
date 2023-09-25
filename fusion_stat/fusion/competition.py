@@ -69,11 +69,11 @@ class Competition(FusionStat):
         return competition.model_dump()
 
     @property
-    def teams(self) -> list[dict[str, typing.Any]]:
+    def teams(self) -> dict[str, dict[str, typing.Any]]:
         fotmob = self._parse_fotmob_teams()
         fbref = self._parse_fbref_teams()
 
-        teams = []
+        teams = {}
         for fotmob_team in fotmob:
             fbref_team = process.extractOne(
                 fotmob_team, fbref, processor=lambda x: x.name
@@ -84,7 +84,7 @@ class Competition(FusionStat):
                 "shots": fbref_team.shooting.shots,
                 "xg": fbref_team.shooting.xg,
             }
-            teams.append(team)
+            teams[fotmob_team.name] = team
         return teams
 
     def _parse_fotmob_teams(self) -> list[FotMobTeamModel]:
