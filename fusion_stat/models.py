@@ -15,24 +15,11 @@ class CompetitionModel(BaseModel):
     name: str
 
 
-class CompetitionDetailsModel(CompetitionModel):
-    type: str
-    season: str
-    names: set[str]
-
-
-class FotMobTeamModel(BaseModel):
+class TeamModel(BaseModel):
     id: str
     name: str
-    names: set[str]
 
 
 class FBrefShootingModel(BaseModel):
     shots: float
     xg: float
-
-
-class FBrefTeamModel(BaseModel):
-    id: str
-    name: str
-    shooting: FBrefShootingModel
