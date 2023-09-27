@@ -36,3 +36,6 @@ class Client:
         response = await self.client.get(url, **kwargs)
         response.raise_for_status()
         return response
+
+    async def get_competitions(self) -> httpx.Response:
+        raise NotImplementedError

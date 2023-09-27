@@ -4,7 +4,7 @@ import asyncio
 import pytest
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def event_loop() -> (
     typing.Generator[asyncio.AbstractEventLoop, typing.Any, None]
 ):
