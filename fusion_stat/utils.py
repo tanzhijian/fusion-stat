@@ -1,4 +1,6 @@
 from parsel import Selector, SelectorList
+
+from .models import Params
 from fusion_stat.models import FBrefShooting
 
 
@@ -17,3 +19,9 @@ def parse_fbref_shooting(
         shots=float(shots),
         xg=float(xg),
     )
+
+
+def unpack_params(params: Params | dict[str, str]) -> Params:
+    if isinstance(params, dict):
+        return Params(**params)
+    return params

@@ -4,6 +4,7 @@ import httpx
 
 from .base import Client
 from fusion_stat.models import Params
+from fusion_stat.utils import unpack_params
 
 
 class FBref(Client):
@@ -25,9 +26,10 @@ class FBref(Client):
 
     async def get_competition(
         self,
-        params: Params,
+        params: Params | dict[str, str],
         season: str | None = None,
     ) -> httpx.Response:
+        params = unpack_params(params)
         if season:
             path = "/comps" + f"/{params.fbref_id}/{season}"
             if params.fbref_path_name:

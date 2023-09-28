@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from rapidfuzz import process
 from parsel import Selector
 
-from ._utils import get_element_text
+from fusion_stat.utils import get_element_text
 from fusion_stat.clients.base import Client
 from fusion_stat.clients import FotMob, FBref
 from fusion_stat.config import COMPETITIONS, SCORE_CUTOFF

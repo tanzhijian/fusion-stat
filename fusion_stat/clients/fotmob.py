@@ -4,6 +4,7 @@ import httpx
 
 from .base import Client
 from fusion_stat.models import Params
+from fusion_stat.utils import unpack_params
 
 
 class FotMob(Client):
@@ -23,7 +24,10 @@ class FotMob(Client):
         response = await self.get(path)
         return response
 
-    async def get_competition(self, params: Params) -> httpx.Response:
+    async def get_competition(
+        self, params: Params | dict[str, str]
+    ) -> httpx.Response:
+        params = unpack_params(params)
         path = "/leagues"
         httpx_params = {"id": params.fotmob_id}
         response = await self.get(path, params=httpx_params)

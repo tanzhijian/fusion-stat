@@ -7,7 +7,11 @@ from parsel import Selector
 from pydantic import BaseModel
 from rapidfuzz import process
 
-from ._utils import get_element_text, parse_fbref_shooting
+from fusion_stat.utils import (
+    get_element_text,
+    parse_fbref_shooting,
+    unpack_params,
+)
 from fusion_stat.clients.base import Client
 from fusion_stat.clients import FotMob, FBref
 from fusion_stat.models import (
@@ -44,14 +48,14 @@ class Response(BaseModel):
 class Competition:
     def __init__(
         self,
-        params: Params,
+        params: Params | dict[str, str],
         httpx_client_cls: type[httpx.AsyncClient] = httpx.AsyncClient,
         proxies: ProxiesTypes | None = None,
     ) -> None:
         self.httpx_client_cls = httpx_client_cls
         self.proxies = proxies
         self._response: Response | None = None
-        self.params = params
+        self.params = unpack_params(params)
 
     @property
     def response(self) -> Response:
