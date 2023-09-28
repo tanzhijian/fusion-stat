@@ -25,6 +25,17 @@ class FotMobTeamModel(Stat):
     names: set[str]
 
 
+class FotMobMatch(Stat):
+    utc_time: str
+    finished: bool
+    started: bool
+    cancelled: bool
+    score: str | None
+    competition: Stat
+    home: Stat
+    away: Stat
+
+
 class FBrefTeamModel(Stat):
     shooting: FBrefShooting
 
@@ -34,6 +45,7 @@ class FotMobCompetitionModel(Stat):
     season: str
     names: set[str]
     teams: tuple[FotMobTeamModel, ...]
+    matches: tuple[FotMobMatch, ...]
 
 
 class FBrefCompetitionModel(Stat):
@@ -120,6 +132,13 @@ class Competition:
             teams[fotmob_team.name] = team
         return teams
 
+    @property
+    def matches(self) -> dict[str, dict[str, typing.Any]]:
+        return {
+            match.name: match.model_dump()
+            for match in self.response.fotmob.matches
+        }
+
     def _parse_fotmob(self, json: typing.Any) -> FotMobCompetitionModel:
         name = json["details"]["name"]
         type = json["details"]["type"]
@@ -134,6 +153,32 @@ class Competition:
             )
             for team in json["table"][0]["data"]["table"]["all"]
         ]
+
+        matches = []
+        for match in json["matches"]["allMatches"]:
+            home_name = match["home"]["name"]
+            away_name = match["away"]["name"]
+            matches.append(
+                FotMobMatch(
+                    id=str(match["id"]),
+                    name=f"{home_name} vs {away_name}",
+                    utc_time=match["status"]["utcTime"],
+                    finished=match["status"]["finished"],
+                    started=match["status"]["started"],
+                    cancelled=match["status"]["cancelled"],
+                    score=match["status"].get("scoreStr"),
+                    competition=Stat(id=self.params.fotmob_id, name=name),
+                    home=Stat(
+                        id=str(match["home"]["id"]),
+                        name=home_name,
+                    ),
+                    away=Stat(
+                        id=str(match["away"]["id"]),
+                        name=away_name,
+                    ),
+                )
+            )
+
         return FotMobCompetitionModel(
             id=self.params.fotmob_id,
             name=name,
@@ -141,6 +186,7 @@ class Competition:
             season=season,
             names=names,
             teams=tuple(teams),
+            matches=tuple(matches),
         )
 
     def _parse_fbref(self, text: str) -> FBrefCompetitionModel:

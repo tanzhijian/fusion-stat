@@ -77,3 +77,8 @@ class TestCompetition:
 
     def test_teams(self, competition: Competition) -> None:
         assert competition.teams["Manchester City"]["shooting"]["xg"] == 8.6
+
+    def test_matches(self, competition: Competition) -> None:
+        assert len(competition.matches) == 380
+        match = competition.matches["Arsenal vs Manchester United"]
+        assert match["score"] == "3 - 1"
