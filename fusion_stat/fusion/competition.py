@@ -5,6 +5,7 @@ import httpx
 from httpx._types import ProxiesTypes
 from parsel import Selector
 from pydantic import BaseModel
+from rapidfuzz import process
 
 from ._utils import get_element_text, parse_fbref_shooting
 from fusion_stat.clients.base import Client
@@ -86,6 +87,34 @@ class Competition:
             fotmob=fotmob_competition, fbref=fbref_competition
         )
         return self.response
+
+    @property
+    def info(self) -> dict[str, typing.Any]:
+        return {
+            "name": self.response.fotmob.name,
+            "type": self.response.fotmob.type,
+            "season": self.response.fotmob.season,
+            "names": self.response.fotmob.names | {self.response.fbref.name},
+        }
+
+    @property
+    def teams(self) -> dict[str, dict[str, typing.Any]]:
+        fotmob = self.response.fotmob.teams
+        fbref = self.response.fbref.teams
+
+        teams = {}
+        for fotmob_team in fotmob:
+            fbref_team = process.extractOne(
+                fotmob_team, fbref, processor=lambda x: x.name
+            )[0]
+
+            team = {
+                "name": fotmob_team.name,
+                "names": fotmob_team.names | {fbref_team.name},
+                "shooting": fbref_team.shooting.model_dump(),
+            }
+            teams[fotmob_team.name] = team
+        return teams
 
     def _parse_fotmob(self, json: typing.Any) -> FotMobCompetitionModel:
         name = json["details"]["name"]

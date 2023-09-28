@@ -22,8 +22,8 @@ class CompetitionModel(Stat):
 
 
 class Response(BaseModel):
-    fotmob: list[CompetitionModel]
-    fbref: list[CompetitionModel]
+    fotmob: tuple[CompetitionModel, ...]
+    fbref: tuple[CompetitionModel, ...]
 
 
 class Competitions:
@@ -91,7 +91,7 @@ class Competitions:
 
         return data
 
-    def _parse_fotmob(self, json: typing.Any) -> list[CompetitionModel]:
+    def _parse_fotmob(self, json: typing.Any) -> tuple[CompetitionModel, ...]:
         competitions: list[CompetitionModel] = []
         selection = json["popular"]
         for competition in selection:
@@ -104,9 +104,9 @@ class Competitions:
                         name=competition["name"],
                     )
                 )
-        return competitions
+        return tuple(competitions)
 
-    def _parse_fbref(self, text: str) -> list[CompetitionModel]:
+    def _parse_fbref(self, text: str) -> tuple[CompetitionModel, ...]:
         competitions: list[CompetitionModel] = []
 
         selector = Selector(text)
@@ -135,4 +135,4 @@ class Competitions:
                             name=name,
                         )
                     )
-        return competitions
+        return tuple(competitions)
