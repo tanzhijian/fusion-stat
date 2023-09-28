@@ -3,6 +3,7 @@ import typing
 import httpx
 
 from .base import Client
+from fusion_stat.models import Params
 
 
 class FotMob(Client):
@@ -20,4 +21,10 @@ class FotMob(Client):
     async def get_competitions(self) -> httpx.Response:
         path = "/allLeagues"
         response = await self.get(path)
+        return response
+
+    async def get_competition(self, params: Params) -> httpx.Response:
+        path = "/leagues"
+        httpx_params = {"id": params.fotmob.id}
+        response = await self.get(path, params=httpx_params)
         return response

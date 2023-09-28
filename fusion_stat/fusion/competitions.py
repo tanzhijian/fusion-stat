@@ -12,12 +12,16 @@ from fusion_stat.clients.base import Client
 from fusion_stat.clients import FotMob, FBref
 from fusion_stat.config import COMPETITIONS, SCORE_CUTOFF
 from fusion_stat.models import (
-    CompetitionModel,
+    Stat,
     Params,
     Feature,
     FBrefFeature,
     Response,
 )
+
+
+class CompetitionModel(Stat):
+    ...
 
 
 class Competitions(FusionStat):

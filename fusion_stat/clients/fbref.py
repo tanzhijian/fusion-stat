@@ -3,13 +3,14 @@ import typing
 import httpx
 
 from .base import Client
+from fusion_stat.models import Params
 
 
 class FBref(Client):
     def __init__(
         self,
         httpx_client_cls: type[httpx.AsyncClient] = httpx.AsyncClient,
-        **kwargs: typing.Any
+        **kwargs: typing.Any,
     ) -> None:
         super().__init__(
             httpx_client_cls,
@@ -19,5 +20,23 @@ class FBref(Client):
 
     async def get_competitions(self) -> httpx.Response:
         path = "/comps/"
+        response = await self.get(path)
+        return response
+
+    async def get_competition(
+        self,
+        params: Params,
+        season: str | None = None,
+    ) -> httpx.Response:
+        if season:
+            path = "/comps" + (
+                f"/{params.fbref.id}/{season}"
+                f"/{season}-{params.fbref.path_name}-Stats"
+            )
+        else:
+            path = (
+                "/comps" + f"/{params.fbref.id}/{params.fbref.path_name}-Stats"
+            )
+
         response = await self.get(path)
         return response

@@ -4,6 +4,8 @@ from types import TracebackType
 import httpx
 from httpx._types import URLTypes
 
+from fusion_stat.models import Params
+
 
 U = typing.TypeVar("U", bound="Client")
 
@@ -38,4 +40,7 @@ class Client:
         return response
 
     async def get_competitions(self) -> httpx.Response:
+        raise NotImplementedError
+
+    async def get_competition(self, params: Params) -> httpx.Response:
         raise NotImplementedError

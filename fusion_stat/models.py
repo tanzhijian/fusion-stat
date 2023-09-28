@@ -24,5 +24,6 @@ class Params(BaseModel):
     fbref: FBrefFeature
 
 
-class CompetitionModel(Stat):
-    ...
+class FBrefShooting(BaseModel):
+    shots: float
+    xg: float
