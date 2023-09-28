@@ -1,6 +1,16 @@
 from pydantic import BaseModel
 
 
+class Stat(BaseModel):
+    id: str
+    name: str
+
+
+class Response(BaseModel):
+    fotmob: tuple[Stat, ...]
+    fbref: tuple[Stat, ...]
+
+
 class Feature(BaseModel):
     id: str
 
@@ -14,6 +24,5 @@ class Params(BaseModel):
     fbref: FBrefFeature
 
 
-class CompetitionModel(BaseModel):
-    id: str
-    name: str
+class CompetitionModel(Stat):
+    ...

@@ -3,9 +3,7 @@ from abc import ABC
 import httpx
 from httpx._types import ProxiesTypes
 
-
-class Response:
-    ...
+from fusion_stat.models import Response
 
 
 class FusionStat(ABC):
