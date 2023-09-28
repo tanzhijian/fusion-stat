@@ -14,8 +14,6 @@ from fusion_stat.config import COMPETITIONS, SCORE_CUTOFF
 from fusion_stat.models import (
     Stat,
     Params,
-    Feature,
-    FBrefFeature,
 )
 
 
@@ -85,11 +83,9 @@ class Competitions:
 
             data.append(
                 Params(
-                    fotmob=Feature(id=fotmob_competition.id),
-                    fbref=FBrefFeature(
-                        id=fbref_competition.id,
-                        path_name=fbref_competition.name.replace(" ", "-"),
-                    ),
+                    fotmob_id=fotmob_competition.id,
+                    fbref_id=fbref_competition.id,
+                    fbref_path_name=fbref_competition.name.replace(" ", "-"),
                 )
             )
 

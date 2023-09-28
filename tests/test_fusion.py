@@ -7,7 +7,7 @@ from pytest_httpx import HTTPXMock
 
 from fusion_stat.fusion import Competitions, Competition
 from fusion_stat.config import COMPETITIONS
-from fusion_stat.models import Params, Feature, FBrefFeature
+from fusion_stat.models import Params
 
 
 def fotmob_mock(file: str, httpx_mock: HTTPXMock) -> None:
@@ -47,15 +47,16 @@ class TestCompetitions:
 
     def test_index(self, competitions: Competitions) -> None:
         index = competitions.index()
-        assert index[0].fbref.path_name == "Premier-League"
+        assert index[0].fbref_path_name == "Premier-League"
 
 
 class TestCompetition:
     @pytest.fixture(scope="class")
     def competition(self) -> typing.Generator[Competition, typing.Any, None]:
         params = Params(
-            fotmob=Feature(id="47"),
-            fbref=FBrefFeature(id="9", path_name="Premier-League"),
+            fotmob_id="47",
+            fbref_id="9",
+            fbref_path_name="Premier-League",
         )
         yield Competition(params)
 

@@ -29,14 +29,13 @@ class FBref(Client):
         season: str | None = None,
     ) -> httpx.Response:
         if season:
-            path = "/comps" + (
-                f"/{params.fbref.id}/{season}"
-                f"/{season}-{params.fbref.path_name}-Stats"
-            )
+            path = "/comps" + f"/{params.fbref_id}/{season}"
+            if params.fbref_path_name:
+                path += f"/{season}-{params.fbref_path_name}-Stats"
         else:
-            path = (
-                "/comps" + f"/{params.fbref.id}/{params.fbref.path_name}-Stats"
-            )
+            path = "/comps" + f"/{params.fbref_id}"
+            if params.fbref_path_name:
+                path += f"/{params.fbref_path_name}-Stats"
 
         response = await self.get(path)
         return response

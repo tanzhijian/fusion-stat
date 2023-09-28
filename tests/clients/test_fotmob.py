@@ -5,7 +5,7 @@ import pytest_asyncio
 from pytest_httpx import HTTPXMock
 
 from fusion_stat.clients import FotMob
-from fusion_stat.models import Params, Feature, FBrefFeature
+from fusion_stat.models import Params
 
 
 pytestmark = pytest.mark.asyncio
@@ -30,8 +30,6 @@ async def test_get_competition(fotmob: FotMob, httpx_mock: HTTPXMock) -> None:
         url="https://www.fotmob.com/api/leagues?id=47", json={"foo": "bar"}
     )
 
-    params = Params(
-        fotmob=Feature(id="47"), fbref=FBrefFeature(id="9", path_name="pl")
-    )
+    params = Params(fotmob_id="47", fbref_id="9", fbref_path_name="pl")
     r = await fotmob.get_competition(params)
     assert r.status_code == 200

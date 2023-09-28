@@ -102,7 +102,7 @@ class Competition:
             for team in json["table"][0]["data"]["table"]["all"]
         ]
         return FotMobCompetitionModel(
-            id=self.params.fotmob.id,
+            id=self.params.fotmob_id,
             name=name,
             type=type,
             season=season,
@@ -131,7 +131,7 @@ class Competition:
                 )
             )
         return FBrefCompetitionModel(
-            id=self.params.fbref.id,
+            id=self.params.fbref_id,
             name=competition_name,
             teams=tuple(teams),
         )

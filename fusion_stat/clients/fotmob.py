@@ -25,6 +25,6 @@ class FotMob(Client):
 
     async def get_competition(self, params: Params) -> httpx.Response:
         path = "/leagues"
-        httpx_params = {"id": params.fotmob.id}
+        httpx_params = {"id": params.fotmob_id}
         response = await self.get(path, params=httpx_params)
         return response
