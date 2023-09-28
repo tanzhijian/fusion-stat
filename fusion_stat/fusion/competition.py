@@ -4,14 +4,13 @@ import typing
 import httpx
 from httpx._types import ProxiesTypes
 from parsel import Selector
+from pydantic import BaseModel
 
-from .base import FusionStat
 from ._utils import get_element_text, parse_fbref_shooting
 from fusion_stat.clients.base import Client
 from fusion_stat.clients import FotMob, FBref
 from fusion_stat.models import (
     Stat,
-    Response,
     Params,
     FBrefShooting,
 )
@@ -36,15 +35,32 @@ class FBrefCompetitionModel(Stat):
     teams: tuple[FBrefTeamModel, ...]
 
 
-class Competition(FusionStat):
+class Response(BaseModel):
+    fotmob: FotMobCompetitionModel
+    fbref: FBrefCompetitionModel
+
+
+class Competition:
     def __init__(
         self,
         params: Params,
         httpx_client_cls: type[httpx.AsyncClient] = httpx.AsyncClient,
         proxies: ProxiesTypes | None = None,
     ) -> None:
-        super().__init__(httpx_client_cls, proxies)
+        self.httpx_client_cls = httpx_client_cls
+        self.proxies = proxies
+        self._response: Response | None = None
         self.params = params
+
+    @property
+    def response(self) -> Response:
+        if self._response is None:
+            raise ValueError("Confirm get() has been executed")
+        return self._response
+
+    @response.setter
+    def response(self, value: Response) -> None:
+        self._response = value
 
     async def _create_task(
         self,
@@ -66,9 +82,10 @@ class Competition(FusionStat):
 
         fotmob_competition = self._parse_fotmob(fotmob.json())
         fbref_competition = self._parse_fbref(fbref.text)
-        return Response(
-            fotmob=(fotmob_competition,), fbref=(fbref_competition,)
+        self.response = Response(
+            fotmob=fotmob_competition, fbref=fbref_competition
         )
+        return self.response
 
     def _parse_fotmob(self, json: typing.Any) -> FotMobCompetitionModel:
         name = json["details"]["name"]

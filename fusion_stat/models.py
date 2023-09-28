@@ -6,11 +6,6 @@ class Stat(BaseModel):
     name: str
 
 
-class Response(BaseModel):
-    fotmob: tuple[Stat, ...]
-    fbref: tuple[Stat, ...]
-
-
 class Feature(BaseModel):
     id: str
 

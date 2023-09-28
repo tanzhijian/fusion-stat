@@ -67,4 +67,4 @@ class TestCompetition:
         fbref_mock("comps_9_Premier-League-Stats.html", httpx_mock)
 
         r = await competition.get()
-        assert r.fotmob[0].name == "Premier League"
+        assert r.fotmob.name == "Premier League"
