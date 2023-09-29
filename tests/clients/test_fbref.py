@@ -52,3 +52,32 @@ async def test_get_competition(httpx_mock: HTTPXMock, fbref: FBref) -> None:
 
     r = await fbref.get_competition(params, "2022-2023")
     assert r.status_code == 200
+
+
+async def test_get_team(httpx_mock: HTTPXMock, fbref: FBref) -> None:
+    urls = (
+        "https://fbref.com/en/squads/18bb7c10/Arsenal-Stats",
+        "https://fbref.com/en/squads/18bb7c10",
+        "https://fbref.com/en/squads/18bb7c10/2022-2023/Arsenal-Stats",
+        "https://fbref.com/en/squads/18bb7c10/2022-2023",
+    )
+    for url in urls:
+        httpx_mock.add_response(url=url, text="halo")
+
+    params = Params(
+        fotmob_id="47",
+        fbref_id="18bb7c10",
+        fbref_path_name="Arsenal",
+    )
+    r = await fbref.get_team(params)
+    assert r.status_code == 200
+
+    r = await fbref.get_team(params, season="2022-2023")
+    assert r.status_code == 200
+
+    params = Params(fotmob_id="47", fbref_id="18bb7c10")
+    r = await fbref.get_team(params)
+    assert r.status_code == 200
+
+    r = await fbref.get_team(params, season="2022-2023")
+    assert r.status_code == 200

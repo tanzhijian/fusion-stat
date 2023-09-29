@@ -32,3 +32,12 @@ class FotMob(Client):
         httpx_params = {"id": params.fotmob_id}
         response = await self.get(path, params=httpx_params)
         return response
+
+    async def get_team(
+        self, params: Params | dict[str, str]
+    ) -> httpx.Response:
+        params = unpack_params(params)
+        path = "/teams"
+        httpx_params = {"id": params.fotmob_id}
+        response = await self.get(path, params=httpx_params)
+        return response

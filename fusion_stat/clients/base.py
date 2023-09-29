@@ -42,5 +42,10 @@ class Client:
     async def get_competitions(self) -> httpx.Response:
         raise NotImplementedError
 
-    async def get_competition(self, params: Params) -> httpx.Response:
+    async def get_competition(
+        self, params: Params | dict[str, str]
+    ) -> httpx.Response:
+        raise NotImplementedError
+
+    async def get_team(self, params: Params) -> httpx.Response:
         raise NotImplementedError

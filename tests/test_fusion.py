@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from pytest_httpx import HTTPXMock
 
-from fusion_stat.fusion import Competitions, Competition
+from fusion_stat.fusion import Competitions, Competition, Team
 from fusion_stat.config import COMPETITIONS
 from fusion_stat.models import Params
 
@@ -90,3 +90,22 @@ class TestCompetition:
         index = competition.teams_index()
         assert len(index) == 20
         assert index[0].fotmob_id == "8456"
+
+
+class TestTeam:
+    @pytest.fixture(scope="class")
+    def team(self) -> typing.Generator[Team, typing.Any, None]:
+        params = Params(
+            fotmob_id="9825",
+            fbref_id="18bb7c10",
+            fbref_path_name="Arsenal",
+        )
+        yield Team(params)
+
+    @pytest.mark.asyncio
+    async def test_get(self, team: Team, httpx_mock: HTTPXMock) -> None:
+        fotmob_mock("teams?id=9825.json", httpx_mock)
+        fbref_mock("squads_18bb7c10_Arsenal-Stats.html", httpx_mock)
+
+        r = await team.get()
+        assert r.fotmob.name == "Arsenal"

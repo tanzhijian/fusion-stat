@@ -41,3 +41,21 @@ class FBref(Client):
 
         response = await self.get(path)
         return response
+
+    async def get_team(
+        self,
+        params: Params | dict[str, str],
+        season: str | None = None,
+    ) -> httpx.Response:
+        params = unpack_params(params)
+        if season:
+            path = "/squads" + f"/{params.fbref_id}/{season}"
+            if params.fbref_path_name:
+                path += f"/{params.fbref_path_name}-Stats"
+        else:
+            path = "/squads" + f"/{params.fbref_id}"
+            if params.fbref_path_name:
+                path += f"/{params.fbref_path_name}-Stats"
+
+        response = await self.get(path)
+        return response
