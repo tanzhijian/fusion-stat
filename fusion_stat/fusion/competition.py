@@ -1,4 +1,3 @@
-import asyncio
 import typing
 
 import httpx
@@ -7,6 +6,7 @@ from parsel import Selector
 from pydantic import BaseModel
 from rapidfuzz import process
 
+from .base import FusionStat
 from fusion_stat.utils import (
     get_element_text,
     parse_fbref_shooting,
@@ -57,27 +57,19 @@ class Response(BaseModel):
     fbref: FBrefCompetitionModel
 
 
-class Competition:
+class Competition(FusionStat[Response]):
     def __init__(
         self,
         params: Params | dict[str, str],
         httpx_client_cls: type[httpx.AsyncClient] = httpx.AsyncClient,
         proxies: ProxiesTypes | None = None,
     ) -> None:
-        self.httpx_client_cls = httpx_client_cls
-        self.proxies = proxies
-        self._response: Response | None = None
+        super().__init__(httpx_client_cls, proxies)
         self.params = unpack_params(params)
 
     @property
-    def response(self) -> Response:
-        if self._response is None:
-            raise ValueError("Confirm get() has been executed")
-        return self._response
-
-    @response.setter
-    def response(self, value: Response) -> None:
-        self._response = value
+    def _clients_cls(self) -> list[type[Client]]:
+        return [FotMob, FBref]
 
     async def _create_task(
         self,
@@ -90,54 +82,11 @@ class Competition:
             competition = await client.get_competition(self.params)
         return competition
 
-    async def get(self) -> Response:
-        tasks = [
-            self._create_task(FotMob),
-            self._create_task(FBref),
-        ]
-        fotmob, fbref = await asyncio.gather(*tasks)
-
-        fotmob_competition = self._parse_fotmob(fotmob.json())
-        fbref_competition = self._parse_fbref(fbref.text)
-        self.response = Response(
-            fotmob=fotmob_competition, fbref=fbref_competition
-        )
-        return self.response
-
-    @property
-    def info(self) -> dict[str, typing.Any]:
-        return {
-            "name": self.response.fotmob.name,
-            "type": self.response.fotmob.type,
-            "season": self.response.fotmob.season,
-            "names": self.response.fotmob.names | {self.response.fbref.name},
-        }
-
-    @property
-    def teams(self) -> dict[str, dict[str, typing.Any]]:
-        fotmob = self.response.fotmob.teams
-        fbref = self.response.fbref.teams
-
-        teams = {}
-        for fotmob_team in fotmob:
-            fbref_team = process.extractOne(
-                fotmob_team, fbref, processor=lambda x: x.name
-            )[0]
-
-            team = {
-                "name": fotmob_team.name,
-                "names": fotmob_team.names | {fbref_team.name},
-                "shooting": fbref_team.shooting.model_dump(),
-            }
-            teams[fotmob_team.name] = team
-        return teams
-
-    @property
-    def matches(self) -> dict[str, dict[str, typing.Any]]:
-        return {
-            match.name: match.model_dump()
-            for match in self.response.fotmob.matches
-        }
+    def _parse(self, data: list[httpx.Response]) -> Response:
+        fotmob_response, fbref_response = data
+        fotmob = self._parse_fotmob(fotmob_response.json())
+        fbref = self._parse_fbref(fbref_response.text)
+        return Response(fotmob=fotmob, fbref=fbref)
 
     def _parse_fotmob(self, json: typing.Any) -> FotMobCompetitionModel:
         name = json["details"]["name"]
@@ -214,3 +163,38 @@ class Competition:
             name=competition_name,
             teams=tuple(teams),
         )
+
+    @property
+    def info(self) -> dict[str, typing.Any]:
+        return {
+            "name": self.response.fotmob.name,
+            "type": self.response.fotmob.type,
+            "season": self.response.fotmob.season,
+            "names": self.response.fotmob.names | {self.response.fbref.name},
+        }
+
+    @property
+    def teams(self) -> dict[str, dict[str, typing.Any]]:
+        fotmob = self.response.fotmob.teams
+        fbref = self.response.fbref.teams
+
+        teams = {}
+        for fotmob_team in fotmob:
+            fbref_team = process.extractOne(
+                fotmob_team, fbref, processor=lambda x: x.name
+            )[0]
+
+            team = {
+                "name": fotmob_team.name,
+                "names": fotmob_team.names | {fbref_team.name},
+                "shooting": fbref_team.shooting.model_dump(),
+            }
+            teams[fotmob_team.name] = team
+        return teams
+
+    @property
+    def matches(self) -> dict[str, dict[str, typing.Any]]:
+        return {
+            match.name: match.model_dump()
+            for match in self.response.fotmob.matches
+        }

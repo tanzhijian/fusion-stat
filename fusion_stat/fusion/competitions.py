@@ -1,4 +1,3 @@
-import asyncio
 import typing
 
 import httpx
@@ -7,14 +6,12 @@ from pydantic import BaseModel
 from rapidfuzz import process
 from parsel import Selector
 
+from .base import FusionStat
 from fusion_stat.utils import get_element_text
 from fusion_stat.clients.base import Client
 from fusion_stat.clients import FotMob, FBref
 from fusion_stat.config import COMPETITIONS, SCORE_CUTOFF
-from fusion_stat.models import (
-    Stat,
-    Params,
-)
+from fusion_stat.models import Stat, Params
 
 
 class CompetitionModel(Stat):
@@ -26,25 +23,17 @@ class Response(BaseModel):
     fbref: tuple[CompetitionModel, ...]
 
 
-class Competitions:
+class Competitions(FusionStat[Response]):
     def __init__(
         self,
         httpx_client_cls: type[httpx.AsyncClient] = httpx.AsyncClient,
         proxies: ProxiesTypes | None = None,
     ) -> None:
-        self.httpx_client_cls = httpx_client_cls
-        self.proxies = proxies
-        self._response: Response | None = None
+        super().__init__(httpx_client_cls, proxies)
 
     @property
-    def response(self) -> Response:
-        if self._response is None:
-            raise ValueError("Confirm get() has been executed")
-        return self._response
-
-    @response.setter
-    def response(self, value: Response) -> None:
-        self._response = value
+    def _clients_cls(self) -> list[type[Client]]:
+        return [FotMob, FBref]
 
     async def _create_task(
         self,
@@ -57,39 +46,11 @@ class Competitions:
             competitions = await client.get_competitions()
         return competitions
 
-    async def get(self) -> Response:
-        tasks = [
-            self._create_task(FotMob),
-            self._create_task(FBref),
-        ]
-        fotmob, fbref = await asyncio.gather(*tasks)
-
-        fotmob_competitions = self._parse_fotmob(fotmob.json())
-        fbref_competitions = self._parse_fbref(fbref.text)
-        self.response = Response(
-            fotmob=fotmob_competitions, fbref=fbref_competitions
-        )
-        return self.response
-
-    def index(self) -> list[Params]:
-        data: list[Params] = []
-
-        for fotmob_competition in self.response.fotmob:
-            fbref_competition = process.extractOne(
-                fotmob_competition,
-                self.response.fbref,
-                processor=lambda x: x.name,
-            )[0]
-
-            data.append(
-                Params(
-                    fotmob_id=fotmob_competition.id,
-                    fbref_id=fbref_competition.id,
-                    fbref_path_name=fbref_competition.name.replace(" ", "-"),
-                )
-            )
-
-        return data
+    def _parse(self, data: list[httpx.Response]) -> Response:
+        fotmob_response, fbref_response = data
+        fotmob = self._parse_fotmob(fotmob_response.json())
+        fbref = self._parse_fbref(fbref_response.text)
+        return Response(fotmob=fotmob, fbref=fbref)
 
     def _parse_fotmob(self, json: typing.Any) -> tuple[CompetitionModel, ...]:
         competitions: list[CompetitionModel] = []
@@ -136,3 +97,23 @@ class Competitions:
                         )
                     )
         return tuple(competitions)
+
+    def index(self) -> list[Params]:
+        data: list[Params] = []
+
+        for fotmob_competition in self.response.fotmob:
+            fbref_competition = process.extractOne(
+                fotmob_competition,
+                self.response.fbref,
+                processor=lambda x: x.name,
+            )[0]
+
+            data.append(
+                Params(
+                    fotmob_id=fotmob_competition.id,
+                    fbref_id=fbref_competition.id,
+                    fbref_path_name=fbref_competition.name.replace(" ", "-"),
+                )
+            )
+
+        return data
