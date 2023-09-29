@@ -37,6 +37,8 @@ class FotMobMatch(Stat):
 
 
 class FBrefTeamModel(Stat):
+    path_name: str
+    names: set[str]
     shooting: FBrefShooting
 
 
@@ -148,13 +150,16 @@ class Competition(FusionStat[Response]):
             '//table[@id="stats_squads_shooting_for"]/tbody/tr'
         )
         for tr in trs:
-            href = get_element_text(tr.xpath("./th/a/@href"))
-            name = get_element_text(tr.xpath("./th/a/text()"))
+            href = get_element_text(tr.xpath("./th/a/@href")).split("/")
+            name = " ".join(href[-1].split("-")[:-1])
+            name_2 = get_element_text(tr.xpath("./th/a/text()"))
             shooting = parse_fbref_shooting(tr)
             teams.append(
                 FBrefTeamModel(
-                    id=href.split("/")[3],
-                    name=name,
+                    id=href[3],
+                    name=name_2,
+                    path_name=name.replace(" ", "-"),
+                    names={name, name_2},
                     shooting=shooting,
                 )
             )
@@ -198,3 +203,22 @@ class Competition(FusionStat[Response]):
             match.name: match.model_dump()
             for match in self.response.fotmob.matches
         }
+
+    def teams_index(self) -> list[Params]:
+        fotmob = self.response.fotmob.teams
+        fbref = self.response.fbref.teams
+
+        params: list[Params] = []
+        for fotmob_team in fotmob:
+            fbref_team = process.extractOne(
+                fotmob_team, fbref, processor=lambda x: x.name
+            )[0]
+
+            params.append(
+                Params(
+                    fotmob_id=fotmob_team.id,
+                    fbref_id=fbref_team.id,
+                    fbref_path_name=fbref_team.path_name,
+                )
+            )
+        return params

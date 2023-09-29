@@ -76,9 +76,17 @@ class TestCompetition:
         assert "Premier League" in info["names"]
 
     def test_teams(self, competition: Competition) -> None:
-        assert competition.teams["Manchester City"]["shooting"]["xg"] == 8.6
+        teams = competition.teams
+        assert len(teams) == 20
+        assert teams["Manchester City"]["shooting"]["xg"] == 8.6
 
     def test_matches(self, competition: Competition) -> None:
-        assert len(competition.matches) == 380
-        match = competition.matches["Arsenal vs Manchester United"]
+        matches = competition.matches
+        assert len(matches) == 380
+        match = matches["Arsenal vs Manchester United"]
         assert match["score"] == "3 - 1"
+
+    def test_teams_index(self, competition: Competition) -> None:
+        index = competition.teams_index()
+        assert len(index) == 20
+        assert index[0].fotmob_id == "8456"

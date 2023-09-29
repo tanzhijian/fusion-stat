@@ -99,7 +99,7 @@ class Competitions(FusionStat[Response]):
         return tuple(competitions)
 
     def index(self) -> list[Params]:
-        data: list[Params] = []
+        params: list[Params] = []
 
         for fotmob_competition in self.response.fotmob:
             fbref_competition = process.extractOne(
@@ -108,7 +108,7 @@ class Competitions(FusionStat[Response]):
                 processor=lambda x: x.name,
             )[0]
 
-            data.append(
+            params.append(
                 Params(
                     fotmob_id=fotmob_competition.id,
                     fbref_id=fbref_competition.id,
@@ -116,4 +116,4 @@ class Competitions(FusionStat[Response]):
                 )
             )
 
-        return data
+        return params
