@@ -1,7 +1,6 @@
 import typing
 
 import httpx
-from httpx._types import ProxiesTypes
 from pydantic import BaseModel
 from rapidfuzz import process
 from parsel import Selector
@@ -25,25 +24,19 @@ class Response(BaseModel):
 
 class Competitions(FusionStat[Response]):
     def __init__(
-        self,
-        httpx_client_cls: type[httpx.AsyncClient] = httpx.AsyncClient,
-        proxies: ProxiesTypes | None = None,
+        self, client: httpx.AsyncClient | None = None, **kwargs: typing.Any
     ) -> None:
-        super().__init__(httpx_client_cls, proxies)
+        super().__init__(client, **kwargs)
 
     @property
     def _clients_cls(self) -> list[type[Client]]:
         return [FotMob, FBref]
 
     async def _create_task(
-        self,
-        client_cls: type[Client],
+        self, client_cls: type[Client], client: httpx.AsyncClient
     ) -> httpx.Response:
-        async with client_cls(
-            httpx_client_cls=self.httpx_client_cls,
-            proxies=self.proxies,
-        ) as client:
-            competitions = await client.get_competitions()
+        session = client_cls(client=client, **self.kwargs)
+        competitions = await session.get_competitions()
         return competitions
 
     def _parse(self, data: list[httpx.Response]) -> Response:

@@ -2,6 +2,7 @@ import typing
 
 import pytest
 import pytest_asyncio
+import httpx
 from pytest_httpx import HTTPXMock
 
 from fusion_stat.clients import FotMob
@@ -13,7 +14,7 @@ pytestmark = pytest.mark.asyncio
 
 @pytest_asyncio.fixture(scope="module")
 async def fotmob() -> typing.AsyncGenerator[FotMob, typing.Any]:
-    async with FotMob() as fm:
+    async with FotMob(httpx.AsyncClient()) as fm:
         yield fm
 
 

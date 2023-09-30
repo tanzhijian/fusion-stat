@@ -2,6 +2,7 @@ import typing
 
 import pytest
 import pytest_asyncio
+import httpx
 from pytest_httpx import HTTPXMock
 
 from fusion_stat.clients import FBref
@@ -12,7 +13,7 @@ pytestmark = pytest.mark.asyncio
 
 @pytest_asyncio.fixture(scope="module")
 async def fbref() -> typing.AsyncGenerator[FBref, typing.Any]:
-    async with FBref() as fb:
+    async with FBref(httpx.AsyncClient()) as fb:
         yield fb
 
 

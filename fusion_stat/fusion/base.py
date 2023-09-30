@@ -2,7 +2,6 @@ import asyncio
 import typing
 from abc import ABC, abstractmethod
 import httpx
-from httpx._types import ProxiesTypes
 
 from fusion_stat.clients.base import Client
 
@@ -12,12 +11,10 @@ T = typing.TypeVar("T")
 
 class FusionStat(typing.Generic[T], ABC):
     def __init__(
-        self,
-        httpx_client_cls: type[httpx.AsyncClient] = httpx.AsyncClient,
-        proxies: ProxiesTypes | None = None,
+        self, client: httpx.AsyncClient | None = None, **kwargs: typing.Any
     ) -> None:
-        self.httpx_client_cls = httpx_client_cls
-        self.proxies = proxies
+        self.client = client
+        self.kwargs = kwargs
         self._response: T | None = None
 
     @property
@@ -37,8 +34,7 @@ class FusionStat(typing.Generic[T], ABC):
 
     @abstractmethod
     async def _create_task(
-        self,
-        client_cls: type[Client],
+        self, client_cls: type[Client], client: httpx.AsyncClient
     ) -> httpx.Response:
         ...
 
@@ -47,10 +43,19 @@ class FusionStat(typing.Generic[T], ABC):
         ...
 
     async def get(self) -> T:
-        tasks = [
-            self._create_task(client_cls) for client_cls in self._clients_cls
-        ]
-        data = await asyncio.gather(*tasks)
+        if self.client is None:
+            async with httpx.AsyncClient(**self.kwargs) as client:
+                tasks = [
+                    self._create_task(client_cls, client)
+                    for client_cls in self._clients_cls
+                ]
+                data = await asyncio.gather(*tasks)
+        else:
+            tasks = [
+                self._create_task(client_cls, self.client)
+                for client_cls in self._clients_cls
+            ]
+            data = await asyncio.gather(*tasks)
 
         self.response = self._parse(data)
         return self.response

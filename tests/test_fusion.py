@@ -1,8 +1,11 @@
+import asyncio
 import typing
 import json
 from pathlib import Path
 
 import pytest
+import pytest_asyncio
+import httpx
 from pytest_httpx import HTTPXMock
 
 from fusion_stat.fusion import Competitions, Competition, Team
@@ -28,10 +31,23 @@ def fbref_mock(file: str, httpx_mock: HTTPXMock) -> None:
     )
 
 
+@pytest.fixture(scope="class")
+def event_loop() -> (
+    typing.Generator[asyncio.AbstractEventLoop, typing.Any, None]
+):
+    policy = asyncio.get_event_loop_policy()
+    loop = policy.new_event_loop()
+    yield loop
+    loop.close()
+
+
 class TestCompetitions:
-    @pytest.fixture(scope="class")
-    def competitions(self) -> typing.Generator[Competitions, typing.Any, None]:
-        yield Competitions()
+    @pytest_asyncio.fixture(scope="class")
+    async def competitions(
+        self,
+    ) -> typing.AsyncGenerator[Competitions, typing.Any]:
+        async with httpx.AsyncClient() as client:
+            yield Competitions(client)
 
     @pytest.mark.asyncio
     async def test_get(

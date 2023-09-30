@@ -1,7 +1,6 @@
 import typing
 
 import httpx
-from httpx._types import ProxiesTypes
 from pydantic import BaseModel
 from parsel import Selector
 
@@ -29,10 +28,10 @@ class Team(FusionStat[Response]):
     def __init__(
         self,
         params: Params | dict[str, str],
-        httpx_client_cls: type[httpx.AsyncClient] = httpx.AsyncClient,
-        proxies: ProxiesTypes | None = None,
+        client: httpx.AsyncClient | None = None,
+        **kwargs: typing.Any,
     ) -> None:
-        super().__init__(httpx_client_cls, proxies)
+        super().__init__(client, **kwargs)
         self.params = unpack_params(params)
 
     @property
@@ -40,15 +39,11 @@ class Team(FusionStat[Response]):
         return [FotMob, FBref]
 
     async def _create_task(
-        self,
-        client_cls: type[Client],
+        self, client_cls: type[Client], client: httpx.AsyncClient
     ) -> httpx.Response:
-        async with client_cls(
-            httpx_client_cls=self.httpx_client_cls,
-            proxies=self.proxies,
-        ) as client:
-            competition = await client.get_team(self.params)
-        return competition
+        session = client_cls(client=client, **self.kwargs)
+        team = await session.get_team(self.params)
+        return team
 
     def _parse(self, data: list[httpx.Response]) -> Response:
         fotmob_response, fbref_response = data
