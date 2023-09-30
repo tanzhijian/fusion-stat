@@ -7,8 +7,8 @@ from parsel import Selector
 
 from .base import FusionStat
 from fusion_stat.utils import get_element_text
-from fusion_stat.clients.base import Client
-from fusion_stat.clients import FotMob, FBref
+from fusion_stat.downloaders.base import Downloader
+from fusion_stat.downloaders import FotMob, FBref
 from fusion_stat.config import COMPETITIONS, SCORE_CUTOFF
 from fusion_stat.models import Stat, Params
 
@@ -29,14 +29,14 @@ class Competitions(FusionStat[Response]):
         super().__init__(client, **kwargs)
 
     @property
-    def _clients_cls(self) -> list[type[Client]]:
+    def _downloaders_cls(self) -> list[type[Downloader]]:
         return [FotMob, FBref]
 
     async def _create_task(
-        self, client_cls: type[Client], client: httpx.AsyncClient
+        self, downloader_cls: type[Downloader], client: httpx.AsyncClient
     ) -> httpx.Response:
-        session = client_cls(client=client, **self.kwargs)
-        competitions = await session.get_competitions()
+        downloader = downloader_cls(client=client, **self.kwargs)
+        competitions = await downloader.get_competitions()
         return competitions
 
     def _parse(self, data: list[httpx.Response]) -> Response:

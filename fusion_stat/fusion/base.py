@@ -3,7 +3,7 @@ import typing
 from abc import ABC, abstractmethod
 import httpx
 
-from fusion_stat.clients.base import Client
+from fusion_stat.downloaders.base import Downloader
 
 
 T = typing.TypeVar("T")
@@ -19,7 +19,7 @@ class FusionStat(typing.Generic[T], ABC):
 
     @property
     @abstractmethod
-    def _clients_cls(self) -> list[type[Client]]:
+    def _downloaders_cls(self) -> list[type[Downloader]]:
         ...
 
     @property
@@ -34,7 +34,7 @@ class FusionStat(typing.Generic[T], ABC):
 
     @abstractmethod
     async def _create_task(
-        self, client_cls: type[Client], client: httpx.AsyncClient
+        self, downloader_cls: type[Downloader], client: httpx.AsyncClient
     ) -> httpx.Response:
         ...
 
@@ -46,14 +46,14 @@ class FusionStat(typing.Generic[T], ABC):
         if self.client is None:
             async with httpx.AsyncClient(**self.kwargs) as client:
                 tasks = [
-                    self._create_task(client_cls, client)
-                    for client_cls in self._clients_cls
+                    self._create_task(downloader_cls, client)
+                    for downloader_cls in self._downloaders_cls
                 ]
                 data = await asyncio.gather(*tasks)
         else:
             tasks = [
-                self._create_task(client_cls, self.client)
-                for client_cls in self._clients_cls
+                self._create_task(downloader_cls, self.client)
+                for downloader_cls in self._downloaders_cls
             ]
             data = await asyncio.gather(*tasks)
 

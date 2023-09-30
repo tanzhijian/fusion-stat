@@ -2,12 +2,12 @@ import typing
 
 import httpx
 
-from .base import Client
+from .base import Downloader
 from fusion_stat.models import Params
 from fusion_stat.utils import unpack_params
 
 
-class FotMob(Client):
+class FotMob(Downloader):
     def __init__(
         self, client: httpx.AsyncClient, **kwargs: typing.Any
     ) -> None:

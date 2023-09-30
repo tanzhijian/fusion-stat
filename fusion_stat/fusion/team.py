@@ -5,8 +5,8 @@ from pydantic import BaseModel
 from parsel import Selector
 
 from .base import FusionStat
-from fusion_stat.clients import FotMob, FBref
-from fusion_stat.clients.base import Client
+from fusion_stat.downloaders import FotMob, FBref
+from fusion_stat.downloaders.base import Downloader
 from fusion_stat.utils import unpack_params, get_element_text
 from fusion_stat.models import Params, Stat
 
@@ -35,14 +35,14 @@ class Team(FusionStat[Response]):
         self.params = unpack_params(params)
 
     @property
-    def _clients_cls(self) -> list[type[Client]]:
+    def _downloaders_cls(self) -> list[type[Downloader]]:
         return [FotMob, FBref]
 
     async def _create_task(
-        self, client_cls: type[Client], client: httpx.AsyncClient
+        self, downloader_cls: type[Downloader], client: httpx.AsyncClient
     ) -> httpx.Response:
-        session = client_cls(client=client, **self.kwargs)
-        team = await session.get_team(self.params)
+        downloader = downloader_cls(client=client, **self.kwargs)
+        team = await downloader.get_team(self.params)
         return team
 
     def _parse(self, data: list[httpx.Response]) -> Response:

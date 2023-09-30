@@ -7,10 +7,10 @@ from httpx._types import URLTypes
 from fusion_stat.models import Params
 
 
-U = typing.TypeVar("U", bound="Client")
+U = typing.TypeVar("U", bound="Downloader")
 
 
-class Client:
+class Downloader:
     def __init__(
         self,
         client: httpx.AsyncClient,

@@ -5,7 +5,7 @@ import pytest_asyncio
 import httpx
 from pytest_httpx import HTTPXMock
 
-from fusion_stat.clients import FBref
+from fusion_stat.downloaders import FBref
 from fusion_stat.models import Params
 
 pytestmark = pytest.mark.asyncio

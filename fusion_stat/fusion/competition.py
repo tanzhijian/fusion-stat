@@ -11,8 +11,8 @@ from fusion_stat.utils import (
     parse_fbref_shooting,
     unpack_params,
 )
-from fusion_stat.clients.base import Client
-from fusion_stat.clients import FotMob, FBref
+from fusion_stat.downloaders.base import Downloader
+from fusion_stat.downloaders import FotMob, FBref
 from fusion_stat.models import (
     Stat,
     Params,
@@ -69,14 +69,14 @@ class Competition(FusionStat[Response]):
         self.params = unpack_params(params)
 
     @property
-    def _clients_cls(self) -> list[type[Client]]:
+    def _downloaders_cls(self) -> list[type[Downloader]]:
         return [FotMob, FBref]
 
     async def _create_task(
-        self, client_cls: type[Client], client: httpx.AsyncClient
+        self, downloader_cls: type[Downloader], client: httpx.AsyncClient
     ) -> httpx.Response:
-        session = client_cls(client=client, **self.kwargs)
-        competition = await session.get_competition(self.params)
+        downloader = downloader_cls(client=client, **self.kwargs)
+        competition = await downloader.get_competition(self.params)
         return competition
 
     def _parse(self, data: list[httpx.Response]) -> Response:
