@@ -36,3 +36,12 @@ class FotMob(Downloader):
         httpx_params = {"id": params.fotmob_id}
         response = await self.get(path, params=httpx_params)
         return response
+
+    async def get_player(
+        self, params: Params | dict[str, str]
+    ) -> httpx.Response:
+        params = unpack_params(params)
+        path = self.base_url + "/playerData"
+        httpx_params = {"id": params.fotmob_id}
+        response = await self.get(path, params=httpx_params)
+        return response

@@ -60,3 +60,17 @@ class FBref(Downloader):
 
         response = await self.get(path)
         return response
+
+    async def get_player(
+        self,
+        params: Params | dict[str, str],
+    ) -> httpx.Response:
+        params = unpack_params(params)
+        path = f"/players/{params.fbref_id}/"
+        if params.fbref_path_name:
+            path += params.fbref_path_name
+
+        path = self.base_url + path
+
+        response = await self.get(path)
+        return response

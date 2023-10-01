@@ -82,3 +82,27 @@ async def test_get_team(httpx_mock: HTTPXMock, fbref: FBref) -> None:
 
     r = await fbref.get_team(params, season="2022-2023")
     assert r.status_code == 200
+
+
+async def test_player(httpx_mock: HTTPXMock, fbref: FBref) -> None:
+    urls = (
+        "https://fbref.com/en/players/bc7dc64d/",
+        "https://fbref.com/en/players/bc7dc64d/Bukayo-Saka",
+    )
+    for url in urls:
+        httpx_mock.add_response(url=url, text="halo")
+
+    params = Params(
+        fotmob_id="47",
+        fbref_id="bc7dc64d",
+    )
+    r = await fbref.get_player(params)
+    assert r.status_code == 200
+
+    params = Params(
+        fotmob_id="47",
+        fbref_id="bc7dc64d",
+        fbref_path_name="Bukayo-Saka",
+    )
+    r = await fbref.get_player(params)
+    assert r.status_code == 200

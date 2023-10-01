@@ -44,3 +44,14 @@ async def test_get_team(httpx_mock: HTTPXMock, fotmob: FotMob) -> None:
     params = {"fotmob_id": "9825", "fbref_id": "9", "fbref_path_name": "pl"}
     r = await fotmob.get_team(params)
     assert r.status_code == 200
+
+
+async def test_get_player(httpx_mock: HTTPXMock, fotmob: FotMob) -> None:
+    httpx_mock.add_response(
+        url="https://www.fotmob.com/api/playerData?id=961995",
+        json={"foo": "bar"},
+    )
+
+    params = {"fotmob_id": "961995", "fbref_id": "9", "fbref_path_name": "pl"}
+    r = await fotmob.get_player(params)
+    assert r.status_code == 200

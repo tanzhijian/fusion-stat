@@ -48,3 +48,6 @@ class Downloader:
 
     async def get_team(self, params: Params) -> httpx.Response:
         raise NotImplementedError
+
+    async def get_player(self, params: Params) -> httpx.Response:
+        raise NotImplementedError

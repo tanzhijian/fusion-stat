@@ -8,7 +8,7 @@ import pytest_asyncio
 import httpx
 from pytest_httpx import HTTPXMock
 
-from fusion_stat.fusion import Competitions, Competition, Team
+from fusion_stat.fusion import Competitions, Competition, Team, Player
 from fusion_stat.config import COMPETITIONS
 from fusion_stat.models import Params
 
@@ -125,3 +125,22 @@ class TestTeam:
 
         r = await team.get()
         assert r.fotmob.name == "Arsenal"
+
+
+class TestPlayer:
+    @pytest.fixture(scope="class")
+    def player(self) -> typing.Generator[Player, typing.Any, None]:
+        params = Params(
+            fotmob_id="961995",
+            fbref_id="bc7dc64d",
+            fbref_path_name="Bukayo-Saka",
+        )
+        yield Player(params)
+
+    @pytest.mark.asyncio
+    async def test_get(self, player: Player, httpx_mock: HTTPXMock) -> None:
+        fotmob_mock("playerData?id=961995.json", httpx_mock)
+        fbref_mock("players_bc7dc64d_Bukayo-Saka.html", httpx_mock)
+
+        r = await player.get()
+        assert r.fotmob.name == "Bukayo Saka"
