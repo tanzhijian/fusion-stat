@@ -107,6 +107,10 @@ class TestCompetition:
         assert len(index) == 20
         assert index[0].fotmob_id == "8456"
 
+    def test_table(self, competition: Competition) -> None:
+        table = competition.table
+        assert table[0]["name"] == "Manchester City"
+
 
 class TestTeam:
     @pytest.fixture(scope="class")

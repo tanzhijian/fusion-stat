@@ -22,6 +22,7 @@ from fusion_stat.models import (
 
 class FotMobTeamModel(Stat):
     names: set[str]
+    points: int
 
 
 class FotMobMatch(Stat):
@@ -96,6 +97,7 @@ class Competition(FusionStat[Response]):
                 id=str(team["id"]),
                 name=team["name"],
                 names={team["name"], team["shortName"]},
+                points=int(team["pts"]),
             )
             for team in json["table"][0]["data"]["table"]["all"]
         ]
@@ -187,10 +189,20 @@ class Competition(FusionStat[Response]):
             team = {
                 "name": fotmob_team.name,
                 "names": fotmob_team.names | {fbref_team.name},
+                "points": fotmob_team.points,
                 "shooting": fbref_team.shooting.model_dump(),
             }
             teams[fotmob_team.name] = team
         return teams
+
+    @property
+    def table(self) -> list[dict[str, typing.Any]]:
+        teams = [
+            {"name": team["name"], "points": team["points"]}
+            for team in self.teams.values()
+        ]
+        table = sorted(teams, key=lambda x: x["points"], reverse=True)
+        return table
 
     @property
     def matches(self) -> dict[str, dict[str, typing.Any]]:
