@@ -17,7 +17,6 @@ class Downloader:
         **kwargs: typing.Any,
     ) -> None:
         self.client = client
-        self.kwargs = kwargs
 
     async def aclose(self) -> None:
         await self.client.aclose()
