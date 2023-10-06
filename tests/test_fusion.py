@@ -109,7 +109,19 @@ class TestCompetition:
 
     def test_table(self, competition: Competition) -> None:
         table = competition.table
-        assert table[0]["name"] == "Manchester City"
+        city = table[0]
+        assert city["name"] == "Manchester City"
+        assert city["draws"] == 0
+        assert city["goals_for"] == 11
+        assert city["xg"] == 8.6
+
+        chelsea = table[11]
+        assert chelsea["name"] == "Chelsea"
+        assert chelsea["played"] == 4
+        assert chelsea["losses"] == 2
+        assert chelsea["goals_against"] == 5
+        assert chelsea["points"] == 4
+        assert chelsea["xg"] == 8.3
 
 
 class TestTeam:

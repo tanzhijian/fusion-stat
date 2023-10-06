@@ -34,7 +34,7 @@ class Downloader:
         await self.aclose()
 
     async def get(self, url: URLTypes, **kwargs: typing.Any) -> httpx.Response:
-        response = await self.client.get(url, **self.kwargs | kwargs)
+        response = await self.client.get(url, **kwargs)
         response.raise_for_status()
         return response
 

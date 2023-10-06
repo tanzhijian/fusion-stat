@@ -10,6 +10,7 @@ from fusion_stat.utils import (
     get_element_text,
     parse_fbref_shooting,
     unpack_params,
+    sort_table_key,
 )
 from fusion_stat.downloaders.base import Downloader
 from fusion_stat.downloaders import FotMob, FBref
@@ -22,6 +23,12 @@ from fusion_stat.models import (
 
 class FotMobTeamModel(Stat):
     names: set[str]
+    played: int
+    wins: int
+    draws: int
+    losses: int
+    goals_for: int
+    goals_against: int
     points: int
 
 
@@ -92,15 +99,23 @@ class Competition(FusionStat[Response]):
         season = json["details"]["selectedSeason"]
         names = {name, json["details"]["shortName"]}
 
-        teams = [
-            FotMobTeamModel(
-                id=str(team["id"]),
-                name=team["name"],
-                names={team["name"], team["shortName"]},
-                points=int(team["pts"]),
+        teams = []
+        for team in json["table"][0]["data"]["table"]["all"]:
+            goals_for, goals_against = team["scoresStr"].split("-")
+            teams.append(
+                FotMobTeamModel(
+                    id=str(team["id"]),
+                    name=team["name"],
+                    names={team["name"], team["shortName"]},
+                    played=team["played"],
+                    wins=team["wins"],
+                    draws=team["draws"],
+                    losses=team["losses"],
+                    goals_for=int(goals_for),
+                    goals_against=int(goals_against),
+                    points=int(team["pts"]),
+                )
             )
-            for team in json["table"][0]["data"]["table"]["all"]
-        ]
 
         matches = []
         for match in json["matches"]["allMatches"]:
@@ -186,22 +201,29 @@ class Competition(FusionStat[Response]):
                 fotmob_team, fbref, processor=lambda x: x.name
             )[0]
 
-            team = {
-                "name": fotmob_team.name,
-                "names": fotmob_team.names | {fbref_team.name},
-                "points": fotmob_team.points,
-                "shooting": fbref_team.shooting.model_dump(),
-            }
-            teams[fotmob_team.name] = team
+            team = fotmob_team.model_dump()
+            team["names"] |= fbref_team.names
+            team["shooting"] = fbref_team.shooting.model_dump()
+            teams[team["name"]] = team
         return teams
 
     @property
     def table(self) -> list[dict[str, typing.Any]]:
         teams = [
-            {"name": team["name"], "points": team["points"]}
+            {
+                "name": team["name"],
+                "played": team["played"],
+                "wins": team["wins"],
+                "draws": team["draws"],
+                "losses": team["losses"],
+                "goals_for": team["goals_for"],
+                "goals_against": team["goals_against"],
+                "xg": team["shooting"]["xg"],
+                "points": team["points"],
+            }
             for team in self.teams.values()
         ]
-        table = sorted(teams, key=lambda x: x["points"], reverse=True)
+        table = sorted(teams, key=sort_table_key)
         return table
 
     @property
