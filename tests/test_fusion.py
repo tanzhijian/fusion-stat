@@ -141,6 +141,15 @@ class TestTeam:
 
         r = await team.get()
         assert r.fotmob.name == "Arsenal"
+        assert r.fbref.shooting.xg == 8.3
+
+        coach = r.fotmob.members[0]
+        assert coach.is_staff
+        player = r.fotmob.members[1]
+        assert not player.is_staff
+
+        saka = r.fbref.members[4]
+        assert int(saka.shooting.shots) == 11
 
 
 class TestMember:

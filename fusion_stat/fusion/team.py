@@ -7,16 +7,32 @@ from parsel import Selector
 from .base import FusionStat
 from fusion_stat.downloaders import FotMob, FBref
 from fusion_stat.downloaders.base import Downloader
-from fusion_stat.utils import unpack_params, get_element_text
-from fusion_stat.models import Params, Stat
+from fusion_stat.utils import (
+    unpack_params,
+    get_element_text,
+    parse_fbref_shooting,
+)
+from fusion_stat.models import Params, Stat, FBrefShooting
+
+
+class FotMobMemberModel(Stat):
+    country: str
+    is_staff: bool
+
+
+class FBrefMemberModel(Stat):
+    shooting: FBrefShooting
 
 
 class FotMobTeamModel(Stat):
     names: set[str]
+    members: list[FotMobMemberModel]
 
 
 class FBrefTeamModel(Stat):
     names: set[str]
+    shooting: FBrefShooting
+    members: list[FBrefMemberModel]
 
 
 class Response(BaseModel):
@@ -55,16 +71,47 @@ class Team(FusionStat[Response]):
         id = str(json["details"]["id"])
         name = json["details"]["name"]
         names = {name, json["details"]["shortName"]}
-        return FotMobTeamModel(id=id, name=name, names=names)
+
+        members = []
+        for role in json["squad"]:
+            for member in role[1:]:
+                members.append(
+                    FotMobMemberModel(
+                        id=str(member[0]["id"]),
+                        name=member[0]["name"],
+                        country=member[0]["cname"],
+                        is_staff=member[0].get("role") is None,
+                    )
+                )
+
+        return FotMobTeamModel(id=id, name=name, names=names, members=members)
 
     def _parse_fbref(self, text: str) -> FBrefTeamModel:
         selector = Selector(text)
         h1 = get_element_text(selector.xpath("//h1/span/text()"))
         team_name = " ".join(h1.split(" ")[1:-1])
+
+        table = selector.xpath('//table[starts-with(@id,"stats_shooting_")]')
+        team_shooting = parse_fbref_shooting(table.xpath("./tfoot/tr[1]"))
+
+        members = []
+        trs = table.xpath("./tbody/tr")
+        for tr in trs:
+            href = get_element_text(tr.xpath("./th/a/@href"))
+            name = get_element_text(tr.xpath("./th/a/text()"))
+            shooting = parse_fbref_shooting(tr)
+            members.append(
+                FBrefMemberModel(
+                    id=href.split("/")[3], name=name, shooting=shooting
+                )
+            )
+
         return FBrefTeamModel(
             id=self.params.fbref_id,
             name=team_name,
             names={team_name},
+            shooting=team_shooting,
+            members=members,
         )
 
     @property
