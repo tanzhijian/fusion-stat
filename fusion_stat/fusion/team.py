@@ -3,6 +3,7 @@ import typing
 import httpx
 from pydantic import BaseModel
 from parsel import Selector
+from rapidfuzz import process
 
 from .base import FusionStat
 from fusion_stat.downloaders import FotMob, FBref
@@ -12,6 +13,8 @@ from fusion_stat.utils import (
     get_element_text,
     parse_fbref_shooting,
 )
+
+from fusion_stat.config import SCORE_CUTOFF
 from fusion_stat.models import Params, Stat, FBrefShooting
 
 
@@ -74,13 +77,13 @@ class Team(FusionStat[Response]):
 
         members = []
         for role in json["squad"]:
-            for member in role[1:]:
+            for member in role[1]:
                 members.append(
                     FotMobMemberModel(
-                        id=str(member[0]["id"]),
-                        name=member[0]["name"],
-                        country=member[0]["cname"],
-                        is_staff=member[0].get("role") is None,
+                        id=str(member["id"]),
+                        name=member["name"],
+                        country=member["cname"],
+                        is_staff=member.get("role") is None,
                     )
                 )
 
@@ -120,3 +123,38 @@ class Team(FusionStat[Response]):
             "name": self.response.fotmob.name,
             "names": self.response.fotmob.names | self.response.fbref.names,
         }
+
+    @property
+    def staff(self) -> list[dict[str, typing.Any]]:
+        return [
+            {"name": member.name, "country": member.country}
+            for member in self.response.fotmob.members
+            if member.is_staff
+        ]
+
+    @property
+    def players(self) -> list[dict[str, typing.Any]]:
+        fotmob = self.response.fotmob.members
+        fbref = self.response.fbref.members
+
+        players = []
+        for fotmob_member in fotmob:
+            if not fotmob_member.is_staff:
+                try:
+                    fbref_member = process.extractOne(
+                        fotmob_member,
+                        fbref,
+                        processor=lambda x: x.name,
+                        score_cutoff=SCORE_CUTOFF,
+                    )[0]
+                    players.append(
+                        {
+                            "name": fotmob_member.name,
+                            "country": fotmob_member.country,
+                            "shooting": fbref_member.shooting.model_dump(),
+                        }
+                    )
+                except TypeError:
+                    pass
+
+        return players

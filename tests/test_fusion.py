@@ -143,6 +143,7 @@ class TestTeam:
         assert r.fotmob.name == "Arsenal"
         assert r.fbref.shooting.xg == 8.3
 
+        assert len(r.fotmob.members) == 26
         coach = r.fotmob.members[0]
         assert coach.is_staff
         player = r.fotmob.members[1]
@@ -150,6 +151,15 @@ class TestTeam:
 
         saka = r.fbref.members[4]
         assert int(saka.shooting.shots) == 11
+
+    def test_staff(self, team: Team) -> None:
+        staff = team.staff
+        assert staff[0]["name"] == "Mikel Arteta"
+        assert staff[0]["country"] == "Spain"
+
+    def test_players(self, team: Team) -> None:
+        players = team.players
+        assert len(players) == 19
 
 
 class TestMember:
