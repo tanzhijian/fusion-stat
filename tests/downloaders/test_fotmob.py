@@ -53,5 +53,5 @@ async def test_get_player(httpx_mock: HTTPXMock, fotmob: FotMob) -> None:
     )
 
     params = {"fotmob_id": "961995", "fbref_id": "9", "fbref_path_name": "pl"}
-    r = await fotmob.get_player(params)
+    r = await fotmob.get_member(params)
     assert r.status_code == 200

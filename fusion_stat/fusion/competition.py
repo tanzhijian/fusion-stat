@@ -32,7 +32,7 @@ class FotMobTeamModel(Stat):
     points: int
 
 
-class FotMobMatch(Stat):
+class FotMobMatchModel(Stat):
     utc_time: str
     finished: bool
     started: bool
@@ -54,7 +54,7 @@ class FotMobCompetitionModel(Stat):
     season: str
     names: set[str]
     teams: tuple[FotMobTeamModel, ...]
-    matches: tuple[FotMobMatch, ...]
+    matches: tuple[FotMobMatchModel, ...]
 
 
 class FBrefCompetitionModel(Stat):
@@ -122,7 +122,7 @@ class Competition(FusionStat[Response]):
             home_name = match["home"]["name"]
             away_name = match["away"]["name"]
             matches.append(
-                FotMobMatch(
+                FotMobMatchModel(
                     id=str(match["id"]),
                     name=f"{home_name} vs {away_name}",
                     utc_time=match["status"]["utcTime"],

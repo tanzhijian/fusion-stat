@@ -15,22 +15,22 @@ from fusion_stat.utils import (
 from fusion_stat.models import Params, Stat, FBrefShooting
 
 
-class FotMobPlayerModel(Stat):
+class FotMobMemberModel(Stat):
     country: str
     is_staff: bool
     position: str
 
 
-class FBrefPlayerModel(Stat):
+class FBrefMemberModel(Stat):
     shooting: FBrefShooting
 
 
 class Response(BaseModel):
-    fotmob: FotMobPlayerModel
-    fbref: FBrefPlayerModel
+    fotmob: FotMobMemberModel
+    fbref: FBrefMemberModel
 
 
-class Player(FusionStat[Response]):
+class Member(FusionStat[Response]):
     def __init__(
         self,
         params: Params | dict[str, str],
@@ -48,7 +48,7 @@ class Player(FusionStat[Response]):
         self, downloader_cls: type[Downloader], client: httpx.AsyncClient
     ) -> httpx.Response:
         downloader = downloader_cls(client=client, **self.kwargs)
-        player = await downloader.get_player(self.params)
+        player = await downloader.get_member(self.params)
         return player
 
     def _parse(self, data: list[httpx.Response]) -> Response:
@@ -57,12 +57,12 @@ class Player(FusionStat[Response]):
         fbref = self._parse_fbref(fbref_response.text)
         return Response(fotmob=fotmob, fbref=fbref)
 
-    def _parse_fotmob(self, json: typing.Any) -> FotMobPlayerModel:
+    def _parse_fotmob(self, json: typing.Any) -> FotMobMemberModel:
         name = json["name"]
         country = json["meta"]["personJSONLD"]["nationality"]["name"]
         position = json["origin"]["positionDesc"]["primaryPosition"]["label"]
         is_staff = position == "Coach"
-        return FotMobPlayerModel(
+        return FotMobMemberModel(
             id=self.params.fotmob_id,
             name=name,
             country=country,
@@ -70,7 +70,7 @@ class Player(FusionStat[Response]):
             is_staff=is_staff,
         )
 
-    def _parse_fbref(self, text: str) -> FBrefPlayerModel:
+    def _parse_fbref(self, text: str) -> FBrefMemberModel:
         selector = Selector(text)
         name = get_element_text(selector.xpath("//h1/span/text()"))
 
@@ -79,6 +79,6 @@ class Player(FusionStat[Response]):
         )
         shooting = parse_fbref_shooting(tr)
 
-        return FBrefPlayerModel(
+        return FBrefMemberModel(
             id=self.params.fbref_id, name=name, shooting=shooting
         )

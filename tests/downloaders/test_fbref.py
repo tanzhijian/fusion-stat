@@ -96,7 +96,7 @@ async def test_player(httpx_mock: HTTPXMock, fbref: FBref) -> None:
         fotmob_id="47",
         fbref_id="bc7dc64d",
     )
-    r = await fbref.get_player(params)
+    r = await fbref.get_member(params)
     assert r.status_code == 200
 
     params = Params(
@@ -104,5 +104,5 @@ async def test_player(httpx_mock: HTTPXMock, fbref: FBref) -> None:
         fbref_id="bc7dc64d",
         fbref_path_name="Bukayo-Saka",
     )
-    r = await fbref.get_player(params)
+    r = await fbref.get_member(params)
     assert r.status_code == 200

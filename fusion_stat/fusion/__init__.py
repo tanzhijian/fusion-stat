@@ -1,7 +1,7 @@
 from .competitions import Competitions
 from .competition import Competition
 from .team import Team
-from .player import Player
+from .member import Member
 
 
-__all__ = ("Competitions", "Competition", "Team", "Player")
+__all__ = ("Competitions", "Competition", "Team", "Member")

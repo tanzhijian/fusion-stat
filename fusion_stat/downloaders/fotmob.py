@@ -37,7 +37,7 @@ class FotMob(Downloader):
         response = await self.get(path, params=httpx_params)
         return response
 
-    async def get_player(
+    async def get_member(
         self, params: Params | dict[str, str]
     ) -> httpx.Response:
         params = unpack_params(params)
