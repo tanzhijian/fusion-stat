@@ -6,11 +6,11 @@ from rapidfuzz import process
 from parsel import Selector
 
 from .base import FusionStat
-from fusion_stat.utils import get_element_text
-from fusion_stat.downloaders.base import Downloader
-from fusion_stat.downloaders import FotMob, FBref
-from fusion_stat.config import COMPETITIONS, SCORE_CUTOFF
-from fusion_stat.models import Stat, Params
+from .utils import get_element_text
+from .downloaders.base import Downloader
+from .downloaders import FotMob, FBref
+from .config import COMPETITIONS, SCORE_CUTOFF
+from .models import Stat, Params
 
 
 class CompetitionModel(Stat):

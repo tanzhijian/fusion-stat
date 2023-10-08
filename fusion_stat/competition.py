@@ -12,13 +12,9 @@ from fusion_stat.utils import (
     unpack_params,
     sort_table_key,
 )
-from fusion_stat.downloaders.base import Downloader
-from fusion_stat.downloaders import FotMob, FBref
-from fusion_stat.models import (
-    Stat,
-    Params,
-    FBrefShooting,
-)
+from .downloaders.base import Downloader
+from .downloaders import FotMob, FBref
+from .models import Stat, Params, FBrefShooting
 
 
 class FotMobTeamModel(Stat):

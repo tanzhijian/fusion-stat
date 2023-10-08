@@ -6,16 +6,11 @@ from parsel import Selector
 from rapidfuzz import process
 
 from .base import FusionStat
-from fusion_stat.downloaders import FotMob, FBref
-from fusion_stat.downloaders.base import Downloader
-from fusion_stat.utils import (
-    unpack_params,
-    get_element_text,
-    parse_fbref_shooting,
-)
-
-from fusion_stat.config import SCORE_CUTOFF
-from fusion_stat.models import Params, Stat, FBrefShooting
+from .downloaders import FotMob, FBref
+from .downloaders.base import Downloader
+from .utils import unpack_params, get_element_text, parse_fbref_shooting
+from .config import SCORE_CUTOFF
+from .models import Params, Stat, FBrefShooting
 
 
 class FotMobMemberModel(Stat):

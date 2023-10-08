@@ -1,8 +1,7 @@
 import typing
 from parsel import Selector, SelectorList
 
-from .models import Params
-from fusion_stat.models import FBrefShooting
+from .models import Params, FBrefShooting
 
 
 def get_element_text(selector_list: SelectorList[Selector]) -> str:

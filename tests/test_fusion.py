@@ -8,9 +8,8 @@ import pytest_asyncio
 import httpx
 from pytest_httpx import HTTPXMock
 
-from fusion_stat.fusion import Competitions, Competition, Team, Member
+from fusion_stat import Competitions, Competition, Team, Member, Params
 from fusion_stat.config import COMPETITIONS
-from fusion_stat.models import Params
 
 
 def fotmob_mock(file: str, httpx_mock: HTTPXMock) -> None:

@@ -1,6 +1,13 @@
-from fusion_stat.fusion.competitions import Competitions
-from fusion_stat.fusion.competition import Competition
-from fusion_stat.fusion.team import Team
-from fusion_stat.fusion.member import Member
+from .competitions import Competitions
+from .competition import Competition
+from .team import Team
+from .member import Member
+from .models import Params
 
-__all__ = ("Competitions", "Competition", "Team", "Member")
+__all__ = (
+    "Competitions",
+    "Competition",
+    "Team",
+    "Member",
+    "Params",
+)
