@@ -149,6 +149,8 @@ class TestTeam:
         assert not player.is_staff
 
         saka = r.fbref.members[4]
+        assert "FW" in saka.positions
+        assert saka.country_code == "ENG"
         assert int(saka.shooting.shots) == 11
 
     def test_staff(self, team: Team) -> None:

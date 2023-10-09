@@ -106,16 +106,17 @@ class Team(FusionStat[Response]):
             shooting_table.xpath("./tfoot/tr[1]")
         )
 
-        # 名字不是唯一特征
         players_shooting: dict[str, FBrefShooting] = {}
         for tr in shooting_table.xpath("./tbody/tr"):
-            name = get_element_text(tr.xpath("./th/a/text()"))
+            href = get_element_text(tr.xpath("./th/a/@href"))
+            id = href.split("/")[3]
             shooting = parse_fbref_shooting(tr)
-            players_shooting[name] = shooting
+            players_shooting[id] = shooting
 
         players = []
         for tr in standard_stats_table.xpath("./tbody/tr"):
             href = get_element_text(tr.xpath("./th/a/@href"))
+            id = href.split("/")[3]
             name = get_element_text(tr.xpath("./th/a/text()"))
             country_code = get_element_text(
                 tr.xpath('./td[@data-stat="nationality"]/a/@href')
@@ -126,12 +127,12 @@ class Team(FusionStat[Response]):
             ).split(",")
 
             try:
-                shooting = players_shooting[name]
+                shooting = players_shooting[id]
             except KeyError:
                 shooting = FBrefShooting()
             players.append(
                 FBrefMemberModel(
-                    id=href.split("/")[3],
+                    id=id,
                     name=name,
                     country_code=country_code,
                     positions=positions,
