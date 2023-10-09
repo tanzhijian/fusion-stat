@@ -9,7 +9,7 @@ from .base import FusionStat
 from .downloaders import FotMob, FBref
 from .downloaders.base import Downloader
 from .utils import unpack_params, get_element_text, parse_fbref_shooting
-from .config import MEMBERS_SIMILARITY_SCORE
+from .config import MEMBERS_SIMILARITY_SCORE, POSITIONS
 from .models import Params, Stat, FBrefShooting
 
 
@@ -22,7 +22,7 @@ class FotMobMemberModel(Stat):
 
 class FBrefMemberModel(Stat):
     country_code: str
-    positions: list[str]
+    position: str
     shooting: FBrefShooting
 
 
@@ -78,6 +78,8 @@ class Team(FusionStat[Response]):
         for role in json["squad"]:
             for member in role[1]:
                 position = member.get("role")
+                if position:
+                    position = POSITIONS[position]
                 members.append(
                     FotMobMemberModel(
                         id=str(member["id"]),
@@ -122,9 +124,9 @@ class Team(FusionStat[Response]):
                 tr.xpath('./td[@data-stat="nationality"]/a/@href')
             ).split("/")[3]
 
-            positions = get_element_text(
+            position = get_element_text(
                 tr.xpath('./td[@data-stat="position"]/text()')
-            ).split(",")
+            )
 
             try:
                 shooting = players_shooting[id]
@@ -135,7 +137,7 @@ class Team(FusionStat[Response]):
                     id=id,
                     name=name,
                     country_code=country_code,
-                    positions=positions,
+                    position=position,
                     shooting=shooting,
                 )
             )

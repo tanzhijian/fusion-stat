@@ -147,9 +147,11 @@ class TestTeam:
         assert coach.is_staff
         player = r.fotmob.members[1]
         assert not player.is_staff
+        assert player.position == "GK"
+        assert player.country == "Spain"
 
         saka = r.fbref.members[4]
-        assert "FW" in saka.positions
+        assert saka.position == "FW"
         assert saka.country_code == "ENG"
         assert int(saka.shooting.shots) == 11
 
