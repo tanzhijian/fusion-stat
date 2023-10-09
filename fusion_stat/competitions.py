@@ -9,7 +9,7 @@ from .base import FusionStat
 from .utils import get_element_text
 from .downloaders.base import Downloader
 from .downloaders import FotMob, FBref
-from .config import COMPETITIONS, SCORE_CUTOFF
+from .config import COMPETITIONS, COMPETITIONS_SIMILARITY_SCORE
 from .models import Stat, Params
 
 
@@ -50,7 +50,9 @@ class Competitions(FusionStat[Response]):
         selection = json["popular"]
         for competition in selection:
             if process.extractOne(
-                competition["name"], COMPETITIONS, score_cutoff=SCORE_CUTOFF
+                competition["name"],
+                COMPETITIONS,
+                score_cutoff=COMPETITIONS_SIMILARITY_SCORE,
             ):
                 competitions.append(
                     CompetitionModel(
@@ -79,7 +81,9 @@ class Competitions(FusionStat[Response]):
                 name = " ".join(href[-1].split("-")[:-1])
                 if (
                     process.extractOne(
-                        name, COMPETITIONS, score_cutoff=SCORE_CUTOFF
+                        name,
+                        COMPETITIONS,
+                        score_cutoff=COMPETITIONS_SIMILARITY_SCORE,
                     )
                     and gender == "M"
                 ):

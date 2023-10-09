@@ -14,5 +14,5 @@ class Stat(BaseModel):
 
 
 class FBrefShooting(BaseModel):
-    shots: float
-    xg: float
+    shots: float = 0
+    xg: float = 0

@@ -9,16 +9,20 @@ from .base import FusionStat
 from .downloaders import FotMob, FBref
 from .downloaders.base import Downloader
 from .utils import unpack_params, get_element_text, parse_fbref_shooting
-from .config import SCORE_CUTOFF
+from .config import MEMBERS_SIMILARITY_SCORE
 from .models import Params, Stat, FBrefShooting
 
 
 class FotMobMemberModel(Stat):
     country: str
+    country_code: str
+    position: str | None
     is_staff: bool
 
 
 class FBrefMemberModel(Stat):
+    country_code: str
+    positions: list[str]
     shooting: FBrefShooting
 
 
@@ -73,12 +77,15 @@ class Team(FusionStat[Response]):
         members = []
         for role in json["squad"]:
             for member in role[1]:
+                position = member.get("role")
                 members.append(
                     FotMobMemberModel(
                         id=str(member["id"]),
                         name=member["name"],
                         country=member["cname"],
-                        is_staff=member.get("role") is None,
+                        country_code=member["ccode"],
+                        position=position,
+                        is_staff=position is None,
                     )
                 )
 
@@ -89,18 +96,46 @@ class Team(FusionStat[Response]):
         h1 = get_element_text(selector.xpath("//h1/span/text()"))
         team_name = " ".join(h1.split(" ")[1:-1])
 
-        table = selector.xpath('//table[starts-with(@id,"stats_shooting_")]')
-        team_shooting = parse_fbref_shooting(table.xpath("./tfoot/tr[1]"))
+        standard_stats_table = selector.xpath(
+            '//table[starts-with(@id,"stats_standard_")]'
+        )
+        shooting_table = selector.xpath(
+            '//table[starts-with(@id,"stats_shooting_")]'
+        )
+        team_shooting = parse_fbref_shooting(
+            shooting_table.xpath("./tfoot/tr[1]")
+        )
 
-        members = []
-        trs = table.xpath("./tbody/tr")
-        for tr in trs:
-            href = get_element_text(tr.xpath("./th/a/@href"))
+        # 名字不是唯一特征
+        players_shooting: dict[str, FBrefShooting] = {}
+        for tr in shooting_table.xpath("./tbody/tr"):
             name = get_element_text(tr.xpath("./th/a/text()"))
             shooting = parse_fbref_shooting(tr)
-            members.append(
+            players_shooting[name] = shooting
+
+        players = []
+        for tr in standard_stats_table.xpath("./tbody/tr"):
+            href = get_element_text(tr.xpath("./th/a/@href"))
+            name = get_element_text(tr.xpath("./th/a/text()"))
+            country_code = get_element_text(
+                tr.xpath('./td[@data-stat="nationality"]/a/@href')
+            ).split("/")[3]
+
+            positions = get_element_text(
+                tr.xpath('./td[@data-stat="position"]/text()')
+            ).split(",")
+
+            try:
+                shooting = players_shooting[name]
+            except KeyError:
+                shooting = FBrefShooting()
+            players.append(
                 FBrefMemberModel(
-                    id=href.split("/")[3], name=name, shooting=shooting
+                    id=href.split("/")[3],
+                    name=name,
+                    country_code=country_code,
+                    positions=positions,
+                    shooting=shooting,
                 )
             )
 
@@ -109,7 +144,7 @@ class Team(FusionStat[Response]):
             name=team_name,
             names={team_name},
             shooting=team_shooting,
-            members=members,
+            members=players,
         )
 
     @property
@@ -140,7 +175,7 @@ class Team(FusionStat[Response]):
                         fotmob_member,
                         fbref,
                         processor=lambda x: x.name,
-                        score_cutoff=SCORE_CUTOFF,
+                        score_cutoff=MEMBERS_SIMILARITY_SCORE,
                     )[0]
                     players.append(
                         {
