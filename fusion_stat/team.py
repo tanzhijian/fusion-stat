@@ -26,6 +26,8 @@ class FotMobMemberModel(Stat):
 
 
 class FBrefMemberModel(Stat):
+    names: set[str]
+    path_name: str
     country_code: str
     position: str
     shooting: FBrefShooting
@@ -124,8 +126,9 @@ class Team(FusionStat[Response]):
 
         players = []
         for tr in standard_stats_table.xpath("./tbody/tr"):
-            href = get_element_text(tr.xpath("./th/a/@href"))
-            id = href.split("/")[3]
+            href_strs = get_element_text(tr.xpath("./th/a/@href")).split("/")
+            path_name = href_strs[-1]
+            id = href_strs[3]
             name = get_element_text(tr.xpath("./th/a/text()"))
             country_code = get_element_text(
                 tr.xpath('./td[@data-stat="nationality"]/a/@href')
@@ -143,6 +146,8 @@ class Team(FusionStat[Response]):
                 FBrefMemberModel(
                     id=id,
                     name=name,
+                    names={name, " ".join(path_name.split("-"))},
+                    path_name=path_name,
                     country_code=country_code,
                     position=position,
                     shooting=shooting,
@@ -195,6 +200,7 @@ class Team(FusionStat[Response]):
                     players.append(
                         {
                             "name": fotmob_member.name,
+                            "names": {fotmob_member.name} | fbref_member.names,
                             "country": fotmob_member.country,
                             "position": fotmob_member.position,
                             "shooting": fbref_member.shooting.model_dump(),
@@ -204,3 +210,33 @@ class Team(FusionStat[Response]):
                     pass
 
         return players
+
+    def members_index(self) -> list[Params]:
+        fotmob = self.response.fotmob.members
+        fbref = self.response.fbref.members
+
+        params: list[Params] = []
+        for fotmob_member in fotmob:
+            if not fotmob_member.is_staff:
+                try:
+                    fbref_member = process.extractOne(
+                        fotmob_member,
+                        fbref,
+                        scorer=fuzzy_similarity_mean,
+                        processor=lambda x: [
+                            x.name,
+                            x.country_code,
+                            x.position,
+                        ],
+                        score_cutoff=MEMBERS_SIMILARITY_SCORE,
+                    )[0]
+                    params.append(
+                        Params(
+                            fotmob_id=fotmob_member.id,
+                            fbref_id=fbref_member.id,
+                            fbref_path_name=fbref_member.path_name,
+                        )
+                    )
+                except TypeError:
+                    pass
+        return params

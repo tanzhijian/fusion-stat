@@ -71,14 +71,14 @@ class Competitions(FusionStat[Response]):
             "//table[@id='comps_intl_club_cup' or @id='comps_club']/tbody/tr"
         )
         for tr in trs:
-            href = get_element_text(tr.xpath("./th/a/@href")).split("/")
-            id = href[3]
+            href_strs = get_element_text(tr.xpath("./th/a/@href")).split("/")
+            id = href_strs[3]
             if id not in index:
                 index.add(id)
                 gender = get_element_text(
                     tr.xpath("./td[@data-stat='gender']/text()")
                 )
-                name = " ".join(href[-1].split("-")[:-1])
+                name = " ".join(href_strs[-1].split("-")[:-1])
                 if (
                     process.extractOne(
                         name,

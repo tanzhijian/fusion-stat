@@ -158,13 +158,13 @@ class Competition(FusionStat[Response]):
             '//table[@id="stats_squads_shooting_for"]/tbody/tr'
         )
         for tr in trs:
-            href = get_element_text(tr.xpath("./th/a/@href")).split("/")
-            name = " ".join(href[-1].split("-")[:-1])
+            href_strs = get_element_text(tr.xpath("./th/a/@href")).split("/")
+            name = " ".join(href_strs[-1].split("-")[:-1])
             name_2 = get_element_text(tr.xpath("./th/a/text()"))
             shooting = parse_fbref_shooting(tr)
             teams.append(
                 FBrefTeamModel(
-                    id=href[3],
+                    id=href_strs[3],
                     name=name_2,
                     path_name=name.replace(" ", "-"),
                     names={name, name_2},

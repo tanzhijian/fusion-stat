@@ -156,6 +156,7 @@ class TestTeam:
         saka = r.fbref.members[4]
         assert saka.position == "FW"
         assert saka.country_code == "ENG"
+        assert saka.path_name == "Bukayo-Saka"
         assert int(saka.shooting.shots) == 11
 
     def test_staff(self, team: Team) -> None:
@@ -166,6 +167,16 @@ class TestTeam:
     def test_players(self, team: Team) -> None:
         players = team.players
         assert len(players) == 23
+        martin = players[-1]
+        assert martin["name"] == "Gabriel Martinelli"
+        assert "Gabriel Martinelli" in martin["names"]
+
+    def test_members_index(self, team: Team) -> None:
+        index = team.members_index()
+        params = index[0]
+        assert params.fotmob_id == "562727"
+        assert params.fbref_id == "98ea5115"
+        assert params.fbref_path_name == "David-Raya"
 
 
 class TestMember:
