@@ -55,7 +55,8 @@ class TestCompetitions:
         fotmob_mock("allLeagues.json", httpx_mock)
         fbref_mock("comps_.html", httpx_mock)
 
-        r = await competitions.get()
+        await competitions.get()
+        r = competitions.response
         assert len(r.fotmob) == len(COMPETITIONS)
         assert len(r.fbref) == len(COMPETITIONS)
         assert r.fotmob[0].name == "Premier League"
@@ -82,7 +83,8 @@ class TestCompetition:
         fotmob_mock("leagues?id=47.json", httpx_mock)
         fbref_mock("comps_9_Premier-League-Stats.html", httpx_mock)
 
-        r = await competition.get()
+        await competition.get()
+        r = competition.response
         assert r.fotmob.name == "Premier League"
 
     def test_info(self, competition: Competition) -> None:
@@ -138,7 +140,8 @@ class TestTeam:
         fotmob_mock("teams?id=9825.json", httpx_mock)
         fbref_mock("squads_18bb7c10_Arsenal-Stats.html", httpx_mock)
 
-        r = await team.get()
+        await team.get()
+        r = team.response
         assert r.fotmob.name == "Arsenal"
         assert r.fbref.shooting.xg == 8.3
 
@@ -180,5 +183,6 @@ class TestMember:
         fotmob_mock("playerData?id=961995.json", httpx_mock)
         fbref_mock("players_bc7dc64d_Bukayo-Saka.html", httpx_mock)
 
-        r = await member.get()
+        await member.get()
+        r = member.response
         assert r.fotmob.name == "Bukayo Saka"

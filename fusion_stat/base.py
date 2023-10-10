@@ -42,7 +42,7 @@ class FusionStat(typing.Generic[T], ABC):
     def _parse(self, data: list[httpx.Response]) -> T:
         ...
 
-    async def get(self) -> T:
+    async def get(self) -> None:
         if self.client is None:
             async with httpx.AsyncClient(**self.kwargs) as client:
                 tasks = [
@@ -58,4 +58,3 @@ class FusionStat(typing.Generic[T], ABC):
             data = await asyncio.gather(*tasks)
 
         self.response = self._parse(data)
-        return self.response
