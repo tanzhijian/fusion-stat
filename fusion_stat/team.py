@@ -8,7 +8,12 @@ from rapidfuzz import process
 from .base import FusionStat
 from .downloaders import FotMob, FBref
 from .downloaders.base import Downloader
-from .utils import unpack_params, get_element_text, parse_fbref_shooting
+from .utils import (
+    unpack_params,
+    get_element_text,
+    parse_fbref_shooting,
+    fuzzy_similarity_mean,
+)
 from .config import MEMBERS_SIMILARITY_SCORE, POSITIONS
 from .models import Params, Stat, FBrefShooting
 
@@ -177,13 +182,19 @@ class Team(FusionStat[Response]):
                     fbref_member = process.extractOne(
                         fotmob_member,
                         fbref,
-                        processor=lambda x: x.name,
+                        scorer=fuzzy_similarity_mean,
+                        processor=lambda x: [
+                            x.name,
+                            x.country_code,
+                            x.position,
+                        ],
                         score_cutoff=MEMBERS_SIMILARITY_SCORE,
                     )[0]
                     players.append(
                         {
                             "name": fotmob_member.name,
                             "country": fotmob_member.country,
+                            "position": fotmob_member.position,
                             "shooting": fbref_member.shooting.model_dump(),
                         }
                     )

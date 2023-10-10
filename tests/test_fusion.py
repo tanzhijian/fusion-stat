@@ -162,7 +162,7 @@ class TestTeam:
 
     def test_players(self, team: Team) -> None:
         players = team.players
-        assert len(players) == 21
+        assert len(players) == 23
 
 
 class TestMember:

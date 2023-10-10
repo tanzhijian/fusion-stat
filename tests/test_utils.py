@@ -1,7 +1,11 @@
 import pytest
 from pydantic import ValidationError
 
-from fusion_stat.utils import unpack_params, sort_table_key
+from fusion_stat.utils import (
+    unpack_params,
+    sort_table_key,
+    fuzzy_similarity_mean,
+)
 from fusion_stat.models import Params
 
 
@@ -37,3 +41,10 @@ def test_sort_table_key() -> None:
     }
     key = sort_table_key(team)
     assert key[0] == -20
+
+
+def test_fuzzy_similarity_mean() -> None:
+    l1 = ["Gabriel", "BRA", "DF"]
+    l2 = ["Gabriel Dos Santos", "BRA", "DF"]
+    score = fuzzy_similarity_mean(l1, l2)
+    assert score > 80
