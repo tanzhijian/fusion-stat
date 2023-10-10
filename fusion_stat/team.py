@@ -33,13 +33,13 @@ class FBrefMemberModel(Stat):
 
 class FotMobTeamModel(Stat):
     names: set[str]
-    members: list[FotMobMemberModel]
+    members: tuple[FotMobMemberModel, ...]
 
 
 class FBrefTeamModel(Stat):
     names: set[str]
     shooting: FBrefShooting
-    members: list[FBrefMemberModel]
+    members: tuple[FBrefMemberModel, ...]
 
 
 class Response(BaseModel):
@@ -96,7 +96,9 @@ class Team(FusionStat[Response]):
                     )
                 )
 
-        return FotMobTeamModel(id=id, name=name, names=names, members=members)
+        return FotMobTeamModel(
+            id=id, name=name, names=names, members=tuple(members)
+        )
 
     def _parse_fbref(self, text: str) -> FBrefTeamModel:
         selector = Selector(text)
@@ -152,7 +154,7 @@ class Team(FusionStat[Response]):
             name=team_name,
             names={team_name},
             shooting=team_shooting,
-            members=players,
+            members=tuple(players),
         )
 
     @property

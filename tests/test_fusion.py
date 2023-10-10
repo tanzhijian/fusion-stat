@@ -95,13 +95,13 @@ class TestCompetition:
     def test_teams(self, competition: Competition) -> None:
         teams = competition.teams
         assert len(teams) == 20
-        assert teams["Manchester City"]["shooting"]["xg"] == 8.6
+        assert teams[0]["shooting"]["xg"] == 8.6
 
     def test_matches(self, competition: Competition) -> None:
         matches = competition.matches
         assert len(matches) == 380
-        match = matches["Arsenal vs Manchester United"]
-        assert match["score"] == "3 - 1"
+        match = matches[0]
+        assert match["score"] == "0 - 3"
 
     def test_teams_index(self, competition: Competition) -> None:
         index = competition.teams_index()

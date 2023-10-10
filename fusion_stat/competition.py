@@ -187,11 +187,11 @@ class Competition(FusionStat[Response]):
         }
 
     @property
-    def teams(self) -> dict[str, dict[str, typing.Any]]:
+    def teams(self) -> list[dict[str, typing.Any]]:
         fotmob = self.response.fotmob.teams
         fbref = self.response.fbref.teams
 
-        teams = {}
+        teams = []
         for fotmob_team in fotmob:
             fbref_team = process.extractOne(
                 fotmob_team, fbref, processor=lambda x: x.name
@@ -200,7 +200,7 @@ class Competition(FusionStat[Response]):
             team = fotmob_team.model_dump()
             team["names"] |= fbref_team.names
             team["shooting"] = fbref_team.shooting.model_dump()
-            teams[team["name"]] = team
+            teams.append(team)
         return teams
 
     @property
@@ -217,17 +217,14 @@ class Competition(FusionStat[Response]):
                 "xg": team["shooting"]["xg"],
                 "points": team["points"],
             }
-            for team in self.teams.values()
+            for team in self.teams
         ]
         table = sorted(teams, key=sort_table_key)
         return table
 
     @property
-    def matches(self) -> dict[str, dict[str, typing.Any]]:
-        return {
-            match.name: match.model_dump()
-            for match in self.response.fotmob.matches
-        }
+    def matches(self) -> list[dict[str, typing.Any]]:
+        return [match.model_dump() for match in self.response.fotmob.matches]
 
     def teams_index(self) -> list[Params]:
         fotmob = self.response.fotmob.teams
