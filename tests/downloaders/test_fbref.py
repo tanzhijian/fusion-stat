@@ -116,3 +116,17 @@ async def test_matches(httpx_mock: HTTPXMock, fbref: FBref) -> None:
 
     r = await fbref.get_matches("2023-09-03")
     assert r.status_code == 200
+
+
+async def test_match(httpx_mock: HTTPXMock, fbref: FBref) -> None:
+    httpx_mock.add_response(
+        url="https://fbref.com/en/matches/74125d47",
+        text="halo",
+    )
+
+    params = Params(
+        fotmob_id="47",
+        fbref_id="74125d47",
+    )
+    r = await fbref.get_match(params)
+    assert r.status_code == 200

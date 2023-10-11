@@ -56,3 +56,12 @@ class FotMob(Downloader):
         params = {"date": date}
         response = await self.get(path, params=params)
         return response
+
+    async def get_match(
+        self, params: Params | dict[str, str]
+    ) -> httpx.Response:
+        params = unpack_params(params)
+        path = self.base_url + "/matchDetails"
+        httpx_params = {"matchId": params.fotmob_id}
+        response = await self.get(path, params=httpx_params)
+        return response

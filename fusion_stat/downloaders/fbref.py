@@ -85,3 +85,11 @@ class FBref(Downloader):
 
         response = await self.get(path)
         return response
+
+    async def get_match(self, params: Params) -> httpx.Response:
+        params = unpack_params(params)
+        path = f"/matches/{params.fbref_id}"
+        path = self.base_url + path
+
+        response = await self.get(path)
+        return response

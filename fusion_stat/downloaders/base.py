@@ -57,3 +57,6 @@ class Downloader:
         * date: "%Y-%m-%d", such as "2023-09-03"
         """
         raise NotImplementedError
+
+    async def get_match(self, params: Params) -> httpx.Response:
+        raise NotImplementedError

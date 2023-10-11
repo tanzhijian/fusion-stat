@@ -14,6 +14,7 @@ from fusion_stat import (
     Team,
     Member,
     Matches,
+    Match,
     Params,
 )
 from fusion_stat.config import COMPETITIONS
@@ -225,3 +226,23 @@ class TestMatches:
         match_2 = r.fbref[0]
         assert match_2.id == "55398360"
         assert match_2.name == "Bangladesh vs Afghanistan"
+
+
+class TestMatch:
+    @pytest.fixture(scope="class")
+    def match(self) -> typing.Generator[Match, typing.Any, None]:
+        params = Params(
+            fotmob_id="4193490",
+            fbref_id="74125d47",
+        )
+        yield Match(params)
+
+    @pytest.mark.asyncio
+    async def test_get(self, match: Match, httpx_mock: HTTPXMock) -> None:
+        fotmob_mock("matchDetails?matchId=4193490.json", httpx_mock)
+        fbref_mock("matches_74125d47.html", httpx_mock)
+
+        await match.get()
+        r = match.response
+        assert r.fotmob.name == "Arsenal vs Manchester United"
+        assert r.fbref.name == "Arsenal vs Manchester United"

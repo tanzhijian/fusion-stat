@@ -65,3 +65,14 @@ async def test_get_matches(httpx_mock: HTTPXMock, fotmob: FotMob) -> None:
 
     r = await fotmob.get_matches("2023-09-03")
     assert r.status_code == 200
+
+
+async def test_get_match(httpx_mock: HTTPXMock, fotmob: FotMob) -> None:
+    httpx_mock.add_response(
+        url="https://www.fotmob.com/api/matchDetails?matchId=4193490",
+        json={"foo": "bar"},
+    )
+
+    params = {"fotmob_id": "4193490", "fbref_id": "9"}
+    r = await fotmob.get_match(params)
+    assert r.status_code == 200
