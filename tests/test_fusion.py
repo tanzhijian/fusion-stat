@@ -8,7 +8,14 @@ import pytest_asyncio
 import httpx
 from pytest_httpx import HTTPXMock
 
-from fusion_stat import Competitions, Competition, Team, Member, Params
+from fusion_stat import (
+    Competitions,
+    Competition,
+    Team,
+    Member,
+    Matches,
+    Params,
+)
 from fusion_stat.config import COMPETITIONS
 
 
@@ -197,3 +204,24 @@ class TestMember:
         await member.get()
         r = member.response
         assert r.fotmob.name == "Bukayo Saka"
+
+
+class TestMatches:
+    @pytest.fixture(scope="class")
+    def matches(self) -> typing.Generator[Matches, typing.Any, None]:
+        yield Matches("2023-09-03")
+
+    @pytest.mark.asyncio
+    async def test_get(self, matches: Matches, httpx_mock: HTTPXMock) -> None:
+        fotmob_mock("matches?date=20230903.json", httpx_mock)
+        fbref_mock("matches_2023-09-03.html", httpx_mock)
+
+        await matches.get()
+        r = matches.response
+        match_1 = r.fotmob[0]
+        assert match_1.id == "4193495"
+        assert match_1.name == "Crystal Palace vs Wolverhampton Wanderers"
+
+        match_2 = r.fbref[0]
+        assert match_2.id == "55398360"
+        assert match_2.name == "Bangladesh vs Afghanistan"

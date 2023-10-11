@@ -106,3 +106,13 @@ async def test_player(httpx_mock: HTTPXMock, fbref: FBref) -> None:
     )
     r = await fbref.get_member(params)
     assert r.status_code == 200
+
+
+async def test_matches(httpx_mock: HTTPXMock, fbref: FBref) -> None:
+    httpx_mock.add_response(
+        url="https://fbref.com/en/matches/2023-09-03",
+        text="halo",
+    )
+
+    r = await fbref.get_matches("2023-09-03")
+    assert r.status_code == 200

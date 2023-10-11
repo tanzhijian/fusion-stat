@@ -44,8 +44,8 @@ class Member(FusionStat[Response]):
         self, downloader_cls: type[Downloader], client: httpx.AsyncClient
     ) -> httpx.Response:
         downloader = downloader_cls(client=client, **self.kwargs)
-        player = await downloader.get_member(self.params)
-        return player
+        member = await downloader.get_member(self.params)
+        return member
 
     def _parse(self, data: list[httpx.Response]) -> Response:
         fotmob_response, fbref_response = data

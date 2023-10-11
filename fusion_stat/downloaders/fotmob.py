@@ -45,3 +45,14 @@ class FotMob(Downloader):
         httpx_params = {"id": params.fotmob_id}
         response = await self.get(path, params=httpx_params)
         return response
+
+    async def get_matches(self, date: str) -> httpx.Response:
+        """Parameters:
+
+        * date: "%Y-%m-%d", such as "2023-09-03"
+        """
+        date = date.replace("-", "")
+        path = self.base_url + "/matches"
+        params = {"date": date}
+        response = await self.get(path, params=params)
+        return response

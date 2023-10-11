@@ -50,3 +50,10 @@ class Downloader:
 
     async def get_member(self, params: Params) -> httpx.Response:
         raise NotImplementedError
+
+    async def get_matches(self, date: str) -> httpx.Response:
+        """Parameters:
+
+        * date: "%Y-%m-%d", such as "2023-09-03"
+        """
+        raise NotImplementedError

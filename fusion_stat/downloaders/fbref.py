@@ -74,3 +74,14 @@ class FBref(Downloader):
 
         response = await self.get(path)
         return response
+
+    async def get_matches(self, date: str) -> httpx.Response:
+        """Parameters:
+
+        * date: "%Y-%m-%d", such as "2023-09-03"
+        """
+        path = f"/matches/{date}"
+        path = self.base_url + path
+
+        response = await self.get(path)
+        return response
