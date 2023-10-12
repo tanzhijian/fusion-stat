@@ -132,6 +132,22 @@ class Matches(FusionStat[Response]):
                 pass
         return tuple(matches)
 
+    @property
+    def info(self) -> dict[str, typing.Any]:
+        fotmob = self.response.fotmob
+        fbref = self.response.fbref
+
+        matches = []
+        for fotmob_match in fotmob:
+            if not fotmob_match.cancelled:
+                fbref_match = process.extractOne(
+                    fotmob_match, fbref, processor=lambda x: x.name
+                )[0]
+                match = fotmob_match.model_dump(exclude={"id"})
+                match["name"] = fbref_match.name
+                matches.append(match)
+        return {"date": self.date, "matches": matches}
+
     def index(self) -> list[Params]:
         fotmob = self.response.fotmob
         fbref = self.response.fbref

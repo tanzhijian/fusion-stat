@@ -230,6 +230,12 @@ class TestMatches:
         assert match_2.id == "bdbc722e"
         assert match_2.name == "Liverpool vs Aston Villa"
 
+    def test_info(self, matches: Matches) -> None:
+        info = matches.info
+        match = info["matches"][0]
+        assert match["name"] == "Crystal Palace vs Wolves"
+        assert match["score"] == "3 - 2"
+
     def test_index(self, matches: Matches) -> None:
         index = matches.index()
         assert len(index) == 18
