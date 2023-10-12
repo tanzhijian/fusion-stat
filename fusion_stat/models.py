@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class Params(BaseModel):
@@ -9,7 +9,7 @@ class Params(BaseModel):
 
 
 class Stat(BaseModel):
-    id: str
+    id: str = Field(exclude=True)
     name: str
 
 
