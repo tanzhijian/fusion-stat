@@ -230,6 +230,13 @@ class TestMatches:
         assert match_2.id == "bdbc722e"
         assert match_2.name == "Liverpool vs Aston Villa"
 
+    def test_index(self, matches: Matches) -> None:
+        index = matches.index()
+        assert len(index) == 18
+        params = index[0]
+        assert params.fotmob_id == "4193495"
+        assert params.fbref_id == "f9436d32"
+
 
 class TestMatch:
     @pytest.fixture(scope="class")

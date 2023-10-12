@@ -3,17 +3,25 @@ import typing
 import httpx
 from parsel import Selector
 from pydantic import BaseModel
+from rapidfuzz import process
 
 from .base import FusionStat
 from .downloaders import FotMob, FBref
 from .downloaders.base import Downloader
 from .utils import get_element_text
 from .config import COMPETITIONS_INDEX
-from .models import Stat
+from .models import Stat, Params
 
 
 class FotMobMatchModel(Stat):
-    ...
+    utc_time: str
+    finished: bool
+    started: bool
+    cancelled: bool
+    score: str | None
+    competition: Stat
+    home: Stat
+    away: Stat
 
 
 class FBrefMatchModel(Stat):
@@ -61,7 +69,7 @@ class Matches(FusionStat[Response]):
         matches = []
         competitions_id = {c.fotmob_id for c in COMPETITIONS_INDEX}
         for competition in json["leagues"]:
-            if str(competition["id"]) in competitions_id:
+            if (competition_id := str(competition["id"])) in competitions_id:
                 for match in competition["matches"]:
                     home_name = match["home"]["longName"]
                     away_name = match["away"]["longName"]
@@ -69,6 +77,22 @@ class Matches(FusionStat[Response]):
                         FotMobMatchModel(
                             id=str(match["id"]),
                             name=f"{home_name} vs {away_name}",
+                            utc_time=match["status"]["utcTime"],
+                            finished=match["status"]["finished"],
+                            started=match["status"]["started"],
+                            cancelled=match["status"]["cancelled"],
+                            score=match["status"].get("scoreStr"),
+                            competition=Stat(
+                                id=competition_id, name=competition["name"]
+                            ),
+                            home=Stat(
+                                id=str(match["home"]["id"]),
+                                name=home_name,
+                            ),
+                            away=Stat(
+                                id=str(match["away"]["id"]),
+                                name=away_name,
+                            ),
                         )
                     )
         return tuple(matches)
@@ -107,3 +131,18 @@ class Matches(FusionStat[Response]):
             except ValueError:
                 pass
         return tuple(matches)
+
+    def index(self) -> list[Params]:
+        fotmob = self.response.fotmob
+        fbref = self.response.fbref
+
+        params = []
+        for fotmob_match in fotmob:
+            if not fotmob_match.cancelled:
+                fbref_match = process.extractOne(
+                    fotmob_match, fbref, processor=lambda x: x.name
+                )[0]
+                params.append(
+                    Params(fotmob_id=fotmob_match.id, fbref_id=fbref_match.id)
+                )
+        return params
