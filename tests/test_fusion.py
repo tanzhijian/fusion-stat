@@ -219,13 +219,16 @@ class TestMatches:
 
         await matches.get()
         r = matches.response
+        # 包含一场被取消的比赛 Atletico Madrid vs Sevilla
+        assert len(r.fotmob) == len(r.fbref) + 1
+
         match_1 = r.fotmob[0]
         assert match_1.id == "4193495"
         assert match_1.name == "Crystal Palace vs Wolverhampton Wanderers"
 
         match_2 = r.fbref[0]
-        assert match_2.id == "55398360"
-        assert match_2.name == "Bangladesh vs Afghanistan"
+        assert match_2.id == "bdbc722e"
+        assert match_2.name == "Liverpool vs Aston Villa"
 
 
 class TestMatch:

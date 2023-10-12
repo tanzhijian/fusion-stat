@@ -8,6 +8,7 @@ from .base import FusionStat
 from .downloaders import FotMob, FBref
 from .downloaders.base import Downloader
 from .utils import get_element_text
+from .config import COMPETITIONS_INDEX
 from .models import Stat
 
 
@@ -58,22 +59,31 @@ class Matches(FusionStat[Response]):
 
     def _parse_fotmob(self, json: typing.Any) -> tuple[FotMobMatchModel, ...]:
         matches = []
-        for league in json["leagues"]:
-            for match in league["matches"]:
-                home_name = match["home"]["longName"]
-                away_name = match["away"]["longName"]
-                matches.append(
-                    FotMobMatchModel(
-                        id=str(match["id"]),
-                        name=f"{home_name} vs {away_name}",
+        competitions_id = {c.fotmob_id for c in COMPETITIONS_INDEX}
+        for competition in json["leagues"]:
+            if str(competition["id"]) in competitions_id:
+                for match in competition["matches"]:
+                    home_name = match["home"]["longName"]
+                    away_name = match["away"]["longName"]
+                    matches.append(
+                        FotMobMatchModel(
+                            id=str(match["id"]),
+                            name=f"{home_name} vs {away_name}",
+                        )
                     )
-                )
         return tuple(matches)
 
     def _parse_fbref(self, text: str) -> tuple[FBrefMatchModel, ...]:
         selector = Selector(text)
         matches = []
-        trs = selector.xpath('//table[starts-with(@id,"sched_")]/tbody/tr')
+
+        competitions_id_str = "|".join(
+            (c.fbref_id for c in COMPETITIONS_INDEX)
+        )
+        tables = selector.xpath(
+            f"//table[re:test(@id, 'sched_.*_({competitions_id_str})\\b')]"
+        )
+        trs = tables.xpath("./tbody/tr")
         # 如果还没有进行的比赛会找不到对应节点
         for tr in trs:
             try:
