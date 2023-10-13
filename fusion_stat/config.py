@@ -10,12 +10,10 @@ COMPETITIONS = {
     "Bundesliga",
     "Serie A",
     "Ligue 1",
-    "Champions League",
 }
 
 COMPETITIONS_INDEX = (
     Params(fotmob_id="47", fbref_id="9", fbref_path_name="Premier-League"),
-    Params(fotmob_id="42", fbref_id="8", fbref_path_name="Champions-League"),
     Params(fotmob_id="87", fbref_id="12", fbref_path_name="La-Liga"),
     Params(fotmob_id="54", fbref_id="20", fbref_path_name="Bundesliga"),
     Params(fotmob_id="55", fbref_id="11", fbref_path_name="Serie-A"),
