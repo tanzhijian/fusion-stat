@@ -12,13 +12,11 @@ class FBref(Downloader):
         self, client: httpx.AsyncClient, **kwargs: typing.Any
     ) -> None:
         super().__init__(client, **kwargs)
-        # pytest_httpx 会造成 client.base_url = "https://fbref.com/en" 类型提示错误
-        # 暂时先这样写，后续解决了再设置 self.client.base_url
         self.base_url = "https://fbref.com/en"
 
     async def get_competitions(self) -> httpx.Response:
-        path = self.base_url + "/comps/"
-        response = await self.get(path)
+        url = self.base_url + "/comps/"
+        response = await self.get(url)
         return response
 
     async def get_competition(
@@ -36,9 +34,9 @@ class FBref(Downloader):
             if params.fbref_path_name:
                 path += f"/{params.fbref_path_name}-Stats"
 
-        path = self.base_url + path
+        url = self.base_url + path
 
-        response = await self.get(path)
+        response = await self.get(url)
         return response
 
     async def get_team(
@@ -56,9 +54,9 @@ class FBref(Downloader):
             if params.fbref_path_name:
                 path += f"/{params.fbref_path_name}-Stats"
 
-        path = self.base_url + path
+        url = self.base_url + path
 
-        response = await self.get(path)
+        response = await self.get(url)
         return response
 
     async def get_member(
@@ -70,9 +68,9 @@ class FBref(Downloader):
         if params.fbref_path_name:
             path += params.fbref_path_name
 
-        path = self.base_url + path
+        url = self.base_url + path
 
-        response = await self.get(path)
+        response = await self.get(url)
         return response
 
     async def get_matches(self, date: str) -> httpx.Response:
@@ -81,15 +79,15 @@ class FBref(Downloader):
         * date: "%Y-%m-%d", such as "2023-09-03"
         """
         path = f"/matches/{date}"
-        path = self.base_url + path
+        url = self.base_url + path
 
-        response = await self.get(path)
+        response = await self.get(url)
         return response
 
     async def get_match(self, params: Params) -> httpx.Response:
         params = unpack_params(params)
         path = f"/matches/{params.fbref_id}"
-        path = self.base_url + path
+        url = self.base_url + path
 
-        response = await self.get(path)
+        response = await self.get(url)
         return response

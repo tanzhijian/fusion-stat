@@ -15,35 +15,35 @@ class FotMob(Downloader):
         self.base_url = "https://www.fotmob.com/api"
 
     async def get_competitions(self) -> httpx.Response:
-        path = self.base_url + "/allLeagues"
-        response = await self.get(path)
+        url = self.base_url + "/allLeagues"
+        response = await self.get(url)
         return response
 
     async def get_competition(
         self, params: Params | dict[str, str]
     ) -> httpx.Response:
         params = unpack_params(params)
-        path = self.base_url + "/leagues"
+        url = self.base_url + "/leagues"
         httpx_params = {"id": params.fotmob_id}
-        response = await self.get(path, params=httpx_params)
+        response = await self.get(url, params=httpx_params)
         return response
 
     async def get_team(
         self, params: Params | dict[str, str]
     ) -> httpx.Response:
         params = unpack_params(params)
-        path = self.base_url + "/teams"
+        url = self.base_url + "/teams"
         httpx_params = {"id": params.fotmob_id}
-        response = await self.get(path, params=httpx_params)
+        response = await self.get(url, params=httpx_params)
         return response
 
     async def get_member(
         self, params: Params | dict[str, str]
     ) -> httpx.Response:
         params = unpack_params(params)
-        path = self.base_url + "/playerData"
+        url = self.base_url + "/playerData"
         httpx_params = {"id": params.fotmob_id}
-        response = await self.get(path, params=httpx_params)
+        response = await self.get(url, params=httpx_params)
         return response
 
     async def get_matches(self, date: str) -> httpx.Response:
@@ -52,16 +52,16 @@ class FotMob(Downloader):
         * date: "%Y-%m-%d", such as "2023-09-03"
         """
         date = date.replace("-", "")
-        path = self.base_url + "/matches"
+        url = self.base_url + "/matches"
         params = {"date": date}
-        response = await self.get(path, params=params)
+        response = await self.get(url, params=params)
         return response
 
     async def get_match(
         self, params: Params | dict[str, str]
     ) -> httpx.Response:
         params = unpack_params(params)
-        path = self.base_url + "/matchDetails"
+        url = self.base_url + "/matchDetails"
         httpx_params = {"matchId": params.fotmob_id}
-        response = await self.get(path, params=httpx_params)
+        response = await self.get(url, params=httpx_params)
         return response
