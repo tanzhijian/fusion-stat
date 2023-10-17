@@ -233,7 +233,7 @@ class TestMatches:
     def test_info(self, matches: Matches) -> None:
         info = matches.info
         match = info["matches"][0]
-        assert match["name"] == "Crystal Palace vs Wolves"
+        assert match["name"] == "Crystal Palace vs Wolverhampton Wanderers"
         assert match["score"] == "3 - 2"
 
     def test_index(self, matches: Matches) -> None:
