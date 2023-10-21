@@ -6,7 +6,7 @@ MEMBERS_SIMILARITY_SCORE = 80
 
 COMPETITIONS = {
     "Premier League",
-    "LaLiga",
+    "La Liga",
     "Bundesliga",
     "Serie A",
     "Ligue 1",

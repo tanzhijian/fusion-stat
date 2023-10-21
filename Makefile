@@ -1,5 +1,5 @@
 test:
-	poetry run ruff --format=github --target-version=py310 .
+	poetry run ruff .
 	poetry run mypy .
 	poetry run pytest
 
