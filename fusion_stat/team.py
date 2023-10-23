@@ -67,7 +67,7 @@ class Team(FusionStat[Response]):
         self, downloader_cls: type[Downloader], client: httpx.AsyncClient
     ) -> httpx.Response:
         downloader = downloader_cls(client=client, **self.kwargs)
-        team = await downloader.get_team(self.params)
+        team = await downloader.get_team(**self.params[downloader.name])
         return team
 
     def _parse(self, data: list[httpx.Response]) -> Response:
@@ -155,7 +155,7 @@ class Team(FusionStat[Response]):
             )
 
         return FBrefTeamModel(
-            id=self.params.fbref_id,
+            id=self.params["fbref"]["id"],
             name=team_name,
             names={team_name},
             shooting=team_shooting,

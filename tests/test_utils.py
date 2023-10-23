@@ -17,7 +17,7 @@ def test_unpack_params() -> None:
             fbref_path_name="Premier-League",
         )
     )
-    assert params.fotmob_id == "47"
+    assert params["fotmob"]["id"] == "47"
 
     params = unpack_params(
         {
@@ -26,7 +26,7 @@ def test_unpack_params() -> None:
             "fbref_path_name": "Premier-League",
         }
     )
-    assert params.fotmob_id == "47"
+    assert params["fotmob"]["id"] == "47"
 
     with pytest.raises(ValidationError):
         params = unpack_params({"foo": "bar"})

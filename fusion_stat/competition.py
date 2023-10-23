@@ -80,7 +80,9 @@ class Competition(FusionStat[Response]):
         self, downloader_cls: type[Downloader], client: httpx.AsyncClient
     ) -> httpx.Response:
         downloader = downloader_cls(client=client, **self.kwargs)
-        competition = await downloader.get_competition(self.params)
+        competition = await downloader.get_competition(
+            **self.params[downloader.name]
+        )
         return competition
 
     def _parse(self, data: list[httpx.Response]) -> Response:
@@ -126,7 +128,9 @@ class Competition(FusionStat[Response]):
                     started=match["status"]["started"],
                     cancelled=match["status"]["cancelled"],
                     score=match["status"].get("scoreStr"),
-                    competition=Stat(id=self.params.fotmob_id, name=name),
+                    competition=Stat(
+                        id=self.params["fotmob"]["id"], name=name
+                    ),
                     home=Stat(
                         id=str(match["home"]["id"]),
                         name=home_name,
@@ -139,7 +143,7 @@ class Competition(FusionStat[Response]):
             )
 
         return FotMobCompetitionModel(
-            id=self.params.fotmob_id,
+            id=self.params["fotmob"]["id"],
             name=name,
             type=type,
             season=season,
@@ -172,7 +176,7 @@ class Competition(FusionStat[Response]):
                 )
             )
         return FBrefCompetitionModel(
-            id=self.params.fbref_id,
+            id=self.params["fotmob"]["id"],
             name=competition_name,
             teams=tuple(teams),
         )

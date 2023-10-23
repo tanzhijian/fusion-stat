@@ -22,10 +22,17 @@ def parse_fbref_shooting(
     )
 
 
-def unpack_params(params: Params | dict[str, str]) -> Params:
+def unpack_params(
+    params: Params | dict[str, str]
+) -> dict[str, dict[str, str]]:
     if isinstance(params, dict):
-        return Params(**params)
-    return params
+        params = Params(**params)
+
+    fotmob = {"id": params.fotmob_id}
+    fbref = {"id": params.fbref_id}
+    if params.fbref_path_name:
+        fbref["path_name"] = params.fbref_path_name
+    return {"fotmob": fotmob, "fbref": fbref}
 
 
 def sort_table_key(team: dict[str, typing.Any]) -> tuple[typing.Any, ...]:

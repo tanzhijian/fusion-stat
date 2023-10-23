@@ -6,7 +6,6 @@ import httpx
 from pytest_httpx import HTTPXMock
 
 from fusion_stat.downloaders import FotMob
-from fusion_stat.models import Params
 
 
 pytestmark = pytest.mark.asyncio
@@ -31,8 +30,7 @@ async def test_get_competition(fotmob: FotMob, httpx_mock: HTTPXMock) -> None:
         url="https://www.fotmob.com/api/leagues?id=47", json={"foo": "bar"}
     )
 
-    params = Params(fotmob_id="47", fbref_id="9", fbref_path_name="pl")
-    r = await fotmob.get_competition(params)
+    r = await fotmob.get_competition("47")
     assert r.status_code == 200
 
 
@@ -41,8 +39,7 @@ async def test_get_team(httpx_mock: HTTPXMock, fotmob: FotMob) -> None:
         url="https://www.fotmob.com/api/teams?id=9825", json={"foo": "bar"}
     )
 
-    params = {"fotmob_id": "9825", "fbref_id": "9", "fbref_path_name": "pl"}
-    r = await fotmob.get_team(params)
+    r = await fotmob.get_team("9825")
     assert r.status_code == 200
 
 
@@ -52,8 +49,7 @@ async def test_get_player(httpx_mock: HTTPXMock, fotmob: FotMob) -> None:
         json={"foo": "bar"},
     )
 
-    params = {"fotmob_id": "961995", "fbref_id": "9", "fbref_path_name": "pl"}
-    r = await fotmob.get_member(params)
+    r = await fotmob.get_member("961995")
     assert r.status_code == 200
 
 
@@ -73,6 +69,5 @@ async def test_get_match(httpx_mock: HTTPXMock, fotmob: FotMob) -> None:
         json={"foo": "bar"},
     )
 
-    params = {"fotmob_id": "4193490", "fbref_id": "9"}
-    r = await fotmob.get_match(params)
+    r = await fotmob.get_match("4193490")
     assert r.status_code == 200

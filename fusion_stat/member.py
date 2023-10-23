@@ -44,7 +44,7 @@ class Member(FusionStat[Response]):
         self, downloader_cls: type[Downloader], client: httpx.AsyncClient
     ) -> httpx.Response:
         downloader = downloader_cls(client=client, **self.kwargs)
-        member = await downloader.get_member(self.params)
+        member = await downloader.get_member(**self.params[downloader.name])
         return member
 
     def _parse(self, data: list[httpx.Response]) -> Response:
@@ -59,7 +59,7 @@ class Member(FusionStat[Response]):
         position = json["origin"]["positionDesc"]["primaryPosition"]["label"]
         is_staff = position == "Coach"
         return FotMobMemberModel(
-            id=self.params.fotmob_id,
+            id=self.params["fotmob"]["id"],
             name=name,
             country=country,
             position=position,
@@ -76,5 +76,5 @@ class Member(FusionStat[Response]):
         shooting = parse_fbref_shooting(tr)
 
         return FBrefMemberModel(
-            id=self.params.fbref_id, name=name, shooting=shooting
+            id=self.params["fbref"]["id"], name=name, shooting=shooting
         )

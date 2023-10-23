@@ -6,7 +6,6 @@ import httpx
 from pytest_httpx import HTTPXMock
 
 from fusion_stat.downloaders import FBref
-from fusion_stat.models import Params
 
 pytestmark = pytest.mark.asyncio
 
@@ -36,22 +35,18 @@ async def test_get_competition(httpx_mock: HTTPXMock, fbref: FBref) -> None:
     for url in urls:
         httpx_mock.add_response(url=url, text="halo")
 
-    params = Params(
-        fotmob_id="47",
-        fbref_id="9",
-        fbref_path_name="Premier-League",
+    r = await fbref.get_competition("9", path_name="Premier-League")
+    assert r.status_code == 200
+
+    r = await fbref.get_competition(
+        "9", "2022-2023", path_name="Premier-League"
     )
-    r = await fbref.get_competition(params)
     assert r.status_code == 200
 
-    r = await fbref.get_competition(params, "2022-2023")
+    r = await fbref.get_competition("9")
     assert r.status_code == 200
 
-    params = Params(fotmob_id="47", fbref_id="9")
-    r = await fbref.get_competition(params)
-    assert r.status_code == 200
-
-    r = await fbref.get_competition(params, "2022-2023")
+    r = await fbref.get_competition("9", "2022-2023")
     assert r.status_code == 200
 
 
@@ -65,22 +60,18 @@ async def test_get_team(httpx_mock: HTTPXMock, fbref: FBref) -> None:
     for url in urls:
         httpx_mock.add_response(url=url, text="halo")
 
-    params = Params(
-        fotmob_id="47",
-        fbref_id="18bb7c10",
-        fbref_path_name="Arsenal",
+    r = await fbref.get_team("18bb7c10", path_name="Arsenal")
+    assert r.status_code == 200
+
+    r = await fbref.get_team(
+        "18bb7c10", path_name="Arsenal", season="2022-2023"
     )
-    r = await fbref.get_team(params)
     assert r.status_code == 200
 
-    r = await fbref.get_team(params, season="2022-2023")
+    r = await fbref.get_team("18bb7c10")
     assert r.status_code == 200
 
-    params = Params(fotmob_id="47", fbref_id="18bb7c10")
-    r = await fbref.get_team(params)
-    assert r.status_code == 200
-
-    r = await fbref.get_team(params, season="2022-2023")
+    r = await fbref.get_team("18bb7c10", season="2022-2023")
     assert r.status_code == 200
 
 
@@ -92,19 +83,10 @@ async def test_player(httpx_mock: HTTPXMock, fbref: FBref) -> None:
     for url in urls:
         httpx_mock.add_response(url=url, text="halo")
 
-    params = Params(
-        fotmob_id="47",
-        fbref_id="bc7dc64d",
-    )
-    r = await fbref.get_member(params)
+    r = await fbref.get_member("bc7dc64d")
     assert r.status_code == 200
 
-    params = Params(
-        fotmob_id="47",
-        fbref_id="bc7dc64d",
-        fbref_path_name="Bukayo-Saka",
-    )
-    r = await fbref.get_member(params)
+    r = await fbref.get_member("bc7dc64d", path_name="Bukayo-Saka")
     assert r.status_code == 200
 
 
@@ -124,9 +106,5 @@ async def test_match(httpx_mock: HTTPXMock, fbref: FBref) -> None:
         text="halo",
     )
 
-    params = Params(
-        fotmob_id="47",
-        fbref_id="74125d47",
-    )
-    r = await fbref.get_match(params)
+    r = await fbref.get_match("74125d47")
     assert r.status_code == 200

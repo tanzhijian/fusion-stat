@@ -3,8 +3,6 @@ import typing
 import httpx
 
 from .base import Downloader
-from fusion_stat.models import Params
-from fusion_stat.utils import unpack_params
 
 
 class FotMob(Downloader):
@@ -19,31 +17,22 @@ class FotMob(Downloader):
         response = await self.get(url)
         return response
 
-    async def get_competition(
-        self, params: Params | dict[str, str]
-    ) -> httpx.Response:
-        params = unpack_params(params)
+    async def get_competition(self, id: str, **kwargs: str) -> httpx.Response:
         url = self.base_url + "/leagues"
-        httpx_params = {"id": params.fotmob_id}
-        response = await self.get(url, params=httpx_params)
+        params = {"id": id}
+        response = await self.get(url, params=params)
         return response
 
-    async def get_team(
-        self, params: Params | dict[str, str]
-    ) -> httpx.Response:
-        params = unpack_params(params)
+    async def get_team(self, id: str, **kwargs: str) -> httpx.Response:
         url = self.base_url + "/teams"
-        httpx_params = {"id": params.fotmob_id}
-        response = await self.get(url, params=httpx_params)
+        params = {"id": id}
+        response = await self.get(url, params=params)
         return response
 
-    async def get_member(
-        self, params: Params | dict[str, str]
-    ) -> httpx.Response:
-        params = unpack_params(params)
+    async def get_member(self, id: str, **kwargs: str) -> httpx.Response:
         url = self.base_url + "/playerData"
-        httpx_params = {"id": params.fotmob_id}
-        response = await self.get(url, params=httpx_params)
+        params = {"id": id}
+        response = await self.get(url, params=params)
         return response
 
     async def get_matches(self, date: str) -> httpx.Response:
@@ -57,11 +46,8 @@ class FotMob(Downloader):
         response = await self.get(url, params=params)
         return response
 
-    async def get_match(
-        self, params: Params | dict[str, str]
-    ) -> httpx.Response:
-        params = unpack_params(params)
+    async def get_match(self, id: str) -> httpx.Response:
         url = self.base_url + "/matchDetails"
-        httpx_params = {"matchId": params.fotmob_id}
-        response = await self.get(url, params=httpx_params)
+        params = {"matchId": id}
+        response = await self.get(url, params=params)
         return response

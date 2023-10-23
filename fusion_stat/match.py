@@ -42,7 +42,7 @@ class Match(FusionStat[Response]):
         self, downloader_cls: type[Downloader], client: httpx.AsyncClient
     ) -> httpx.Response:
         downloader = downloader_cls(client=client, **self.kwargs)
-        match = await downloader.get_match(self.params)
+        match = await downloader.get_match(**self.params[downloader.name])
         return match
 
     def _parse(self, data: list[httpx.Response]) -> Response:
@@ -52,7 +52,7 @@ class Match(FusionStat[Response]):
         return Response(fotmob=fotmob, fbref=fbref)
 
     def _parse_fotmob(self, json: typing.Any) -> FotMobMatchModel:
-        id = self.params.fotmob_id
+        id = self.params["fotmob"]["id"]
         home_team, away_team = json["header"]["teams"]
         home_name = home_team["name"]
         away_name = away_team["name"]
@@ -64,6 +64,6 @@ class Match(FusionStat[Response]):
             '//div[@class="scorebox"]//strong/a/text()'
         ).getall()[:2]
         return FBrefMatchModel(
-            id=self.params.fbref_id,
+            id=self.params["fbref"]["id"],
             name=f"{home_name} vs {away_name}",
         )
