@@ -42,13 +42,13 @@ class Downloader:
     async def get_competitions(self) -> httpx.Response:
         raise NotImplementedError
 
-    async def get_competition(self, id: str, **kwargs: str) -> httpx.Response:
+    async def get_competition(self, id: str) -> httpx.Response:
         raise NotImplementedError
 
-    async def get_team(self, id: str, **kwargs: str) -> httpx.Response:
+    async def get_team(self, id: str) -> httpx.Response:
         raise NotImplementedError
 
-    async def get_member(self, id: str, **kwargs: str) -> httpx.Response:
+    async def get_member(self, id: str) -> httpx.Response:
         raise NotImplementedError
 
     async def get_matches(self, date: str) -> httpx.Response:

@@ -17,19 +17,19 @@ class FotMob(Downloader):
         response = await self.get(url)
         return response
 
-    async def get_competition(self, id: str, **kwargs: str) -> httpx.Response:
+    async def get_competition(self, id: str) -> httpx.Response:
         url = self.base_url + "/leagues"
         params = {"id": id}
         response = await self.get(url, params=params)
         return response
 
-    async def get_team(self, id: str, **kwargs: str) -> httpx.Response:
+    async def get_team(self, id: str) -> httpx.Response:
         url = self.base_url + "/teams"
         params = {"id": id}
         response = await self.get(url, params=params)
         return response
 
-    async def get_member(self, id: str, **kwargs: str) -> httpx.Response:
+    async def get_member(self, id: str) -> httpx.Response:
         url = self.base_url + "/playerData"
         params = {"id": id}
         response = await self.get(url, params=params)

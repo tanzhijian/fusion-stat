@@ -39,14 +39,14 @@ async def test_get_competition(httpx_mock: HTTPXMock, fbref: FBref) -> None:
     assert r.status_code == 200
 
     r = await fbref.get_competition(
-        "9", "2022-2023", path_name="Premier-League"
+        "9", season="2022-2023", path_name="Premier-League"
     )
     assert r.status_code == 200
 
     r = await fbref.get_competition("9")
     assert r.status_code == 200
 
-    r = await fbref.get_competition("9", "2022-2023")
+    r = await fbref.get_competition("9", season="2022-2023")
     assert r.status_code == 200
 
 

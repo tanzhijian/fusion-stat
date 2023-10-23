@@ -18,15 +18,19 @@ class FBref(Downloader):
         return response
 
     async def get_competition(
-        self, id: str, season: str | None = None, **kwargs: str
+        self,
+        id: str,
+        *,
+        path_name: str | None = None,
+        season: str | None = None,
     ) -> httpx.Response:
         if season:
             path = "/comps" + f"/{id}/{season}"
-            if path_name := kwargs.get("path_name"):
+            if path_name:
                 path += f"/{season}-{path_name}-Stats"
         else:
             path = "/comps" + f"/{id}"
-            if path_name := kwargs.get("path_name"):
+            if path_name:
                 path += f"/{path_name}-Stats"
 
         url = self.base_url + path
@@ -35,15 +39,19 @@ class FBref(Downloader):
         return response
 
     async def get_team(
-        self, id: str, season: str | None = None, **kwargs: str
+        self,
+        id: str,
+        *,
+        path_name: str | None = None,
+        season: str | None = None,
     ) -> httpx.Response:
         if season:
             path = "/squads" + f"/{id}/{season}"
-            if path_name := kwargs.get("path_name"):
+            if path_name:
                 path += f"/{path_name}-Stats"
         else:
             path = "/squads" + f"/{id}"
-            if path_name := kwargs.get("path_name"):
+            if path_name:
                 path += f"/{path_name}-Stats"
 
         url = self.base_url + path
@@ -51,9 +59,15 @@ class FBref(Downloader):
         response = await self.get(url)
         return response
 
-    async def get_member(self, id: str, **kwargs: str) -> httpx.Response:
+    async def get_member(
+        self,
+        id: str,
+        *,
+        path_name: str | None = None,
+        season: str | None = None,
+    ) -> httpx.Response:
         path = f"/players/{id}/"
-        if path_name := kwargs.get("path_name"):
+        if path_name:
             path += path_name
 
         url = self.base_url + path
