@@ -5,6 +5,7 @@ from fusion_stat.utils import (
     unpack_params,
     sort_table_key,
     fuzzy_similarity_mean,
+    current_season,
 )
 from fusion_stat.models import Params
 
@@ -48,3 +49,8 @@ def test_fuzzy_similarity_mean() -> None:
     l2 = ["Gabriel Dos Santos", "BRA", "DF"]
     score = fuzzy_similarity_mean(l1, l2)
     assert score > 80
+
+
+def test_current_season() -> None:
+    start, end = current_season()
+    assert end - start == 1
