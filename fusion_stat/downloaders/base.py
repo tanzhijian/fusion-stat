@@ -1,24 +1,21 @@
 import typing
+from abc import ABC, abstractmethod
 from types import TracebackType
 
 import httpx
-from httpx._types import URLTypes
+
+U = typing.TypeVar("U")
 
 
-U = typing.TypeVar("U", bound="Downloader")
-
-
-class Downloader:
+class Spider(ABC):
     def __init__(
         self,
+        *,
         client: httpx.AsyncClient,
-        **kwargs: typing.Any,
     ) -> None:
         self.client = client
 
-    @property
-    def name(self) -> str:
-        return self.__class__.__name__.lower()
+    module_name: str
 
     async def aclose(self) -> None:
         await self.client.aclose()
@@ -34,29 +31,15 @@ class Downloader:
     ) -> None:
         await self.aclose()
 
-    async def get(self, url: URLTypes, **kwargs: typing.Any) -> httpx.Response:
+    async def get(self, url: str, **kwargs: typing.Any) -> httpx.Response:
         response = await self.client.get(url, **kwargs)
         response.raise_for_status()
         return response
 
-    async def get_competitions(self) -> httpx.Response:
-        raise NotImplementedError
+    @abstractmethod
+    def parse(self, response: httpx.Response) -> typing.Any:
+        ...
 
-    async def get_competition(self, id: str) -> httpx.Response:
-        raise NotImplementedError
-
-    async def get_team(self, id: str) -> httpx.Response:
-        raise NotImplementedError
-
-    async def get_member(self, id: str) -> httpx.Response:
-        raise NotImplementedError
-
-    async def get_matches(self, date: str) -> httpx.Response:
-        """Parameters:
-
-        * date: "%Y-%m-%d", such as "2023-09-03"
-        """
-        raise NotImplementedError
-
-    async def get_match(self, id: str) -> httpx.Response:
-        raise NotImplementedError
+    @abstractmethod
+    async def download(self) -> typing.Any:
+        ...

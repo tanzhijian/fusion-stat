@@ -1,110 +1,78 @@
-import typing
+from pathlib import Path
 
 import pytest
-import pytest_asyncio
 import httpx
 from pytest_httpx import HTTPXMock
 
-from fusion_stat.downloaders import FBref
+from fusion_stat.downloaders.fbref import (
+    Competitions,
+    Competition,
+    Team,
+    Member,
+    Matches,
+    Match,
+)
 
 pytestmark = pytest.mark.asyncio
 
 
-@pytest_asyncio.fixture(scope="module")
-async def fbref() -> typing.AsyncGenerator[FBref, typing.Any]:
-    async with FBref(httpx.AsyncClient()) as fb:
-        yield fb
-
-
-async def test_get_competitions(httpx_mock: HTTPXMock, fbref: FBref) -> None:
-    httpx_mock.add_response(url="https://fbref.com/en/comps/", text="halo")
-    r = await fbref.get_competitions()
-    assert r.status_code == 200
-
-
-async def test_get_competition(httpx_mock: HTTPXMock, fbref: FBref) -> None:
-    urls = (
-        "https://fbref.com/en/comps/9/2022-2023",
-        "https://fbref.com/en/comps/9",
-        "https://fbref.com/en/comps/9/Premier-League-Stats",
-        (
-            "https://fbref.com/en/comps/9/2022-2023/"
-            "2022-2023-Premier-League-Stats"
-        ),
-    )
-    for url in urls:
-        httpx_mock.add_response(url=url, text="halo")
-
-    r = await fbref.get_competition("9", path_name="Premier-League")
-    assert r.status_code == 200
-
-    r = await fbref.get_competition(
-        "9", season="2022-2023", path_name="Premier-League"
-    )
-    assert r.status_code == 200
-
-    r = await fbref.get_competition("9")
-    assert r.status_code == 200
-
-    r = await fbref.get_competition("9", season="2022-2023")
-    assert r.status_code == 200
-
-
-async def test_get_team(httpx_mock: HTTPXMock, fbref: FBref) -> None:
-    urls = (
-        "https://fbref.com/en/squads/18bb7c10/Arsenal-Stats",
-        "https://fbref.com/en/squads/18bb7c10",
-        "https://fbref.com/en/squads/18bb7c10/2022-2023/Arsenal-Stats",
-        "https://fbref.com/en/squads/18bb7c10/2022-2023",
-    )
-    for url in urls:
-        httpx_mock.add_response(url=url, text="halo")
-
-    r = await fbref.get_team("18bb7c10", path_name="Arsenal")
-    assert r.status_code == 200
-
-    r = await fbref.get_team(
-        "18bb7c10", path_name="Arsenal", season="2022-2023"
-    )
-    assert r.status_code == 200
-
-    r = await fbref.get_team("18bb7c10")
-    assert r.status_code == 200
-
-    r = await fbref.get_team("18bb7c10", season="2022-2023")
-    assert r.status_code == 200
-
-
-async def test_player(httpx_mock: HTTPXMock, fbref: FBref) -> None:
-    urls = (
-        "https://fbref.com/en/players/bc7dc64d/",
-        "https://fbref.com/en/players/bc7dc64d/Bukayo-Saka",
-    )
-    for url in urls:
-        httpx_mock.add_response(url=url, text="halo")
-
-    r = await fbref.get_member("bc7dc64d")
-    assert r.status_code == 200
-
-    r = await fbref.get_member("bc7dc64d", path_name="Bukayo-Saka")
-    assert r.status_code == 200
-
-
-async def test_matches(httpx_mock: HTTPXMock, fbref: FBref) -> None:
+def mock(file: str, httpx_mock: HTTPXMock) -> None:
+    with open(Path(f"tests/data/fbref/{file}")) as f:
+        text = f.read()
     httpx_mock.add_response(
-        url="https://fbref.com/en/matches/2023-09-03",
-        text="halo",
+        url=f"https://fbref.com/en/{file.replace('_', '/').split('.')[0]}",
+        text=text,
     )
 
-    r = await fbref.get_matches("2023-09-03")
-    assert r.status_code == 200
+
+async def test_competitions(
+    httpx_mock: HTTPXMock, client: httpx.AsyncClient
+) -> None:
+    mock("comps_.html", httpx_mock)
+    spider = Competitions(client=client)
+    coms = await spider.download()
+    assert coms[0].name == "Premier League"
 
 
-async def test_match(httpx_mock: HTTPXMock, fbref: FBref) -> None:
-    httpx_mock.add_response(
-        url="https://fbref.com/en/matches/74125d47",
-        text="halo",
-    )
+async def test_competition(
+    httpx_mock: HTTPXMock, client: httpx.AsyncClient
+) -> None:
+    mock("comps_9_Premier-League-Stats.html", httpx_mock)
+    spider = Competition(id="9", path_name="Premier-League", client=client)
+    com = await spider.download()
+    assert com.name == "Premier League"
 
-    r = await fbref.get_match("74125d47")
-    assert r.status_code == 200
+
+async def test_team(httpx_mock: HTTPXMock, client: httpx.AsyncClient) -> None:
+    mock("squads_18bb7c10_Arsenal-Stats.html", httpx_mock)
+    spider = Team(id="18bb7c10", path_name="Arsenal", client=client)
+    team = await spider.download()
+    assert team.name == "Arsenal"
+    assert int(team.shooting.xg) == int(8.3)
+
+
+async def test_member(
+    httpx_mock: HTTPXMock, client: httpx.AsyncClient
+) -> None:
+    mock("players_bc7dc64d_Bukayo-Saka.html", httpx_mock)
+    spider = Member(id="bc7dc64d", path_name="Bukayo-Saka", client=client)
+    member = await spider.download()
+    assert member.name == "Bukayo Saka"
+
+
+async def test_matches(
+    httpx_mock: HTTPXMock, client: httpx.AsyncClient
+) -> None:
+    mock("matches_2023-09-03.html", httpx_mock)
+    spider = Matches(date="2023-09-03", client=client)
+    matches = await spider.download()
+    match = matches[0]
+    assert match.id == "bdbc722e"
+    assert match.name == "Liverpool vs Aston Villa"
+
+
+async def test_match(httpx_mock: HTTPXMock, client: httpx.AsyncClient) -> None:
+    mock("matches_74125d47.html", httpx_mock)
+    spider = Match(id="74125d47", client=client)
+    match = await spider.download()
+    assert match.name == "Arsenal vs Manchester United"

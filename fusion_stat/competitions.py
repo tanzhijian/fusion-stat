@@ -1,107 +1,44 @@
 import typing
 
 import httpx
-from pydantic import BaseModel
 from rapidfuzz import process
-from parsel import Selector
 
 from .base import FusionStat
-from .utils import get_element_text
-from .downloaders.base import Downloader
-from .downloaders import FotMob, FBref
-from .config import COMPETITIONS, COMPETITIONS_SIMILARITY_SCORE
-from .models import Stat, Params
+from .downloaders.base import Spider
+from .downloaders.fotmob import Competitions as FotMobCompetitions
+from .downloaders.fbref import Competitions as FBrefCompetitions
+from .models import Params, Stat
 
 
-class CompetitionModel(Stat):
-    ...
-
-
-class Response(BaseModel):
-    fotmob: tuple[CompetitionModel, ...]
-    fbref: tuple[CompetitionModel, ...]
-
-
-class Competitions(FusionStat[Response]):
+class Competitions(FusionStat):
     def __init__(
-        self, client: httpx.AsyncClient | None = None, **kwargs: typing.Any
+        self,
+        *,
+        client: httpx.AsyncClient | None = None,
+        **kwargs: typing.Any,
     ) -> None:
-        super().__init__(client, **kwargs)
+        super().__init__(client=client, **kwargs)
 
     @property
-    def _downloaders_cls(self) -> list[type[Downloader]]:
-        return [FotMob, FBref]
+    def spiders_cls(self) -> tuple[type[Spider], ...]:
+        return (FotMobCompetitions, FBrefCompetitions)
 
     async def _create_task(
-        self, downloader_cls: type[Downloader], client: httpx.AsyncClient
-    ) -> httpx.Response:
-        downloader = downloader_cls(client=client, **self.kwargs)
-        competitions = await downloader.get_competitions()
-        return competitions
-
-    def _parse(self, data: list[httpx.Response]) -> Response:
-        fotmob_response, fbref_response = data
-        fotmob = self._parse_fotmob(fotmob_response.json())
-        fbref = self._parse_fbref(fbref_response.text)
-        return Response(fotmob=fotmob, fbref=fbref)
-
-    def _parse_fotmob(self, json: typing.Any) -> tuple[CompetitionModel, ...]:
-        competitions: list[CompetitionModel] = []
-        selection = json["popular"]
-        for competition in selection:
-            if process.extractOne(
-                competition["name"],
-                COMPETITIONS,
-                score_cutoff=COMPETITIONS_SIMILARITY_SCORE,
-            ):
-                competitions.append(
-                    CompetitionModel(
-                        id=str(competition["id"]),
-                        name=competition["name"],
-                    )
-                )
-        return tuple(competitions)
-
-    def _parse_fbref(self, text: str) -> tuple[CompetitionModel, ...]:
-        competitions: list[CompetitionModel] = []
-
-        selector = Selector(text)
-        index = set()
-        trs = selector.xpath(
-            "//table[@id='comps_intl_club_cup' or @id='comps_club']/tbody/tr"
-        )
-        for tr in trs:
-            href_strs = get_element_text(tr.xpath("./th/a/@href")).split("/")
-            id = href_strs[3]
-            if id not in index:
-                index.add(id)
-                gender = get_element_text(
-                    tr.xpath("./td[@data-stat='gender']/text()")
-                )
-                name = " ".join(href_strs[-1].split("-")[:-1])
-                if (
-                    process.extractOne(
-                        name,
-                        COMPETITIONS,
-                        score_cutoff=COMPETITIONS_SIMILARITY_SCORE,
-                    )
-                    and gender == "M"
-                ):
-                    competitions.append(
-                        CompetitionModel(
-                            id=id,
-                            name=name,
-                        )
-                    )
-        return tuple(competitions)
+        self, spider_cls: type[Spider], client: httpx.AsyncClient
+    ) -> typing.Any:
+        spider = spider_cls(client=client, **self.kwargs)
+        response = await spider.download()
+        return response
 
     def index(self) -> list[Params]:
+        fotmob_competitions: tuple[Stat, ...] = self.responses[0]
+        fbref_competitions: tuple[Stat, ...] = self.responses[1]
         params: list[Params] = []
 
-        for fotmob_competition in self.response.fotmob:
+        for fotmob_competition in fotmob_competitions:
             fbref_competition = process.extractOne(
                 fotmob_competition,
-                self.response.fbref,
+                fbref_competitions,
                 processor=lambda x: x.name,
             )[0]
 

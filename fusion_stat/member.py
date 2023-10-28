@@ -1,80 +1,37 @@
 import typing
 
 import httpx
-from pydantic import BaseModel
-from parsel import Selector
 
 from .base import FusionStat
-from .downloaders import FotMob, FBref
-from .downloaders.base import Downloader
-from .utils import unpack_params, get_element_text, parse_fbref_shooting
-from .models import Params, Stat, FBrefShooting
+from .downloaders.base import Spider
+from .downloaders.fotmob import Member as FotMobMember
+from .downloaders.fbref import Member as FBrefMember
+from .utils import unpack_params
+from .models import Params
 
 
-class FotMobMemberModel(Stat):
-    country: str
-    is_staff: bool
-    position: str
-
-
-class FBrefMemberModel(Stat):
-    shooting: FBrefShooting
-
-
-class Response(BaseModel):
-    fotmob: FotMobMemberModel
-    fbref: FBrefMemberModel
-
-
-class Member(FusionStat[Response]):
+class Member(FusionStat):
     def __init__(
         self,
         params: Params | dict[str, str],
+        *,
         client: httpx.AsyncClient | None = None,
         **kwargs: typing.Any,
     ) -> None:
-        super().__init__(client, **kwargs)
+        super().__init__(client=client, **kwargs)
         self.params = unpack_params(params)
 
     @property
-    def _downloaders_cls(self) -> list[type[Downloader]]:
-        return [FotMob, FBref]
+    def spiders_cls(self) -> tuple[type[Spider], ...]:
+        return (FotMobMember, FBrefMember)
 
     async def _create_task(
-        self, downloader_cls: type[Downloader], client: httpx.AsyncClient
-    ) -> httpx.Response:
-        downloader = downloader_cls(client=client, **self.kwargs)
-        member = await downloader.get_member(**self.params[downloader.name])
-        return member
-
-    def _parse(self, data: list[httpx.Response]) -> Response:
-        fotmob_response, fbref_response = data
-        fotmob = self._parse_fotmob(fotmob_response.json())
-        fbref = self._parse_fbref(fbref_response.text)
-        return Response(fotmob=fotmob, fbref=fbref)
-
-    def _parse_fotmob(self, json: typing.Any) -> FotMobMemberModel:
-        name = json["name"]
-        country = json["meta"]["personJSONLD"]["nationality"]["name"]
-        position = json["origin"]["positionDesc"]["primaryPosition"]["label"]
-        is_staff = position == "Coach"
-        return FotMobMemberModel(
-            id=self.params["fotmob"]["id"],
-            name=name,
-            country=country,
-            position=position,
-            is_staff=is_staff,
+        self, spider_cls: type[Spider], client: httpx.AsyncClient
+    ) -> typing.Any:
+        spider = spider_cls(
+            **self.params[spider_cls.module_name],
+            client=client,
+            **self.kwargs,
         )
-
-    def _parse_fbref(self, text: str) -> FBrefMemberModel:
-        selector = Selector(text)
-        name = get_element_text(selector.xpath("//h1/span/text()"))
-
-        tr = selector.xpath(
-            '//table[starts-with(@id,"stats_shooting_")]/tfoot/tr[1]'
-        )
-        shooting = parse_fbref_shooting(tr)
-
-        return FBrefMemberModel(
-            id=self.params["fbref"]["id"], name=name, shooting=shooting
-        )
+        response = await spider.download()
+        return response

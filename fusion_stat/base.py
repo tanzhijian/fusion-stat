@@ -3,58 +3,54 @@ import typing
 from abc import ABC, abstractmethod
 import httpx
 
-from fusion_stat.downloaders.base import Downloader
+from fusion_stat.downloaders.base import Spider
 
 
-T = typing.TypeVar("T")
-
-
-class FusionStat(typing.Generic[T], ABC):
+class FusionStat(ABC):
     def __init__(
-        self, client: httpx.AsyncClient | None = None, **kwargs: typing.Any
+        self,
+        *,
+        client: httpx.AsyncClient | None = None,
+        **kwargs: typing.Any,
     ) -> None:
         self.client = client
         self.kwargs = kwargs
-        self._response: T | None = None
+        self._responses: tuple[typing.Any, ...] | None = None
 
     @property
     @abstractmethod
-    def _downloaders_cls(self) -> list[type[Downloader]]:
+    def spiders_cls(self) -> tuple[type[Spider], ...]:
         ...
 
     @property
-    def response(self) -> T:
-        if self._response is None:
+    def responses(self) -> tuple[typing.Any, ...]:
+        if self._responses is None:
             raise ValueError("Confirm get() has been executed")
-        return self._response
+        return self._responses
 
-    @response.setter
-    def response(self, value: T) -> None:
-        self._response = value
+    @responses.setter
+    def responses(self, value: tuple[typing.Any, ...]) -> None:
+        self._responses = value
 
     @abstractmethod
     async def _create_task(
-        self, downloader_cls: type[Downloader], client: httpx.AsyncClient
-    ) -> httpx.Response:
-        ...
-
-    @abstractmethod
-    def _parse(self, data: list[httpx.Response]) -> T:
+        self, spider_cls: type[Spider], client: httpx.AsyncClient
+    ) -> typing.Any:
         ...
 
     async def get(self) -> None:
         if self.client is None:
             async with httpx.AsyncClient(**self.kwargs) as client:
                 tasks = [
-                    self._create_task(downloader_cls, client)
-                    for downloader_cls in self._downloaders_cls
+                    self._create_task(spider_cls, client)
+                    for spider_cls in self.spiders_cls
                 ]
-                data = await asyncio.gather(*tasks)
+                responses = await asyncio.gather(*tasks)
         else:
             tasks = [
-                self._create_task(downloader_cls, self.client)
-                for downloader_cls in self._downloaders_cls
+                self._create_task(spider_cls, self.client)
+                for spider_cls in self.spiders_cls
             ]
-            data = await asyncio.gather(*tasks)
+            responses = await asyncio.gather(*tasks)
 
-        self.response = self._parse(data)
+        self.responses = tuple(responses)

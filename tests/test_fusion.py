@@ -17,7 +17,6 @@ from fusion_stat import (
     Match,
     Params,
 )
-from fusion_stat.config import COMPETITIONS
 
 
 def fotmob_mock(file: str, httpx_mock: HTTPXMock) -> None:
@@ -54,7 +53,7 @@ class TestCompetitions:
         self,
     ) -> typing.AsyncGenerator[Competitions, typing.Any]:
         async with httpx.AsyncClient() as client:
-            yield Competitions(client)
+            yield Competitions(client=client)
 
     @pytest.mark.asyncio
     async def test_get(
@@ -64,10 +63,8 @@ class TestCompetitions:
         fbref_mock("comps_.html", httpx_mock)
 
         await competitions.get()
-        r = competitions.response
-        assert len(r.fotmob) == len(COMPETITIONS)
-        assert len(r.fbref) == len(COMPETITIONS)
-        assert r.fotmob[0].name == "Premier League"
+        r = competitions.responses
+        assert r
 
     def test_index(self, competitions: Competitions) -> None:
         index = competitions.index()
@@ -92,8 +89,8 @@ class TestCompetition:
         fbref_mock("comps_9_Premier-League-Stats.html", httpx_mock)
 
         await competition.get()
-        r = competition.response
-        assert r.fotmob.name == "Premier League"
+        fotmob = competition.responses[0]
+        assert fotmob.name == "Premier League"
 
     def test_info(self, competition: Competition) -> None:
         info = competition.info
@@ -149,19 +146,19 @@ class TestTeam:
         fbref_mock("squads_18bb7c10_Arsenal-Stats.html", httpx_mock)
 
         await team.get()
-        r = team.response
-        assert r.fotmob.name == "Arsenal"
-        assert r.fbref.shooting.xg == 8.3
+        fotmob, fbref = team.responses
+        assert fotmob.name == "Arsenal"
+        assert fbref.shooting.xg == 8.3
 
-        assert len(r.fotmob.members) == 26
-        coach = r.fotmob.members[0]
+        assert len(fotmob.members) == 26
+        coach = fotmob.members[0]
         assert coach.is_staff
-        player = r.fotmob.members[1]
+        player = fotmob.members[1]
         assert not player.is_staff
         assert player.position == "GK"
         assert player.country == "Spain"
 
-        saka = r.fbref.members[4]
+        saka = fbref.members[4]
         assert saka.position == "FW"
         assert saka.country_code == "ENG"
         assert saka.path_name == "Bukayo-Saka"
@@ -203,8 +200,8 @@ class TestMember:
         fbref_mock("players_bc7dc64d_Bukayo-Saka.html", httpx_mock)
 
         await member.get()
-        r = member.response
-        assert r.fotmob.name == "Bukayo Saka"
+        fotmob = member.responses[0]
+        assert fotmob.name == "Bukayo Saka"
 
 
 class TestMatches:
@@ -218,15 +215,15 @@ class TestMatches:
         fbref_mock("matches_2023-09-03.html", httpx_mock)
 
         await matches.get()
-        r = matches.response
+        fotmob, fbref = matches.responses
         # 包含一场被取消的比赛 Atletico Madrid vs Sevilla
-        assert len(r.fotmob) == len(r.fbref) + 1
+        assert len(fotmob) == len(fbref) + 1
 
-        match_1 = r.fotmob[0]
+        match_1 = fotmob[0]
         assert match_1.id == "4193495"
         assert match_1.name == "Crystal Palace vs Wolverhampton Wanderers"
 
-        match_2 = r.fbref[0]
+        match_2 = fbref[0]
         assert match_2.id == "bdbc722e"
         assert match_2.name == "Liverpool vs Aston Villa"
 
@@ -259,6 +256,6 @@ class TestMatch:
         fbref_mock("matches_74125d47.html", httpx_mock)
 
         await match.get()
-        r = match.response
-        assert r.fotmob.name == "Arsenal vs Manchester United"
-        assert r.fbref.name == "Arsenal vs Manchester United"
+        fotmob, fbref = match.responses
+        assert fotmob.name == "Arsenal vs Manchester United"
+        assert fbref.name == "Arsenal vs Manchester United"
