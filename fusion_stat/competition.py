@@ -3,7 +3,7 @@ import typing
 import httpx
 from rapidfuzz import process
 
-from .base import FusionStat
+from .base import Fusion
 from fusion_stat.utils import unpack_params, sort_table_key
 from .downloaders.base import Spider
 from .downloaders.fotmob import Competition as FotMobCompetition
@@ -11,53 +11,25 @@ from .downloaders.fbref import Competition as FBrefCompetition
 from .models import Params, CompetitionFotMob, CompetitionFBref
 
 
-class Competition(FusionStat):
-    def __init__(
-        self,
-        params: Params | dict[str, str],
-        *,
-        client: httpx.AsyncClient | None = None,
-        **kwargs: typing.Any,
-    ) -> None:
-        super().__init__(client=client, **kwargs)
-        self.params = unpack_params(params)
-
-    @property
-    def spiders_cls(self) -> tuple[type[Spider], ...]:
-        return (FotMobCompetition, FBrefCompetition)
-
-    async def _create_task(
-        self, spider_cls: type[Spider], client: httpx.AsyncClient
-    ) -> typing.Any:
-        spider = spider_cls(
-            **self.params[spider_cls.module_name],
-            client=client,
-            **self.kwargs,
-        )
-        response = await spider.download()
-        return response
+class Response(typing.NamedTuple):
+    fotmob: CompetitionFotMob
+    fbref: CompetitionFBref
 
     @property
     def info(self) -> dict[str, typing.Any]:
-        fotmob: CompetitionFotMob = self.responses[0]
-        fbref: CompetitionFBref = self.responses[1]
-
         return {
-            "name": fotmob.name,
-            "type": fotmob.type,
-            "season": fotmob.season,
-            "names": fotmob.names | {fbref.name},
+            "name": self.fotmob.name,
+            "type": self.fotmob.type,
+            "season": self.fotmob.season,
+            "names": self.fotmob.names | {self.fbref.name},
         }
 
     @property
     def teams(self) -> list[dict[str, typing.Any]]:
-        fotmob: CompetitionFotMob = self.responses[0]
-        fbref: CompetitionFBref = self.responses[1]
-
         teams = []
-        for fotmob_team in fotmob.teams:
+        for fotmob_team in self.fotmob.teams:
             fbref_team = process.extractOne(
-                fotmob_team, fbref.teams, processor=lambda x: x.name
+                fotmob_team, self.fbref.teams, processor=lambda x: x.name
             )[0]
 
             team = fotmob_team.model_dump()
@@ -87,17 +59,13 @@ class Competition(FusionStat):
 
     @property
     def matches(self) -> list[dict[str, typing.Any]]:
-        fotmob: CompetitionFotMob = self.responses[0]
-        return [match.model_dump() for match in fotmob.matches]
+        return [match.model_dump() for match in self.fotmob.matches]
 
     def teams_index(self) -> list[Params]:
-        fotmob: CompetitionFotMob = self.responses[0]
-        fbref: CompetitionFBref = self.responses[1]
-
         params: list[Params] = []
-        for fotmob_team in fotmob.teams:
+        for fotmob_team in self.fotmob.teams:
             fbref_team = process.extractOne(
-                fotmob_team, fbref.teams, processor=lambda x: x.name
+                fotmob_team, self.fbref.teams, processor=lambda x: x.name
             )[0]
 
             params.append(
@@ -108,3 +76,34 @@ class Competition(FusionStat):
                 )
             )
         return params
+
+
+class Competition(Fusion[Response]):
+    def __init__(
+        self,
+        params: Params | dict[str, str],
+        *,
+        client: httpx.AsyncClient | None = None,
+        **kwargs: typing.Any,
+    ) -> None:
+        super().__init__(client=client, **kwargs)
+        self.params = unpack_params(params)
+
+    @property
+    def spiders_cls(self) -> tuple[type[Spider], ...]:
+        return (FotMobCompetition, FBrefCompetition)
+
+    async def create_task(
+        self, spider_cls: type[Spider], client: httpx.AsyncClient
+    ) -> typing.Any:
+        spider = spider_cls(
+            **self.params[spider_cls.module_name],
+            client=client,
+            **self.kwargs,
+        )
+        response = await spider.download()
+        return response
+
+    def parse(self, responses: list[typing.Any]) -> Response:
+        fotmob, fbref = responses
+        return Response(fotmob=fotmob, fbref=fbref)

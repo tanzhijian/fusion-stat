@@ -2,15 +2,20 @@ import typing
 
 import httpx
 
-from .base import FusionStat
+from .base import Fusion
 from .downloaders.base import Spider
 from .downloaders.fotmob import Member as FotMobMember
 from .downloaders.fbref import Member as FBrefMember
 from .utils import unpack_params
-from .models import Params
+from .models import Params, MemberFotMob, MemberFBref
 
 
-class Member(FusionStat):
+class Response(typing.NamedTuple):
+    fotmob: MemberFotMob
+    fbref: MemberFBref
+
+
+class Member(Fusion[Response]):
     def __init__(
         self,
         params: Params | dict[str, str],
@@ -25,7 +30,7 @@ class Member(FusionStat):
     def spiders_cls(self) -> tuple[type[Spider], ...]:
         return (FotMobMember, FBrefMember)
 
-    async def _create_task(
+    async def create_task(
         self, spider_cls: type[Spider], client: httpx.AsyncClient
     ) -> typing.Any:
         spider = spider_cls(
@@ -35,3 +40,7 @@ class Member(FusionStat):
         )
         response = await spider.download()
         return response
+
+    def parse(self, responses: list[typing.Any]) -> Response:
+        fotmob, fbref = responses
+        return Response(fotmob=fotmob, fbref=fbref)
