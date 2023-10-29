@@ -20,7 +20,7 @@ pytest = "^7.4.2"
 pytest-asyncio = "^0.21.1"
 mypy = "^1.5.1"
 ruff = "^0.0.287"
-pytest-httpx = "^0.25.0"
+respx = "^0.20.2"
 
 [build-system]
 requires = ["poetry-core"]

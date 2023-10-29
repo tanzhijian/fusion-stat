@@ -2,7 +2,7 @@ import typing
 
 import httpx
 import pytest_asyncio
-from pytest_httpx import HTTPXMock
+import respx
 
 from .downloaders.test_fotmob import mock as fotmob_mock
 from .downloaders.test_fbref import mock as fbref_mock
@@ -10,13 +10,12 @@ from fusion_stat.team import Response, Team
 from fusion_stat.models import Params
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture(scope="module")
 async def response(
     client: httpx.AsyncClient,
-    httpx_mock: HTTPXMock,
 ) -> typing.AsyncGenerator[Response, typing.Any]:
-    fotmob_mock("teams?id=9825.json", httpx_mock)
-    fbref_mock("squads_18bb7c10_Arsenal-Stats.html", httpx_mock)
+    fotmob_mock("teams?id=9825.json")
+    fbref_mock("squads_18bb7c10_Arsenal-Stats.html")
 
     params = Params(
         fotmob_id="9825",
@@ -24,7 +23,8 @@ async def response(
         fbref_path_name="Arsenal",
     )
     team = Team(params, client=client)
-    response = await team.get()
+    with respx.mock:
+        response = await team.get()
     yield response
 
 

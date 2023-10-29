@@ -1,23 +1,21 @@
 import typing
 
 import pytest_asyncio
-from pytest_httpx import HTTPXMock
+import respx
 
 from .downloaders.test_fotmob import mock as fotmob_mock
 from .downloaders.test_fbref import mock as fbref_mock
 from fusion_stat.competitions import Response, Competitions
 
 
-# pytest_httpx 不能使用更高级别的 scope
-@pytest_asyncio.fixture
-async def response(
-    httpx_mock: HTTPXMock,
-) -> typing.AsyncGenerator[Response, typing.Any]:
-    fotmob_mock("allLeagues.json", httpx_mock)
-    fbref_mock("comps_.html", httpx_mock)
+@pytest_asyncio.fixture(scope="module")
+async def response() -> typing.AsyncGenerator[Response, typing.Any]:
+    fotmob_mock("allLeagues.json")
+    fbref_mock("comps_.html")
 
     coms = Competitions()
-    response = await coms.get()
+    with respx.mock:
+        response = await coms.get()
     yield response
 
 

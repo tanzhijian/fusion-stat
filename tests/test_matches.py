@@ -2,23 +2,23 @@ import typing
 
 import httpx
 import pytest_asyncio
-from pytest_httpx import HTTPXMock
+import respx
 
 from .downloaders.test_fotmob import mock as fotmob_mock
 from .downloaders.test_fbref import mock as fbref_mock
 from fusion_stat.matches import Response, Matches
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture(scope="module")
 async def response(
     client: httpx.AsyncClient,
-    httpx_mock: HTTPXMock,
 ) -> typing.AsyncGenerator[Response, typing.Any]:
-    fotmob_mock("matches?date=20230903.json", httpx_mock)
-    fbref_mock("matches_2023-09-03.html", httpx_mock)
+    fotmob_mock("matches?date=20230903.json")
+    fbref_mock("matches_2023-09-03.html")
 
     matches = Matches("2023-09-03", client=client)
-    response = await matches.get()
+    with respx.mock:
+        response = await matches.get()
     yield response
 
 
