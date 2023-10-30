@@ -3,11 +3,10 @@ import typing
 import httpx
 from rapidfuzz import process
 
-from .base import Fusion
-from fusion_stat.utils import unpack_params, sort_table_key
-from .downloaders.base import Spider
-from .downloaders.fotmob import Competition as FotMobCompetition
-from .downloaders.fbref import Competition as FBrefCompetition
+from .base import Fusion, Spider
+from .spiders.fotmob import Competition as FotMobCompetition
+from .spiders.fbref import Competition as FBrefCompetition
+from .utils import unpack_params, sort_table_key
 from .models import Params, CompetitionFotMob, CompetitionFBref
 
 

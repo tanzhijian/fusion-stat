@@ -2,7 +2,7 @@ import typing
 
 import httpx
 
-from .base import Spider
+from fusion_stat.base import Spider
 from fusion_stat.utils import current_season
 
 

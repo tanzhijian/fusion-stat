@@ -5,7 +5,7 @@ import httpx
 import pytest
 import respx
 
-from fusion_stat.downloaders.fotmob import (
+from fusion_stat.spiders.fotmob import (
     Competitions,
     Competition,
     Team,

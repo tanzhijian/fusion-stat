@@ -3,7 +3,7 @@ import pytest
 import respx
 
 
-from fusion_stat.downloaders.base import Spider
+from fusion_stat.base import Spider
 
 
 pytestmark = pytest.mark.asyncio

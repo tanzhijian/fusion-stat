@@ -2,7 +2,7 @@ import httpx
 from rapidfuzz import process
 from parsel import Selector
 
-from .base import Spider
+from fusion_stat.base import Spider
 from fusion_stat.models import (
     Stat,
     FBrefShooting,

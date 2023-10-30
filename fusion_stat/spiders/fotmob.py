@@ -1,7 +1,7 @@
 import httpx
 from rapidfuzz import process
 
-from .base import Spider
+from fusion_stat.base import Spider
 from fusion_stat.models import (
     Stat,
     CompetitionFotMob,

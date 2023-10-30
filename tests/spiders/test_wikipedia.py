@@ -2,7 +2,7 @@ import httpx
 import pytest
 import respx
 
-from fusion_stat.downloaders.wikipedia import Competition
+from fusion_stat.spiders.wikipedia import Competition
 
 pytestmark = pytest.mark.asyncio
 

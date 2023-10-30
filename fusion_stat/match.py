@@ -2,10 +2,9 @@ import typing
 
 import httpx
 
-from .base import Fusion
-from .downloaders.base import Spider
-from .downloaders.fotmob import Match as FotMobMatch
-from .downloaders.fbref import Match as FBrefMatch
+from .base import Fusion, Spider
+from .spiders.fotmob import Match as FotMobMatch
+from .spiders.fbref import Match as FBrefMatch
 from .utils import unpack_params
 from .models import Params, Stat
 

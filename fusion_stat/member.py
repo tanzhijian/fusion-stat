@@ -2,10 +2,9 @@ import typing
 
 import httpx
 
-from .base import Fusion
-from .downloaders.base import Spider
-from .downloaders.fotmob import Member as FotMobMember
-from .downloaders.fbref import Member as FBrefMember
+from .base import Fusion, Spider
+from .spiders.fotmob import Member as FotMobMember
+from .spiders.fbref import Member as FBrefMember
 from .utils import unpack_params
 from .models import Params, MemberFotMob, MemberFBref
 

@@ -3,10 +3,9 @@ import typing
 import httpx
 from rapidfuzz import process
 
-from .base import Fusion
-from .downloaders.base import Spider
-from .downloaders.fotmob import Team as FotMobTeam
-from .downloaders.fbref import Team as FBrefTeam
+from .base import Fusion, Spider
+from .spiders.fotmob import Team as FotMobTeam
+from .spiders.fbref import Team as FBrefTeam
 from .utils import (
     unpack_params,
     fuzzy_similarity_mean,

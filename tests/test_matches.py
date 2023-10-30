@@ -4,8 +4,8 @@ import httpx
 import pytest_asyncio
 import respx
 
-from .downloaders.test_fotmob import mock as fotmob_mock
-from .downloaders.test_fbref import mock as fbref_mock
+from .spiders.test_fotmob import mock as fotmob_mock
+from .spiders.test_fbref import mock as fbref_mock
 from fusion_stat.matches import Response, Matches
 
 

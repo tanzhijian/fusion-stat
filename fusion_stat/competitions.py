@@ -3,10 +3,9 @@ import typing
 import httpx
 from rapidfuzz import process
 
-from .base import Fusion
-from .downloaders.base import Spider
-from .downloaders.fotmob import Competitions as FotMobCompetitions
-from .downloaders.fbref import Competitions as FBrefCompetitions
+from .base import Fusion, Spider
+from .spiders.fotmob import Competitions as FotMobCompetitions
+from .spiders.fbref import Competitions as FBrefCompetitions
 from .models import Params, Stat
 
 

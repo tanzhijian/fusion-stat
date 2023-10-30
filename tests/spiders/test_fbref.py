@@ -4,7 +4,7 @@ import httpx
 import pytest
 import respx
 
-from fusion_stat.downloaders.fbref import (
+from fusion_stat.spiders.fbref import (
     Competitions,
     Competition,
     Team,
