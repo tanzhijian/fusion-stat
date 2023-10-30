@@ -26,6 +26,10 @@ BASE_URL = "https://fbref.com/en"
 class Competitions(Spider):
     module_name = "fbref"
 
+    @property
+    def request(self) -> httpx.Request:
+        return httpx.Request("GET", url=BASE_URL + "/comps/")
+
     def parse(self, response: httpx.Response) -> tuple[Stat, ...]:
         competitions: list[Stat] = []
 
@@ -59,11 +63,6 @@ class Competitions(Spider):
                     )
         return tuple(competitions)
 
-    async def download(self) -> tuple[Stat, ...]:
-        url = BASE_URL + "/comps/"
-        response = await self.get(url)
-        return self.parse(response)
-
 
 class Competition(Spider):
     def __init__(
@@ -80,6 +79,19 @@ class Competition(Spider):
         self.season = season
 
     module_name = "fbref"
+
+    @property
+    def request(self) -> httpx.Request:
+        if self.season:
+            path = "/comps" + f"/{self.id}/{self.season}"
+            if self.path_name:
+                path += f"/{self.season}-{self.path_name}-Stats"
+        else:
+            path = "/comps" + f"/{self.id}"
+            if self.path_name:
+                path += f"/{self.path_name}-Stats"
+
+        return httpx.Request("GET", url=BASE_URL + path)
 
     def parse(self, response: httpx.Response) -> CompetitionFBref:
         selector = Selector(response.text)
@@ -110,21 +122,6 @@ class Competition(Spider):
             teams=tuple(teams),
         )
 
-    async def download(self) -> CompetitionFBref:
-        if self.season:
-            path = "/comps" + f"/{self.id}/{self.season}"
-            if self.path_name:
-                path += f"/{self.season}-{self.path_name}-Stats"
-        else:
-            path = "/comps" + f"/{self.id}"
-            if self.path_name:
-                path += f"/{self.path_name}-Stats"
-
-        url = BASE_URL + path
-
-        response = await self.get(url)
-        return self.parse(response)
-
 
 class Team(Spider):
     def __init__(
@@ -141,6 +138,19 @@ class Team(Spider):
         self.season = season
 
     module_name = "fbref"
+
+    @property
+    def request(self) -> httpx.Request:
+        if self.season:
+            path = "/squads" + f"/{self.id}/{self.season}"
+            if self.path_name:
+                path += f"/{self.path_name}-Stats"
+        else:
+            path = "/squads" + f"/{self.id}"
+            if self.path_name:
+                path += f"/{self.path_name}-Stats"
+
+        return httpx.Request("GET", url=BASE_URL + path)
 
     def parse(self, response: httpx.Response) -> TeamFBref:
         selector = Selector(response.text)
@@ -202,21 +212,6 @@ class Team(Spider):
             members=tuple(players),
         )
 
-    async def download(self) -> TeamFBref:
-        if self.season:
-            path = "/squads" + f"/{self.id}/{self.season}"
-            if self.path_name:
-                path += f"/{self.path_name}-Stats"
-        else:
-            path = "/squads" + f"/{self.id}"
-            if self.path_name:
-                path += f"/{self.path_name}-Stats"
-
-        url = BASE_URL + path
-
-        response = await self.get(url)
-        return self.parse(response)
-
 
 class Member(Spider):
     def __init__(
@@ -232,6 +227,14 @@ class Member(Spider):
 
     module_name = "fbref"
 
+    @property
+    def request(self) -> httpx.Request:
+        path = f"/players/{self.id}/"
+        if self.path_name:
+            path += self.path_name
+
+        return httpx.Request("GET", url=BASE_URL + path)
+
     def parse(self, response: httpx.Response) -> MemberFBref:
         selector = Selector(response.text)
         name = get_element_text(selector.xpath("//h1/span/text()"))
@@ -242,16 +245,6 @@ class Member(Spider):
         shooting = parse_fbref_shooting(tr)
 
         return MemberFBref(id=self.id, name=name, shooting=shooting)
-
-    async def download(self) -> MemberFBref:
-        path = f"/players/{self.id}/"
-        if self.path_name:
-            path += self.path_name
-
-        url = BASE_URL + path
-
-        response = await self.get(url)
-        return self.parse(response)
 
 
 class Matches(Spider):
@@ -265,6 +258,11 @@ class Matches(Spider):
         self.date = date
 
     module_name = "fbref"
+
+    @property
+    def request(self) -> httpx.Request:
+        path = f"/matches/{self.date}"
+        return httpx.Request("GET", url=BASE_URL + path)
 
     def parse(self, response: httpx.Response) -> tuple[Stat, ...]:
         selector = Selector(response.text)
@@ -301,13 +299,6 @@ class Matches(Spider):
                 pass
         return tuple(matches)
 
-    async def download(self) -> tuple[Stat, ...]:
-        path = f"/matches/{self.date}"
-        url = BASE_URL + path
-
-        response = await self.get(url)
-        return self.parse(response)
-
 
 class Match(Spider):
     def __init__(self, *, id: str, client: httpx.AsyncClient) -> None:
@@ -315,6 +306,11 @@ class Match(Spider):
         self.id = id
 
     module_name = "fbref"
+
+    @property
+    def request(self) -> httpx.Request:
+        path = f"/matches/{self.id}"
+        return httpx.Request("GET", url=BASE_URL + path)
 
     def parse(self, response: httpx.Response) -> Stat:
         selector = Selector(response.text)
@@ -325,10 +321,3 @@ class Match(Spider):
             id=self.id,
             name=f"{home_name} vs {away_name}",
         )
-
-    async def download(self) -> Stat:
-        path = f"/matches/{self.id}"
-        url = BASE_URL + path
-
-        response = await self.get(url)
-        return self.parse(response)

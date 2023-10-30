@@ -1,15 +1,23 @@
+import typing
+
 import httpx
 import pytest
-import respx
 
 from fusion_stat.spiders.wikipedia import Competition
 
-pytestmark = pytest.mark.asyncio
 
+class TestCompetition:
+    @pytest.fixture(scope="class")
+    def spider(
+        self, client: httpx.AsyncClient
+    ) -> typing.Generator[Competition, typing.Any, None]:
+        yield Competition(id="Premier_League", client=client)
 
-@respx.mock
-async def test_competition(client: httpx.AsyncClient) -> None:
-    respx.get("https://en.wikipedia.org/wiki/2023-24_Premier_League")
-    spider = Competition(id="Premier_League", client=client)
-    com = await spider.download()
-    assert com == "competition"
+    def test_request(self, spider: Competition) -> None:
+        url = spider.request.url
+        assert url == "https://en.wikipedia.org/wiki/2023-24_Premier_League"
+
+    def test_parse(self, spider: Competition) -> None:
+        response = httpx.Response(200, text="halo")
+        com = spider.parse(response)
+        assert com == "competition"

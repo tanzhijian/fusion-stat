@@ -16,12 +16,12 @@ class Competition(Spider):
 
     module_name = "wikipedia"
 
-    def parse(self, response: httpx.Response) -> typing.Any:
-        return "competition"
-
-    async def download(self) -> typing.Any:
+    @property
+    def request(self) -> httpx.Request:
         start, end = current_season()
         path = f"/{start}-{str(end)[2:]}_{self.id}"
-        url = BASE_URL + path
-        response = await self.get(url)
-        return self.parse(response)
+
+        return httpx.Request("GET", url=BASE_URL + path)
+
+    def parse(self, response: httpx.Response) -> typing.Any:
+        return "competition"
