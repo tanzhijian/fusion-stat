@@ -1,4 +1,5 @@
 import json
+import typing
 from pathlib import Path
 
 import httpx
@@ -15,9 +16,6 @@ from fusion_stat.spiders.fotmob import (
 )
 
 
-pytestmark = pytest.mark.asyncio
-
-
 def mock(file: str) -> None:
     with open(Path(f"tests/data/fotmob/{file}")) as f:
         data = json.load(f)
@@ -26,51 +24,117 @@ def mock(file: str) -> None:
     )
 
 
-@respx.mock
-async def test_competitions(client: httpx.AsyncClient) -> None:
-    mock("allLeagues.json")
-    spider = Competitions(client=client)
-    coms = await spider.download()
-    assert coms[0].name == "Premier League"
+def read_data(file: str) -> typing.Any:
+    with open(Path(f"tests/data/fotmob/{file}")) as f:
+        data = json.load(f)
+    return data
 
 
-@respx.mock
-async def test_competition(client: httpx.AsyncClient) -> None:
-    mock("leagues?id=47.json")
-    spider = Competition(id="47", client=client)
-    com = await spider.download()
-    assert com.name == "Premier League"
+class TestCompetitions:
+    @pytest.fixture(scope="class")
+    def spider(
+        self, client: httpx.AsyncClient
+    ) -> typing.Generator[Competitions, typing.Any, None]:
+        yield Competitions(client=client)
+
+    def test_request(self, spider: Competitions) -> None:
+        url = spider.request.url
+        assert url == "https://www.fotmob.com/api/allLeagues"
+
+    def test_parse(self, spider: Competitions) -> None:
+        data = read_data("allLeagues.json")
+        response = httpx.Response(200, json=data)
+        coms = spider.parse(response)
+        assert coms[0].name == "Premier League"
 
 
-@respx.mock
-async def test_team(client: httpx.AsyncClient) -> None:
-    mock("teams?id=9825.json")
-    spider = Team(id="9825", client=client)
-    team = await spider.download()
-    assert team.name == "Arsenal"
+class TestCompetition:
+    @pytest.fixture(scope="class")
+    def spider(
+        self, client: httpx.AsyncClient
+    ) -> typing.Generator[Competition, typing.Any, None]:
+        yield Competition(id="47", client=client)
+
+    def test_request(self, spider: Competition) -> None:
+        url = spider.request.url
+        assert url == "https://www.fotmob.com/api/leagues?id=47"
+
+    def test_parse(self, spider: Competition) -> None:
+        data = read_data("leagues?id=47.json")
+        response = httpx.Response(200, json=data)
+        com = spider.parse(response)
+        assert com.name == "Premier League"
 
 
-@respx.mock
-async def test_member(client: httpx.AsyncClient) -> None:
-    mock("playerData?id=961995.json")
-    spider = Member(id="961995", client=client)
-    member = await spider.download()
-    assert member.name == "Bukayo Saka"
+class TestTeam:
+    @pytest.fixture(scope="class")
+    def spider(
+        self, client: httpx.AsyncClient
+    ) -> typing.Generator[Team, typing.Any, None]:
+        yield Team(id="9825", client=client)
+
+    def test_request(self, spider: Team) -> None:
+        url = spider.request.url
+        assert url == "https://www.fotmob.com/api/teams?id=9825"
+
+    def test_parse(self, spider: Team) -> None:
+        data = read_data("teams?id=9825.json")
+        response = httpx.Response(200, json=data)
+        team = spider.parse(response)
+        assert team.name == "Arsenal"
 
 
-@respx.mock
-async def test_matches(client: httpx.AsyncClient) -> None:
-    mock("matches?date=20230903.json")
-    spider = Matches(date="2023-09-03", client=client)
-    matches = await spider.download()
-    match = matches[0]
-    assert match.id == "4193495"
-    assert match.name == "Crystal Palace vs Wolverhampton Wanderers"
+class TestMember:
+    @pytest.fixture(scope="class")
+    def spider(
+        self, client: httpx.AsyncClient
+    ) -> typing.Generator[Member, typing.Any, None]:
+        yield Member(id="961995", client=client)
+
+    def test_request(self, spider: Member) -> None:
+        url = spider.request.url
+        assert url == "https://www.fotmob.com/api/playerData?id=961995"
+
+    def test_parse(self, spider: Member) -> None:
+        data = read_data("playerData?id=961995.json")
+        response = httpx.Response(200, json=data)
+        member = spider.parse(response)
+        assert member.name == "Bukayo Saka"
 
 
-@respx.mock
-async def test_match(client: httpx.AsyncClient) -> None:
-    mock("matchDetails?matchId=4193490.json")
-    spider = Match(id="4193490", client=client)
-    match = await spider.download()
-    assert match.name == "Arsenal vs Manchester United"
+class TestMatches:
+    @pytest.fixture(scope="class")
+    def spider(
+        self, client: httpx.AsyncClient
+    ) -> typing.Generator[Matches, typing.Any, None]:
+        yield Matches(date="2023-09-03", client=client)
+
+    def test_request(self, spider: Matches) -> None:
+        url = spider.request.url
+        assert url == "https://www.fotmob.com/api/matches?date=20230903"
+
+    def test_parse(self, spider: Matches) -> None:
+        data = read_data("matches?date=20230903.json")
+        response = httpx.Response(200, json=data)
+        matches = spider.parse(response)
+        match = matches[0]
+        assert match.id == "4193495"
+        assert match.name == "Crystal Palace vs Wolverhampton Wanderers"
+
+
+class TestMatch:
+    @pytest.fixture(scope="class")
+    def spider(
+        self, client: httpx.AsyncClient
+    ) -> typing.Generator[Match, typing.Any, None]:
+        yield Match(id="4193490", client=client)
+
+    def test_request(self, spider: Match) -> None:
+        url = spider.request.url
+        assert url == "https://www.fotmob.com/api/matchDetails?matchId=4193490"
+
+    def test_parse(self, spider: Match) -> None:
+        data = read_data("matchDetails?matchId=4193490.json")
+        response = httpx.Response(200, json=data)
+        match = spider.parse(response)
+        assert match.name == "Arsenal vs Manchester United"

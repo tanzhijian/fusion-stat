@@ -12,34 +12,44 @@ pytestmark = pytest.mark.asyncio
 class Foo(Spider):
     module_name = "base"
 
+    @property
+    def request(self) -> httpx.Request:
+        return httpx.Request("GET", "https://tanzhijian.org")
+
     def parse(self, response: httpx.Response) -> str:
         return "foo"
 
-    async def download(self) -> str:
-        url = "https://tanzhijian.org"
-        response = await self.get(url)
-        return self.parse(response)
-
 
 @respx.mock
-async def test_spider() -> None:
+async def test_spider_get() -> None:
     assert Foo.module_name == "base"
 
     respx.get("https://url.url").mock(
         return_value=httpx.Response(200, json={"foo": "bar"})
     )
 
+    request = httpx.Request("GET", "https://url.url")
+
     async with Foo(client=httpx.AsyncClient()) as spider:
-        response = await spider.get("https://url.url")
+        response = await spider.get(request)
         assert response.json()["foo"] == "bar"
 
     with pytest.raises(RuntimeError):
-        response = await spider.get("https://url.url")
+        response = await spider.get(request)
 
     spider2 = Foo(client=httpx.AsyncClient())
-    response = await spider2.get("https://url.url")
+    response = await spider2.get(request)
     assert response.json()["foo"] == "bar"
     await spider2.aclose()
 
     with pytest.raises(RuntimeError):
-        response = await spider2.get("https://url.url")
+        response = await spider2.get(request)
+
+
+@respx.mock
+async def test_spider_download(client: httpx.AsyncClient) -> None:
+    route = respx.get("https://tanzhijian.org")
+    spider = Foo(client=client)
+    response = await spider.download()
+    assert response == "foo"
+    assert route.called

@@ -26,6 +26,10 @@ BASE_URL = "https://www.fotmob.com/api"
 class Competitions(Spider):
     module_name = "fotmob"
 
+    @property
+    def request(self) -> httpx.Request:
+        return httpx.Request("GET", url=BASE_URL + "/allLeagues")
+
     def parse(self, response: httpx.Response) -> tuple[Stat, ...]:
         json = response.json()
         competitions: list[Stat] = []
@@ -45,11 +49,6 @@ class Competitions(Spider):
                 )
         return tuple(competitions)
 
-    async def download(self) -> tuple[Stat, ...]:
-        url = BASE_URL + "/allLeagues"
-        response = await self.get(url)
-        return self.parse(response)
-
 
 class Competition(Spider):
     def __init__(self, *, id: str, client: httpx.AsyncClient) -> None:
@@ -57,6 +56,14 @@ class Competition(Spider):
         self.id = id
 
     module_name = "fotmob"
+
+    @property
+    def request(self) -> httpx.Request:
+        return httpx.Request(
+            "GET",
+            url=BASE_URL + "/leagues",
+            params={"id": self.id},
+        )
 
     def parse(self, response: httpx.Response) -> CompetitionFotMob:
         json = response.json()
@@ -118,12 +125,6 @@ class Competition(Spider):
             matches=tuple(matches),
         )
 
-    async def download(self) -> CompetitionFotMob:
-        url = BASE_URL + "/leagues"
-        params = {"id": self.id}
-        response = await self.get(url, params=params)
-        return self.parse(response)
-
 
 class Team(Spider):
     def __init__(self, *, id: str, client: httpx.AsyncClient) -> None:
@@ -131,6 +132,14 @@ class Team(Spider):
         self.id = id
 
     module_name = "fotmob"
+
+    @property
+    def request(self) -> httpx.Request:
+        return httpx.Request(
+            "GET",
+            url=BASE_URL + "/teams",
+            params={"id": self.id},
+        )
 
     def parse(self, response: httpx.Response) -> TeamFotMob:
         json = response.json()
@@ -162,12 +171,6 @@ class Team(Spider):
             members=tuple(members),
         )
 
-    async def download(self) -> TeamFotMob:
-        url = BASE_URL + "/teams"
-        params = {"id": self.id}
-        response = await self.get(url, params=params)
-        return self.parse(response)
-
 
 class Member(Spider):
     def __init__(self, *, id: str, client: httpx.AsyncClient) -> None:
@@ -175,6 +178,14 @@ class Member(Spider):
         self.id = id
 
     module_name = "fotmob"
+
+    @property
+    def request(self) -> httpx.Request:
+        return httpx.Request(
+            "GET",
+            url=BASE_URL + "/playerData",
+            params={"id": self.id},
+        )
 
     def parse(self, response: httpx.Response) -> MemberFotMob:
         json = response.json()
@@ -190,12 +201,6 @@ class Member(Spider):
             is_staff=is_staff,
         )
 
-    async def download(self) -> MemberFotMob:
-        url = BASE_URL + "/playerData"
-        params = {"id": self.id}
-        response = await self.get(url, params=params)
-        return self.parse(response)
-
 
 class Matches(Spider):
     """Parameters:
@@ -208,6 +213,14 @@ class Matches(Spider):
         self.date = date.replace("-", "")
 
     module_name = "fotmob"
+
+    @property
+    def request(self) -> httpx.Request:
+        return httpx.Request(
+            "GET",
+            url=BASE_URL + "/matches",
+            params={"date": self.date},
+        )
 
     def parse(
         self, response: httpx.Response
@@ -244,12 +257,6 @@ class Matches(Spider):
                     )
         return tuple(matches)
 
-    async def download(self) -> tuple[MatchesFotMobMatch, ...]:
-        url = BASE_URL + "/matches"
-        params = {"date": self.date}
-        response = await self.get(url, params=params)
-        return self.parse(response)
-
 
 class Match(Spider):
     def __init__(self, *, id: str, client: httpx.AsyncClient) -> None:
@@ -258,15 +265,17 @@ class Match(Spider):
 
     module_name = "fotmob"
 
+    @property
+    def request(self) -> httpx.Request:
+        return httpx.Request(
+            "GET",
+            url=BASE_URL + "/matchDetails",
+            params={"matchId": self.id},
+        )
+
     def parse(self, response: httpx.Response) -> Stat:
         json = response.json()
         home_team, away_team = json["header"]["teams"]
         home_name = home_team["name"]
         away_name = away_team["name"]
         return Stat(id=self.id, name=f"{home_name} vs {away_name}")
-
-    async def download(self) -> Stat:
-        url = BASE_URL + "/matchDetails"
-        params = {"matchId": self.id}
-        response = await self.get(url, params=params)
-        return self.parse(response)

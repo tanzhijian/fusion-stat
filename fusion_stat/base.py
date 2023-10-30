@@ -34,18 +34,23 @@ class Spider(ABC):
     ) -> None:
         await self.aclose()
 
-    async def get(self, url: str, **kwargs: typing.Any) -> httpx.Response:
-        response = await self.client.get(url, **kwargs)
+    async def get(self, request: httpx.Request) -> httpx.Response:
+        response = await self.client.send(request)
         response.raise_for_status()
         return response
+
+    @property
+    @abstractmethod
+    def request(self) -> httpx.Request:
+        ...
 
     @abstractmethod
     def parse(self, response: httpx.Response) -> typing.Any:
         ...
 
-    @abstractmethod
     async def download(self) -> typing.Any:
-        ...
+        response = await self.get(self.request)
+        return self.parse(response)
 
 
 class Fusion(typing.Generic[T], ABC):
