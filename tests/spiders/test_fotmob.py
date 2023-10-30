@@ -1,11 +1,9 @@
-import json
 import typing
-from pathlib import Path
 
 import httpx
 import pytest
-import respx
 
+from tests.utils import read_fotmob_test_data
 from fusion_stat.spiders.fotmob import (
     Competitions,
     Competition,
@@ -14,20 +12,6 @@ from fusion_stat.spiders.fotmob import (
     Matches,
     Match,
 )
-
-
-def mock(file: str) -> None:
-    with open(Path(f"tests/data/fotmob/{file}")) as f:
-        data = json.load(f)
-    respx.get(url=f"https://www.fotmob.com/api/{file.split('.')[0]}").mock(
-        httpx.Response(200, json=data)
-    )
-
-
-def read_data(file: str) -> typing.Any:
-    with open(Path(f"tests/data/fotmob/{file}")) as f:
-        data = json.load(f)
-    return data
 
 
 class TestCompetitions:
@@ -42,7 +26,7 @@ class TestCompetitions:
         assert url == "https://www.fotmob.com/api/allLeagues"
 
     def test_parse(self, spider: Competitions) -> None:
-        data = read_data("allLeagues.json")
+        data = read_fotmob_test_data("allLeagues.json")
         response = httpx.Response(200, json=data)
         coms = spider.parse(response)
         assert coms[0].name == "Premier League"
@@ -60,7 +44,7 @@ class TestCompetition:
         assert url == "https://www.fotmob.com/api/leagues?id=47"
 
     def test_parse(self, spider: Competition) -> None:
-        data = read_data("leagues?id=47.json")
+        data = read_fotmob_test_data("leagues?id=47.json")
         response = httpx.Response(200, json=data)
         com = spider.parse(response)
         assert com.name == "Premier League"
@@ -78,7 +62,7 @@ class TestTeam:
         assert url == "https://www.fotmob.com/api/teams?id=9825"
 
     def test_parse(self, spider: Team) -> None:
-        data = read_data("teams?id=9825.json")
+        data = read_fotmob_test_data("teams?id=9825.json")
         response = httpx.Response(200, json=data)
         team = spider.parse(response)
         assert team.name == "Arsenal"
@@ -96,7 +80,7 @@ class TestMember:
         assert url == "https://www.fotmob.com/api/playerData?id=961995"
 
     def test_parse(self, spider: Member) -> None:
-        data = read_data("playerData?id=961995.json")
+        data = read_fotmob_test_data("playerData?id=961995.json")
         response = httpx.Response(200, json=data)
         member = spider.parse(response)
         assert member.name == "Bukayo Saka"
@@ -114,7 +98,7 @@ class TestMatches:
         assert url == "https://www.fotmob.com/api/matches?date=20230903"
 
     def test_parse(self, spider: Matches) -> None:
-        data = read_data("matches?date=20230903.json")
+        data = read_fotmob_test_data("matches?date=20230903.json")
         response = httpx.Response(200, json=data)
         matches = spider.parse(response)
         match = matches[0]
@@ -134,7 +118,7 @@ class TestMatch:
         assert url == "https://www.fotmob.com/api/matchDetails?matchId=4193490"
 
     def test_parse(self, spider: Match) -> None:
-        data = read_data("matchDetails?matchId=4193490.json")
+        data = read_fotmob_test_data("matchDetails?matchId=4193490.json")
         response = httpx.Response(200, json=data)
         match = spider.parse(response)
         assert match.name == "Arsenal vs Manchester United"

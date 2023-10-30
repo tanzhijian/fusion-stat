@@ -3,8 +3,7 @@ import typing
 import pytest_asyncio
 import respx
 
-from .spiders.test_fotmob import mock as fotmob_mock
-from .spiders.test_fbref import mock as fbref_mock
+from .utils import fotmob_mock, fbref_mock
 from fusion_stat.competitions import Response, Competitions
 
 
