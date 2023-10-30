@@ -11,9 +11,14 @@ from .downloaders.fbref import Competition as FBrefCompetition
 from .models import Params, CompetitionFotMob, CompetitionFBref
 
 
-class Response(typing.NamedTuple):
-    fotmob: CompetitionFotMob
-    fbref: CompetitionFBref
+class Response:
+    def __init__(
+        self,
+        fotmob: CompetitionFotMob,
+        fbref: CompetitionFBref,
+    ) -> None:
+        self.fotmob = fotmob
+        self.fbref = fbref
 
     @property
     def info(self) -> dict[str, typing.Any]:

@@ -15,9 +15,14 @@ from .config import MEMBERS_SIMILARITY_SCORE
 from .models import Params, TeamFotMob, TeamFBref
 
 
-class Response(typing.NamedTuple):
-    fotmob: TeamFotMob
-    fbref: TeamFBref
+class Response:
+    def __init__(
+        self,
+        fotmob: TeamFotMob,
+        fbref: TeamFBref,
+    ) -> None:
+        self.fotmob = fotmob
+        self.fbref = fbref
 
     @property
     def info(self) -> dict[str, typing.Any]:

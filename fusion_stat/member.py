@@ -10,9 +10,14 @@ from .utils import unpack_params
 from .models import Params, MemberFotMob, MemberFBref
 
 
-class Response(typing.NamedTuple):
-    fotmob: MemberFotMob
-    fbref: MemberFBref
+class Response:
+    def __init__(
+        self,
+        fotmob: MemberFotMob,
+        fbref: MemberFBref,
+    ) -> None:
+        self.fotmob = fotmob
+        self.fbref = fbref
 
 
 class Member(Fusion[Response]):

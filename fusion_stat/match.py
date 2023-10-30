@@ -10,9 +10,14 @@ from .utils import unpack_params
 from .models import Params, Stat
 
 
-class Response(typing.NamedTuple):
-    fotmob: Stat
-    fbref: Stat
+class Response:
+    def __init__(
+        self,
+        fotmob: Stat,
+        fbref: Stat,
+    ) -> None:
+        self.fotmob = fotmob
+        self.fbref = fbref
 
 
 class Match(Fusion[Response]):
