@@ -1,18 +1,18 @@
 import httpx
 from rapidfuzz import process
-from parsel import Selector
+from parsel import Selector, SelectorList
 
 from fusion_stat.base import Spider
 from fusion_stat.models import (
     Stat,
-    FBrefShooting,
+    ShootingFBref,
     CompetitionFBref,
     CompetitionFBrefTeam,
     TeamFBref,
     TeamFBrefMember,
     MemberFBref,
 )
-from fusion_stat.utils import get_element_text, parse_fbref_shooting
+from fusion_stat.utils import get_element_text
 from fusion_stat.config import (
     COMPETITIONS,
     COMPETITIONS_SIMILARITY_SCORE,
@@ -106,7 +106,7 @@ class Competition(Spider):
             href_strs = get_element_text(tr.xpath("./th/a/@href")).split("/")
             name = " ".join(href_strs[-1].split("-")[:-1])
             name_2 = get_element_text(tr.xpath("./th/a/text()"))
-            shooting = parse_fbref_shooting(tr)
+            shooting = parse_shooting(tr)
             teams.append(
                 CompetitionFBrefTeam(
                     id=href_strs[3],
@@ -163,15 +163,13 @@ class Team(Spider):
         shooting_table = selector.xpath(
             '//table[starts-with(@id,"stats_shooting_")]'
         )
-        team_shooting = parse_fbref_shooting(
-            shooting_table.xpath("./tfoot/tr[1]")
-        )
+        team_shooting = parse_shooting(shooting_table.xpath("./tfoot/tr[1]"))
 
-        players_shooting: dict[str, FBrefShooting] = {}
+        players_shooting: dict[str, ShootingFBref] = {}
         for tr in shooting_table.xpath("./tbody/tr"):
             href = get_element_text(tr.xpath("./th/a/@href"))
             id = href.split("/")[3]
-            shooting = parse_fbref_shooting(tr)
+            shooting = parse_shooting(tr)
             players_shooting[id] = shooting
 
         players = []
@@ -191,7 +189,7 @@ class Team(Spider):
             try:
                 shooting = players_shooting[id]
             except KeyError:
-                shooting = FBrefShooting()
+                shooting = ShootingFBref()
             players.append(
                 TeamFBrefMember(
                     id=id,
@@ -242,7 +240,7 @@ class Member(Spider):
         tr = selector.xpath(
             '//table[starts-with(@id,"stats_shooting_")]/tfoot/tr[1]'
         )
-        shooting = parse_fbref_shooting(tr)
+        shooting = parse_shooting(tr)
 
         return MemberFBref(id=self.id, name=name, shooting=shooting)
 
@@ -321,3 +319,14 @@ class Match(Spider):
             id=self.id,
             name=f"{home_name} vs {away_name}",
         )
+
+
+def parse_shooting(
+    tr: Selector | SelectorList[Selector],
+) -> ShootingFBref:
+    shots = get_element_text(tr.xpath('./td[@data-stat="shots"]/text()'))
+    xg = get_element_text(tr.xpath('./td[@data-stat="xg"]/text()'))
+    return ShootingFBref(
+        shots=float(shots),
+        xg=float(xg),
+    )

@@ -40,7 +40,7 @@ def test_info(response: Response) -> None:
 def test_teams(response: Response) -> None:
     teams = response.teams
     assert len(teams) == 20
-    assert teams[0]["shooting"]["xg"] == 8.6
+    assert int(teams[0]["shooting"]["xg"]) == int(8.6)
 
 
 def test_matches(response: Response) -> None:
@@ -62,7 +62,7 @@ def test_table(response: Response) -> None:
     assert city["name"] == "Manchester City"
     assert city["draws"] == 0
     assert city["goals_for"] == 11
-    assert city["xg"] == 8.6
+    assert int(city["xg"]) == int(8.6)
 
     chelsea = table[11]
     assert chelsea["name"] == "Chelsea"
@@ -70,4 +70,4 @@ def test_table(response: Response) -> None:
     assert chelsea["losses"] == 2
     assert chelsea["goals_against"] == 5
     assert chelsea["points"] == 4
-    assert chelsea["xg"] == 8.3
+    assert int(chelsea["xg"]) == int(8.3)

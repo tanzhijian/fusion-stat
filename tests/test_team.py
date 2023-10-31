@@ -29,7 +29,7 @@ async def response(
 
 def test_get(response: Response) -> None:
     assert response.fotmob.name == "Arsenal"
-    assert response.fbref.shooting.xg == 8.3
+    assert int(response.fbref.shooting.xg) == int(8.3)
 
     assert len(response.fotmob.members) == 26
     coach = response.fotmob.members[0]

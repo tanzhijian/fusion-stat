@@ -13,7 +13,7 @@ class Stat(BaseModel):
     name: str
 
 
-class FBrefShooting(BaseModel):
+class ShootingFBref(BaseModel):
     shots: float = 0
     xg: float = 0
 
@@ -52,7 +52,7 @@ class CompetitionFotMob(Stat):
 class CompetitionFBrefTeam(Stat):
     path_name: str
     names: set[str]
-    shooting: FBrefShooting
+    shooting: ShootingFBref
 
 
 class CompetitionFBref(Stat):
@@ -77,12 +77,12 @@ class TeamFBrefMember(Stat):
     path_name: str
     country_code: str
     position: str
-    shooting: FBrefShooting
+    shooting: ShootingFBref
 
 
 class TeamFBref(Stat):
     names: set[str]
-    shooting: FBrefShooting
+    shooting: ShootingFBref
     members: tuple[TeamFBrefMember, ...]
 
 
@@ -94,7 +94,7 @@ class MemberFotMob(Stat):
 
 
 class MemberFBref(Stat):
-    shooting: FBrefShooting
+    shooting: ShootingFBref
 
 
 # matches
