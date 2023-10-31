@@ -40,7 +40,6 @@ class Match(Fusion[Response]):
         spider = spider_cls(
             **self.params[spider_cls.__module__.split(".")[-1]],
             client=client,
-            **self.kwargs,
         )
         response = await spider.download()
         return response

@@ -55,7 +55,7 @@ class Competitions(Fusion[Response]):
     async def create_task(
         self, spider_cls: type[Spider], client: httpx.AsyncClient
     ) -> typing.Any:
-        spider = spider_cls(client=client, **self.kwargs)
+        spider = spider_cls(client=client)
         response = await spider.download()
         return response
 

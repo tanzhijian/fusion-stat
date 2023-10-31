@@ -63,7 +63,6 @@ class Matches(Fusion[Response]):
         spider = spider_cls(
             **{"date": self.date},
             client=client,
-            **self.kwargs,
         )
         response = await spider.download()
         return response
