@@ -1,5 +1,6 @@
 import typing
 
+import httpx
 import pytest_asyncio
 import respx
 
@@ -8,11 +9,13 @@ from fusion_stat.competitions import Response, Competitions
 
 
 @pytest_asyncio.fixture(scope="module")
-async def response() -> typing.AsyncGenerator[Response, typing.Any]:
+async def response(
+    client: httpx.AsyncClient,
+) -> typing.AsyncGenerator[Response, typing.Any]:
     fotmob_mock("allLeagues.json")
     fbref_mock("comps_.html")
 
-    coms = Competitions()
+    coms = Competitions(client=client)
     with respx.mock:
         response = await coms.get()
     yield response
