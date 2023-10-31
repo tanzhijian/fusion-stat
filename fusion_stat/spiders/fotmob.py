@@ -24,8 +24,6 @@ BASE_URL = "https://www.fotmob.com/api"
 
 
 class Competitions(Spider):
-    module_name = "fotmob"
-
     @property
     def request(self) -> httpx.Request:
         return httpx.Request("GET", url=BASE_URL + "/allLeagues")
@@ -54,8 +52,6 @@ class Competition(Spider):
     def __init__(self, *, id: str, client: httpx.AsyncClient) -> None:
         super().__init__(client=client)
         self.id = id
-
-    module_name = "fotmob"
 
     @property
     def request(self) -> httpx.Request:
@@ -131,8 +127,6 @@ class Team(Spider):
         super().__init__(client=client)
         self.id = id
 
-    module_name = "fotmob"
-
     @property
     def request(self) -> httpx.Request:
         return httpx.Request(
@@ -177,8 +171,6 @@ class Member(Spider):
         super().__init__(client=client)
         self.id = id
 
-    module_name = "fotmob"
-
     @property
     def request(self) -> httpx.Request:
         return httpx.Request(
@@ -211,8 +203,6 @@ class Matches(Spider):
     def __init__(self, *, date: str, client: httpx.AsyncClient) -> None:
         super().__init__(client=client)
         self.date = date.replace("-", "")
-
-    module_name = "fotmob"
 
     @property
     def request(self) -> httpx.Request:
@@ -262,8 +252,6 @@ class Match(Spider):
     def __init__(self, *, id: str, client: httpx.AsyncClient) -> None:
         super().__init__(client=client)
         self.id = id
-
-    module_name = "fotmob"
 
     @property
     def request(self) -> httpx.Request:

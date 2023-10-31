@@ -18,8 +18,6 @@ class Spider(ABC):
     ) -> None:
         self.client = client
 
-    module_name: str
-
     async def aclose(self) -> None:
         await self.client.aclose()
 

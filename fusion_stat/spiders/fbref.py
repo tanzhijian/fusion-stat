@@ -24,8 +24,6 @@ BASE_URL = "https://fbref.com/en"
 
 
 class Competitions(Spider):
-    module_name = "fbref"
-
     @property
     def request(self) -> httpx.Request:
         return httpx.Request("GET", url=BASE_URL + "/comps/")
@@ -77,8 +75,6 @@ class Competition(Spider):
         self.id = id
         self.path_name = path_name
         self.season = season
-
-    module_name = "fbref"
 
     @property
     def request(self) -> httpx.Request:
@@ -136,8 +132,6 @@ class Team(Spider):
         self.id = id
         self.path_name = path_name
         self.season = season
-
-    module_name = "fbref"
 
     @property
     def request(self) -> httpx.Request:
@@ -223,8 +217,6 @@ class Member(Spider):
         self.id = id
         self.path_name = path_name
 
-    module_name = "fbref"
-
     @property
     def request(self) -> httpx.Request:
         path = f"/players/{self.id}/"
@@ -254,8 +246,6 @@ class Matches(Spider):
     def __init__(self, *, date: str, client: httpx.AsyncClient) -> None:
         super().__init__(client=client)
         self.date = date
-
-    module_name = "fbref"
 
     @property
     def request(self) -> httpx.Request:
@@ -302,8 +292,6 @@ class Match(Spider):
     def __init__(self, *, id: str, client: httpx.AsyncClient) -> None:
         super().__init__(client=client)
         self.id = id
-
-    module_name = "fbref"
 
     @property
     def request(self) -> httpx.Request:

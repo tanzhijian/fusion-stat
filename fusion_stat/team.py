@@ -116,7 +116,7 @@ class Team(Fusion[Response]):
         self, spider_cls: type[Spider], client: httpx.AsyncClient
     ) -> typing.Any:
         spider = spider_cls(
-            **self.params[spider_cls.module_name],
+            **self.params[spider_cls.__module__.split(".")[-1]],
             client=client,
             **self.kwargs,
         )

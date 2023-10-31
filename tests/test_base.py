@@ -10,8 +10,6 @@ pytestmark = pytest.mark.asyncio
 
 
 class Foo(Spider):
-    module_name = "base"
-
     @property
     def request(self) -> httpx.Request:
         return httpx.Request("GET", "https://tanzhijian.org")
@@ -22,8 +20,6 @@ class Foo(Spider):
 
 @respx.mock
 async def test_spider_get() -> None:
-    assert Foo.module_name == "base"
-
     respx.get("https://url.url").mock(
         return_value=httpx.Response(200, json={"foo": "bar"})
     )

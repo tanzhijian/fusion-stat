@@ -14,8 +14,6 @@ class Competition(Spider):
         super().__init__(client=client)
         self.id = id
 
-    module_name = "wikipedia"
-
     @property
     def request(self) -> httpx.Request:
         start, end = current_season()
