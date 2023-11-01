@@ -6,16 +6,28 @@ import httpx
 import respx
 
 
+def read_data(test_name: str, file: str) -> typing.Any:
+    with open(Path(f"tests/data/{test_name}/{file}")) as f:
+        if file.split(".")[-1] == "json":
+            data = json.load(f)
+        else:
+            data = f.read()
+    return data
+
+
 def read_fotmob_test_data(file: str) -> typing.Any:
-    with open(Path(f"tests/data/fotmob/{file}")) as f:
-        data = json.load(f)
+    data = read_data("fotmob", file)
     return data
 
 
 def read_fbref_test_data(file: str) -> str:
-    with open(Path(f"tests/data/fbref/{file}")) as f:
-        text = f.read()
+    text: str = read_data("fbref", file)
     return text
+
+
+def read_wikipedia_test_data(file: str) -> typing.Any:
+    data = read_data("wikipedia", file)
+    return data
 
 
 def fotmob_mock(file: str) -> None:

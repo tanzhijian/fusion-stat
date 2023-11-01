@@ -1,0 +1,46 @@
+{
+  "type": "standard",
+  "title": "Arsenal F.C.",
+  "displaytitle": "<span class=\"mw-page-title-main\">Arsenal F.C.</span>",
+  "namespace": { "id": 0, "text": "" },
+  "wikibase_item": "Q9617",
+  "titles": {
+    "canonical": "Arsenal_F.C.",
+    "normalized": "Arsenal F.C.",
+    "display": "<span class=\"mw-page-title-main\">Arsenal F.C.</span>"
+  },
+  "pageid": 2174,
+  "thumbnail": {
+    "source": "https://upload.wikimedia.org/wikipedia/en/thumb/5/53/Arsenal_FC.svg/320px-Arsenal_FC.svg.png",
+    "width": 320,
+    "height": 376
+  },
+  "originalimage": {
+    "source": "https://upload.wikimedia.org/wikipedia/en/thumb/5/53/Arsenal_FC.svg/292px-Arsenal_FC.svg.png",
+    "width": 292,
+    "height": 343
+  },
+  "lang": "en",
+  "dir": "ltr",
+  "revision": "1182342128",
+  "tid": "32a74390-75bf-11ee-8359-9713b164e76c",
+  "timestamp": "2023-10-28T18:24:01Z",
+  "description": "Association football club in London, England",
+  "description_source": "local",
+  "content_urls": {
+    "desktop": {
+      "page": "https://en.wikipedia.org/wiki/Arsenal_F.C.",
+      "revisions": "https://en.wikipedia.org/wiki/Arsenal_F.C.?action=history",
+      "edit": "https://en.wikipedia.org/wiki/Arsenal_F.C.?action=edit",
+      "talk": "https://en.wikipedia.org/wiki/Talk:Arsenal_F.C."
+    },
+    "mobile": {
+      "page": "https://en.m.wikipedia.org/wiki/Arsenal_F.C.",
+      "revisions": "https://en.m.wikipedia.org/wiki/Special:History/Arsenal_F.C.",
+      "edit": "https://en.m.wikipedia.org/wiki/Arsenal_F.C.?action=edit",
+      "talk": "https://en.m.wikipedia.org/wiki/Talk:Arsenal_F.C."
+    }
+  },
+  "extract": "Arsenal Football Club is an English professional football club based in Holloway, North London. Arsenal compete in the Premier League, the top flight of English football. The club has won 13 league titles, a record 14 FA Cups, two League Cups, 17 FA Community Shields, the Football League Centenary Trophy, one European Cup Winners' Cup and one Inter-Cities Fairs Cup. In terms of trophies won, it is the third-most successful club in English football.",
+  "extract_html": "<p><b>Arsenal Football Club</b> is an English professional football club based in Holloway, North London. Arsenal compete in the Premier League, the top flight of English football. The club has won 13 league titles, a record 14 FA Cups, two League Cups, 17 FA Community Shields, the Football League Centenary Trophy, one European Cup Winners' Cup and one Inter-Cities Fairs Cup. In terms of trophies won, it is the third-most successful club in English football.</p>"
+}
