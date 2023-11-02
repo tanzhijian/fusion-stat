@@ -59,6 +59,15 @@ class CompetitionFBref(Stat):
     teams: tuple[CompetitionFBrefTeam, ...]
 
 
+class CompetitionPremierLeagueTeam(Stat):
+    logo: str
+
+
+class CompetitionPremierLeague(Stat):
+    logo: str
+    teams: tuple[CompetitionPremierLeagueTeam, ...]
+
+
 # team
 class TeamFotMobMember(Stat):
     country: str
