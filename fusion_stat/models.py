@@ -18,6 +18,11 @@ class ShootingFBref(BaseModel):
     xg: float = 0
 
 
+# competitions
+class CompetitionsPremierLeagueCompetition(Stat):
+    seasons: tuple[Stat, ...]
+
+
 # competition
 class CompetitionFotMobTeam(Stat):
     names: set[str]

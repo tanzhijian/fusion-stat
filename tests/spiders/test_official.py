@@ -4,32 +4,7 @@ import httpx
 import pytest
 
 from tests.utils import read_premierleague_test_data
-from fusion_stat.spiders.premierleague import Competitions, Competition
-
-
-class testCompetitions:
-    @pytest.fixture(scope="class")
-    def spider(
-        self, client: httpx.AsyncClient
-    ) -> typing.Generator[Competitions, typing.Any, None]:
-        yield Competitions(client=client)
-
-    def test_request(self, spider: Competitions) -> None:
-        assert (
-            spider.request.headers["Origin"] == "https://www.premierleague.com"
-        )
-
-    def test_parse_and_index(self, spider: Competitions) -> None:
-        data = read_premierleague_test_data(
-            "competitions?page=0&pageSize=1000&detail=2.json"
-        )
-        response = httpx.Response(200, json=data)
-        coms = spider.parse(response)
-        assert coms[0].name == "Premier League"
-        assert coms[0].seasons[0].name == "2023/24"
-
-        index = spider.index(coms)
-        assert index["Premier League"]["2023"] == "578"
+from fusion_stat.spiders.official import Competition
 
 
 class TestCompetition:
