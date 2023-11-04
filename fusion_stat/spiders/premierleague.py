@@ -5,8 +5,8 @@ from fusion_stat.utils import current_season
 from fusion_stat.models import (
     Stat,
     CompetitionsPremierLeagueCompetition,
-    CompetitionPremierLeague,
-    CompetitionPremierLeagueTeam,
+    CompetitionOfficial,
+    CompetitionOfficialTeam,
 )
 
 
@@ -126,7 +126,7 @@ class Competition(Spider):
             headers=HEADERS,
         )
 
-    def parse(self, response: httpx.Response) -> CompetitionPremierLeague:
+    def parse(self, response: httpx.Response) -> CompetitionOfficial:
         json = response.json()
         teams = []
         for team in json["content"]:
@@ -137,13 +137,11 @@ class Competition(Spider):
                 "https://resources.premierleague.com/premierleague"
                 f"/badges/rb/{image_id}.svg"
             )
-            teams.append(
-                CompetitionPremierLeagueTeam(id=id, name=name, logo=logo)
-            )
+            teams.append(CompetitionOfficialTeam(id=id, name=name, logo=logo))
 
-        return CompetitionPremierLeague(
-            id="Premier League",
-            name="Premier League",
+        return CompetitionOfficial(
+            id=f"{self.name} {self.season}",
+            name=self.name,
             logo=(
                 "https://www.premierleague.com/resources/rebrand"
                 "/v7.129.2/i/elements/pl-main-logo.png"

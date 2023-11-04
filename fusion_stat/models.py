@@ -64,13 +64,13 @@ class CompetitionFBref(Stat):
     teams: tuple[CompetitionFBrefTeam, ...]
 
 
-class CompetitionPremierLeagueTeam(Stat):
+class CompetitionOfficialTeam(Stat):
     logo: str
 
 
-class CompetitionPremierLeague(Stat):
+class CompetitionOfficial(Stat):
     logo: str
-    teams: tuple[CompetitionPremierLeagueTeam, ...]
+    teams: tuple[CompetitionOfficialTeam, ...]
 
 
 # team

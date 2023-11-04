@@ -4,6 +4,13 @@ import httpx
 
 from fusion_stat.base import Spider
 from .premierleague import Competition as PremierLeagueCompetition
+from .laliga import Competition as LaLigaCompetition
+
+
+spiders_cls = {
+    "Premier League": PremierLeagueCompetition,
+    "La Liga": LaLigaCompetition,
+}
 
 
 class Competition(Spider):
@@ -17,12 +24,7 @@ class Competition(Spider):
         super().__init__(client=client)
         self.name = name
         self.season = season
-        match self.name:
-            case "Premier League":
-                spider = PremierLeagueCompetition
-            case _:
-                raise ValueError
-        self.spider = spider(
+        self.spider: Spider = spiders_cls[self.name](
             name=self.name, season=self.season, client=self.client
         )
 
