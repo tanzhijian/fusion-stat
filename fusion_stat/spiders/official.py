@@ -6,12 +6,14 @@ from fusion_stat.base import Spider
 from .premierleague import Competition as PremierLeagueCompetition
 from .laliga import Competition as LaLigaCompetition
 from .bundesliga import Competition as BundesligaCompetition
+from .serie_a import Competition as SerieACompetition
 
 
 spiders_cls: dict[str, type[Spider]] = {
     "Premier League": PremierLeagueCompetition,
     "La Liga": LaLigaCompetition,
     "Bundesliga": BundesligaCompetition,
+    "Serie A": SerieACompetition,
 }
 
 
