@@ -18,7 +18,7 @@ class Competition(Spider):
         self,
         *,
         name: str,
-        season: str | None = None,
+        season: int | None = None,
         client: httpx.AsyncClient,
     ) -> None:
         super().__init__(client=client)
@@ -26,9 +26,9 @@ class Competition(Spider):
         if season:
             self.season = season
         else:
-            self.season = str(current_season()[0])
+            self.season = current_season()[0]
 
-        if self.season == "2023":
+        if self.season == 2023:
             self.slug = f"laliga-easports-{self.season}"
         else:
             self.slug = f"laliga-santander-{self.season}"

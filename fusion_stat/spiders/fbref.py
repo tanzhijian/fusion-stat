@@ -68,13 +68,16 @@ class Competition(Spider):
         *,
         id: str,
         path_name: str | None = None,
-        season: str | None = None,
+        season: int | None = None,
         client: httpx.AsyncClient,
     ) -> None:
         super().__init__(client=client)
         self.id = id
         self.path_name = path_name
-        self.season = season
+        if season is None:
+            self.season = season
+        else:
+            self.season = f"{season}-{season + 1}"
 
     @property
     def request(self) -> httpx.Request:
@@ -125,13 +128,16 @@ class Team(Spider):
         *,
         id: str,
         path_name: str | None = None,
-        season: str | None = None,
+        season: int | None = None,
         client: httpx.AsyncClient,
     ) -> None:
         super().__init__(client=client)
         self.id = id
         self.path_name = path_name
-        self.season = season
+        if season is None:
+            self.season = season
+        else:
+            self.season = f"{season}-{season + 1}"
 
     @property
     def request(self) -> httpx.Request:

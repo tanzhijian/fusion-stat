@@ -103,13 +103,13 @@ class Competition(Spider):
         self,
         *,
         name: str,
-        season: str | None = None,
+        season: int | None = None,
         client: httpx.AsyncClient,
     ) -> None:
         super().__init__(client=client)
         self.name = name
         if season:
-            self.season = season
+            self.season = str(season)
         else:
             self.season = str(current_season()[0])
 

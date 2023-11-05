@@ -37,7 +37,7 @@ class TestCompetition:
     def spider(
         self, client: httpx.AsyncClient
     ) -> typing.Generator[Competition, typing.Any, None]:
-        yield Competition(name="Premier League", season="2023", client=client)
+        yield Competition(name="Premier League", season=2023, client=client)
 
     def test_request(self, spider: Competition) -> None:
         assert (

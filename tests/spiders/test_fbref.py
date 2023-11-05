@@ -56,10 +56,10 @@ class TestCompetition:
             ),
             (
                 Competition(id="9", client=client),
-                Competition(id="9", season="2022-2023", client=client),
+                Competition(id="9", season=2022, client=client),
                 Competition(
                     id="9",
-                    season="2022-2023",
+                    season=2022,
                     path_name="Premier-League",
                     client=client,
                 ),
@@ -93,11 +93,11 @@ class TestTeam:
             ),
             (
                 Team(id="18bb7c10", client=client),
-                Team(id="18bb7c10", season="2022-2023", client=client),
+                Team(id="18bb7c10", season=2022, client=client),
                 Team(
                     id="18bb7c10",
                     path_name="Arsenal",
-                    season="2022-2023",
+                    season=2022,
                     client=client,
                 ),
             ),

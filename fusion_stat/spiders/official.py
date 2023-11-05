@@ -18,7 +18,7 @@ class Competition(Spider):
         self,
         *,
         name: str,
-        season: str | None = None,
+        season: int | None = None,
         client: httpx.AsyncClient,
     ) -> None:
         super().__init__(client=client)
