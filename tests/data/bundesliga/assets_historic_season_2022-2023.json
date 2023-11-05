@@ -1,0 +1,477 @@
+{
+	"competition": {
+		"id": "DFL-COM-000001",
+		"name": "Bundesliga"
+	},
+	"creationDateTime": "2023-06-27T09:17:13.039Z",
+	"entries": [
+		{
+			"club": {
+				"dflDatalibraryClubId": "DFL-CLU-00000G",
+				"id": "DFL-CLU-00000G",
+				"logoUrl": "https://img.bundesliga.com/tachyon/sites/2/2021/08/Bayern.png",
+				"nameFull": "FC Bayern München",
+				"nameShort": "Bayern",
+				"slugifiedFull": "fc-bayern-muenchen",
+				"slugifiedSmall": "bayern",
+				"threeLetterCode": "FCB"
+			},
+			"draws": 8,
+			"gamesPlayed": 34,
+			"goalDifference": 54,
+			"goalsAgainst": 38,
+			"goalsScored": 92,
+			"losses": 5,
+			"points": 71,
+			"qualification": "UEFA_CHAMPIONS_LEAGUE",
+			"rank": 1,
+			"subRank": 0,
+			"tendency": "UP",
+			"wins": 21
+		},
+		{
+			"club": {
+				"dflDatalibraryClubId": "DFL-CLU-000007",
+				"id": "DFL-CLU-000007",
+				"logoUrl": "https://img.bundesliga.com/tachyon/sites/2/2022/06/Dortmund-BVB.png",
+				"nameFull": "Borussia Dortmund",
+				"nameShort": "Dortmund",
+				"slugifiedFull": "borussia-dortmund",
+				"slugifiedSmall": "dortmund",
+				"threeLetterCode": "BVB"
+			},
+			"draws": 5,
+			"gamesPlayed": 34,
+			"goalDifference": 39,
+			"goalsAgainst": 44,
+			"goalsScored": 83,
+			"losses": 7,
+			"points": 71,
+			"qualification": "UEFA_CHAMPIONS_LEAGUE",
+			"rank": 2,
+			"subRank": 0,
+			"tendency": "DOWN",
+			"wins": 22
+		},
+		{
+			"club": {
+				"dflDatalibraryClubId": "DFL-CLU-000017",
+				"id": "DFL-CLU-000017",
+				"logoUrl": "https://img.bundesliga.com/tachyon/sites/2/2021/08/Leipzig.png",
+				"nameFull": "RB Leipzig",
+				"nameShort": "Leipzig",
+				"slugifiedFull": "rb-leipzig",
+				"slugifiedSmall": "leipzig",
+				"threeLetterCode": "RBL"
+			},
+			"draws": 6,
+			"gamesPlayed": 34,
+			"goalDifference": 23,
+			"goalsAgainst": 41,
+			"goalsScored": 64,
+			"losses": 8,
+			"points": 66,
+			"qualification": "UEFA_CHAMPIONS_LEAGUE",
+			"rank": 3,
+			"subRank": 0,
+			"tendency": "STABLE",
+			"wins": 20
+		},
+		{
+			"club": {
+				"dflDatalibraryClubId": "DFL-CLU-00000V",
+				"id": "DFL-CLU-00000V",
+				"logoUrl": "https://img.bundesliga.com/tachyon/sites/2/2021/08/Union-Berlin.png",
+				"nameFull": "1. FC Union Berlin",
+				"nameShort": "Union Berlin",
+				"slugifiedFull": "1-fc-union-berlin",
+				"slugifiedSmall": "union-berlin",
+				"threeLetterCode": "FCU"
+			},
+			"draws": 8,
+			"gamesPlayed": 34,
+			"goalDifference": 13,
+			"goalsAgainst": 38,
+			"goalsScored": 51,
+			"losses": 8,
+			"points": 62,
+			"qualification": "UEFA_CHAMPIONS_LEAGUE",
+			"rank": 4,
+			"subRank": 0,
+			"tendency": "STABLE",
+			"wins": 18
+		},
+		{
+			"club": {
+				"dflDatalibraryClubId": "DFL-CLU-00000A",
+				"id": "DFL-CLU-00000A",
+				"logoUrl": "https://img.bundesliga.com/tachyon/sites/2/2021/08/Freiburg.png",
+				"nameFull": "Sport-Club Freiburg",
+				"nameShort": "Freiburg",
+				"slugifiedFull": "sport-club-freiburg",
+				"slugifiedSmall": "freiburg",
+				"threeLetterCode": "SCF"
+			},
+			"draws": 8,
+			"gamesPlayed": 34,
+			"goalDifference": 7,
+			"goalsAgainst": 44,
+			"goalsScored": 51,
+			"losses": 9,
+			"points": 59,
+			"qualification": "UEFA_EUROPA_LEAGUE",
+			"rank": 5,
+			"subRank": 0,
+			"tendency": "STABLE",
+			"wins": 17
+		},
+		{
+			"club": {
+				"dflDatalibraryClubId": "DFL-CLU-00000B",
+				"id": "DFL-CLU-00000B",
+				"logoUrl": "https://img.bundesliga.com/tachyon/sites/2/2021/08/Leverkusen.png",
+				"nameFull": "Bayer 04 Leverkusen",
+				"nameShort": "Leverkusen",
+				"slugifiedFull": "bayer-04-leverkusen",
+				"slugifiedSmall": "leverkusen",
+				"threeLetterCode": "B04"
+			},
+			"draws": 8,
+			"gamesPlayed": 34,
+			"goalDifference": 8,
+			"goalsAgainst": 49,
+			"goalsScored": 57,
+			"losses": 12,
+			"points": 50,
+			"qualification": "UEFA_EUROPA_LEAGUE",
+			"rank": 6,
+			"subRank": 0,
+			"tendency": "STABLE",
+			"wins": 14
+		},
+		{
+			"club": {
+				"dflDatalibraryClubId": "DFL-CLU-00000F",
+				"id": "DFL-CLU-00000F",
+				"logoUrl": "https://img.bundesliga.com/tachyon/sites/2/2022/06/Frankfurt-SGE.png",
+				"nameFull": "Eintracht Frankfurt",
+				"nameShort": "Frankfurt",
+				"slugifiedFull": "eintracht-frankfurt",
+				"slugifiedSmall": "frankfurt",
+				"threeLetterCode": "SGE"
+			},
+			"draws": 11,
+			"gamesPlayed": 34,
+			"goalDifference": 6,
+			"goalsAgainst": 52,
+			"goalsScored": 58,
+			"losses": 10,
+			"points": 50,
+			"qualification": "UEFA_EUROPA_LEAGUE_QUALIFICATION",
+			"rank": 7,
+			"subRank": 0,
+			"tendency": "UP",
+			"wins": 13
+		},
+		{
+			"club": {
+				"dflDatalibraryClubId": "DFL-CLU-000003",
+				"id": "DFL-CLU-000003",
+				"logoUrl": "https://img.bundesliga.com/tachyon/sites/2/2022/06/Wolfsburg-WOB.png",
+				"nameFull": "VfL Wolfsburg",
+				"nameShort": "Wolfsburg",
+				"slugifiedFull": "vfl-wolfsburg",
+				"slugifiedSmall": "wolfsburg",
+				"threeLetterCode": "WOB"
+			},
+			"draws": 10,
+			"gamesPlayed": 34,
+			"goalDifference": 9,
+			"goalsAgainst": 48,
+			"goalsScored": 57,
+			"losses": 11,
+			"points": 49,
+			"qualification": "NONE",
+			"rank": 8,
+			"subRank": 0,
+			"tendency": "DOWN",
+			"wins": 13
+		},
+		{
+			"club": {
+				"dflDatalibraryClubId": "DFL-CLU-000006",
+				"id": "DFL-CLU-000006",
+				"logoUrl": "https://img.bundesliga.com/tachyon/sites/2/2021/08/Mainz.png",
+				"nameFull": "1. FSV Mainz 05",
+				"nameShort": "Mainz",
+				"slugifiedFull": "1-fsv-mainz-05",
+				"slugifiedSmall": "mainz",
+				"threeLetterCode": "M05"
+			},
+			"draws": 10,
+			"gamesPlayed": 34,
+			"goalDifference": -1,
+			"goalsAgainst": 55,
+			"goalsScored": 54,
+			"losses": 12,
+			"points": 46,
+			"qualification": "NONE",
+			"rank": 9,
+			"subRank": 0,
+			"tendency": "STABLE",
+			"wins": 12
+		},
+		{
+			"club": {
+				"dflDatalibraryClubId": "DFL-CLU-000004",
+				"id": "DFL-CLU-000004",
+				"logoUrl": "https://img.bundesliga.com/tachyon/sites/2/2021/08/Moenchengladbach.png",
+				"nameFull": "Borussia Mönchengladbach",
+				"nameShort": "M'gladbach",
+				"slugifiedFull": "borussia-moenchengladbach",
+				"slugifiedSmall": "m'gladbach",
+				"threeLetterCode": "BMG"
+			},
+			"draws": 10,
+			"gamesPlayed": 34,
+			"goalDifference": -3,
+			"goalsAgainst": 55,
+			"goalsScored": 52,
+			"losses": 13,
+			"points": 43,
+			"qualification": "NONE",
+			"rank": 10,
+			"subRank": 0,
+			"tendency": "UP",
+			"wins": 11
+		},
+		{
+			"club": {
+				"dflDatalibraryClubId": "DFL-CLU-000008",
+				"id": "DFL-CLU-000008",
+				"logoUrl": "https://img.bundesliga.com/tachyon/sites/2/2021/08/Koeln.png",
+				"nameFull": "1. FC Köln",
+				"nameShort": "Köln",
+				"slugifiedFull": "1-fc-koeln",
+				"slugifiedSmall": "koeln",
+				"threeLetterCode": "KOE"
+			},
+			"draws": 12,
+			"gamesPlayed": 34,
+			"goalDifference": -5,
+			"goalsAgainst": 54,
+			"goalsScored": 49,
+			"losses": 12,
+			"points": 42,
+			"qualification": "NONE",
+			"rank": 11,
+			"subRank": 0,
+			"tendency": "DOWN",
+			"wins": 10
+		},
+		{
+			"club": {
+				"dflDatalibraryClubId": "DFL-CLU-000002",
+				"id": "DFL-CLU-000002",
+				"logoUrl": "https://img.bundesliga.com/tachyon/sites/2/2021/08/Hoffenheim.png",
+				"nameFull": "TSG Hoffenheim",
+				"nameShort": "Hoffenheim",
+				"slugifiedFull": "tsg-hoffenheim",
+				"slugifiedSmall": "hoffenheim",
+				"threeLetterCode": "TSG"
+			},
+			"draws": 6,
+			"gamesPlayed": 34,
+			"goalDifference": -9,
+			"goalsAgainst": 57,
+			"goalsScored": 48,
+			"losses": 18,
+			"points": 36,
+			"qualification": "NONE",
+			"rank": 12,
+			"subRank": 0,
+			"tendency": "UP",
+			"wins": 10
+		},
+		{
+			"club": {
+				"dflDatalibraryClubId": "DFL-CLU-00000E",
+				"id": "DFL-CLU-00000E",
+				"logoUrl": "https://img.bundesliga.com/tachyon/sites/2/2021/08/Bremen.png",
+				"nameFull": "SV Werder Bremen",
+				"nameShort": "Bremen",
+				"slugifiedFull": "sv-werder-bremen",
+				"slugifiedSmall": "bremen",
+				"threeLetterCode": "SVW"
+			},
+			"draws": 6,
+			"gamesPlayed": 34,
+			"goalDifference": -13,
+			"goalsAgainst": 64,
+			"goalsScored": 51,
+			"losses": 18,
+			"points": 36,
+			"qualification": "NONE",
+			"rank": 13,
+			"subRank": 0,
+			"tendency": "DOWN",
+			"wins": 10
+		},
+		{
+			"club": {
+				"dflDatalibraryClubId": "DFL-CLU-00000S",
+				"id": "DFL-CLU-00000S",
+				"logoUrl": "https://img.bundesliga.com/tachyon/sites/2/2021/08/Bochum.png",
+				"nameFull": "VfL Bochum 1848",
+				"nameShort": "Bochum",
+				"slugifiedFull": "vfl-bochum-1848",
+				"slugifiedSmall": "bochum",
+				"threeLetterCode": "BOC"
+			},
+			"draws": 5,
+			"gamesPlayed": 34,
+			"goalDifference": -32,
+			"goalsAgainst": 72,
+			"goalsScored": 40,
+			"losses": 19,
+			"points": 35,
+			"qualification": "NONE",
+			"rank": 14,
+			"subRank": 0,
+			"tendency": "UP",
+			"wins": 10
+		},
+		{
+			"club": {
+				"dflDatalibraryClubId": "DFL-CLU-000010",
+				"id": "DFL-CLU-000010",
+				"logoUrl": "https://img.bundesliga.com/tachyon/sites/2/2021/08/Augsburg.png",
+				"nameFull": "FC Augsburg",
+				"nameShort": "Augsburg",
+				"slugifiedFull": "fc-augsburg",
+				"slugifiedSmall": "augsburg",
+				"threeLetterCode": "FCA"
+			},
+			"draws": 7,
+			"gamesPlayed": 34,
+			"goalDifference": -21,
+			"goalsAgainst": 63,
+			"goalsScored": 42,
+			"losses": 18,
+			"points": 34,
+			"qualification": "NONE",
+			"rank": 15,
+			"subRank": 0,
+			"tendency": "DOWN",
+			"wins": 9
+		},
+		{
+			"club": {
+				"dflDatalibraryClubId": "DFL-CLU-00000D",
+				"id": "DFL-CLU-00000D",
+				"logoUrl": "https://img.bundesliga.com/tachyon/sites/2/2021/08/Stuttgart.png",
+				"nameFull": "VfB Stuttgart",
+				"nameShort": "Stuttgart",
+				"slugifiedFull": "vfb-stuttgart",
+				"slugifiedSmall": "stuttgart",
+				"threeLetterCode": "VFB"
+			},
+			"draws": 12,
+			"gamesPlayed": 34,
+			"goalDifference": -12,
+			"goalsAgainst": 57,
+			"goalsScored": 45,
+			"losses": 15,
+			"points": 33,
+			"qualification": "PLAY_OFF",
+			"rank": 16,
+			"subRank": 0,
+			"tendency": "DOWN",
+			"wins": 7
+		},
+		{
+			"club": {
+				"dflDatalibraryClubId": "DFL-CLU-000009",
+				"id": "DFL-CLU-000009",
+				"logoUrl": "https://img.bundesliga.com/tachyon/sites/2/2021/08/Schalke.png",
+				"nameFull": "FC Schalke 04",
+				"nameShort": "Schalke",
+				"slugifiedFull": "fc-schalke-04",
+				"slugifiedSmall": "schalke",
+				"threeLetterCode": "S04"
+			},
+			"draws": 10,
+			"gamesPlayed": 34,
+			"goalDifference": -36,
+			"goalsAgainst": 71,
+			"goalsScored": 35,
+			"losses": 17,
+			"points": 31,
+			"qualification": "RELEGATION",
+			"rank": 17,
+			"subRank": 0,
+			"tendency": "STABLE",
+			"wins": 7
+		},
+		{
+			"club": {
+				"dflDatalibraryClubId": "DFL-CLU-00000Z",
+				"id": "DFL-CLU-00000Z",
+				"logoUrl": "https://img.bundesliga.com/tachyon/sites/2/2021/08/Berlin.png",
+				"nameFull": "Hertha BSC",
+				"nameShort": "Berlin",
+				"slugifiedFull": "hertha-bsc",
+				"slugifiedSmall": "berlin",
+				"threeLetterCode": "BSC"
+			},
+			"draws": 8,
+			"gamesPlayed": 34,
+			"goalDifference": -27,
+			"goalsAgainst": 69,
+			"goalsScored": 42,
+			"losses": 19,
+			"points": 29,
+			"qualification": "RELEGATION",
+			"rank": 18,
+			"subRank": 0,
+			"tendency": "STABLE",
+			"wins": 7
+		}
+	],
+	"matchday": {
+		"id": "DFL-DAY-004C13",
+		"name": "15"
+	},
+	"qualifications": [
+		{
+			"color": "#138F16",
+			"id": "UEFA_CHAMPIONS_LEAGUE",
+			"title": "UEFA Champions League"
+		},
+		{
+			"color": "#3AB0D3",
+			"id": "UEFA_EUROPA_LEAGUE",
+			"title": "UEFA Europa League"
+		},
+		{
+			"color": "#88D0E6",
+			"id": "UEFA_EUROPA_LEAGUE_QUALIFICATION",
+			"title": "UEFA Europa Conference League"
+		},
+		{
+			"color": "#EEAC57",
+			"id": "PLAY_OFF",
+			"title": "Relegation"
+		},
+		{
+			"color": "#D75452",
+			"id": "RELEGATION",
+			"title": "Abstieg"
+		}
+	],
+	"season": {
+		"id": "DFL-SEA-0001K6",
+		"name": "2022-2023"
+	},
+	"tableType": 0
+}

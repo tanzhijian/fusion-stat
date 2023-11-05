@@ -40,6 +40,11 @@ def read_laliga_test_data(file: str) -> typing.Any:
     return data
 
 
+def read_bundesliga_test_data(file: str) -> typing.Any:
+    data = read_data("bundesliga", file)
+    return data
+
+
 def fotmob_mock(file: str) -> None:
     data = read_fotmob_test_data(file)
     respx.get(url=f"https://www.fotmob.com/api/{file.split('.')[0]}").mock(
