@@ -41,8 +41,10 @@ class Competition(Spider):
             id = get_element_text(team.xpath("./@href")).split("=")[-1]
 
             img = team.xpath(".//img")
-            name = get_element_text(img.xpath("./@alt"))
             logo = BASE_URL + get_element_text(img.xpath("./@data-src"))
+
+            name = get_element_text(img.xpath("./@alt"))
+            name = self._fix_name(name)
 
             teams.append(CompetitionOfficialTeam(id=id, name=name, logo=logo))
         return CompetitionOfficial(
@@ -54,3 +56,16 @@ class Competition(Spider):
             ),
             teams=tuple(teams),
         )
+
+    def _fix_name(self, name: str) -> str:
+        """name 用于 rapidfuzz 匹配临时修正方案
+
+        >>> fuzz.ratio("Rennes", "Stade Rennais Fc")
+        45.45454545454546
+        >>> fuzz.ratio("Rennes", "Rc Lens")
+        61.53846153846154
+
+        """
+        if name == "STADE RENNAIS FC":
+            name = "Rennes"
+        return name.title()
