@@ -7,6 +7,7 @@ from .premierleague import Competition as PremierLeagueCompetition
 from .laliga import Competition as LaLigaCompetition
 from .bundesliga import Competition as BundesligaCompetition
 from .serie_a import Competition as SerieACompetition
+from .ligue_1 import Competition as Ligue1Competition
 
 
 spiders_cls: dict[str, type[Spider]] = {
@@ -14,6 +15,7 @@ spiders_cls: dict[str, type[Spider]] = {
     "La Liga": LaLigaCompetition,
     "Bundesliga": BundesligaCompetition,
     "Serie A": SerieACompetition,
+    "Ligue 1": Ligue1Competition,
 }
 
 
