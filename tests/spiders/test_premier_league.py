@@ -3,7 +3,7 @@ import typing
 import httpx
 import pytest
 
-from tests.utils import read_premierleague_test_data
+from tests.utils import read_data
 from fusion_stat.spiders.premier_league import Competitions, Competition
 
 
@@ -20,8 +20,8 @@ class testCompetitions:
         )
 
     def test_parse_and_index(self, spider: Competitions) -> None:
-        data = read_premierleague_test_data(
-            "competitions?page=0&pageSize=1000&detail=2.json"
+        data = read_data(
+            "premier_league", "competitions?page=0&pageSize=1000&detail=2.json"
         )
         response = httpx.Response(200, json=data)
         coms = spider.parse(response)
@@ -49,8 +49,9 @@ class TestCompetition:
         )
 
     def test_parse(self, spider: Competition) -> None:
-        data = read_premierleague_test_data(
-            "teams?pageSize=100&compSeasons=578&comps=1&altIds=true&page=0.json"
+        data = read_data(
+            "premier_league",
+            "teams?pageSize=100&compSeasons=578&comps=1&altIds=true&page=0.json",
         )
         response = httpx.Response(200, json=data)
         com = spider.parse(response)

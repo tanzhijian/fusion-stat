@@ -3,8 +3,9 @@ import typing
 import httpx
 import pytest
 
-from tests.utils import read_premierleague_test_data
+from tests.utils import read_data
 from fusion_stat.spiders.official import Competition
+from fusion_stat.config import COMPETITIONS
 
 
 class TestCompetition:
@@ -24,8 +25,9 @@ class TestCompetition:
         )
 
     def test_parse(self, spider: Competition) -> None:
-        data = read_premierleague_test_data(
-            "teams?pageSize=100&compSeasons=578&comps=1&altIds=true&page=0.json"
+        data = read_data(
+            "premier_league",
+            "teams?pageSize=100&compSeasons=578&comps=1&altIds=true&page=0.json",
         )
         response = httpx.Response(200, json=data)
         com = spider.parse(response)
@@ -36,3 +38,13 @@ class TestCompetition:
             team.logo
             == "https://resources.premierleague.com/premierleague/badges/rb/t3.svg"
         )
+
+
+def test_select_competition(client: httpx.AsyncClient) -> None:
+    for name in COMPETITIONS:
+        spider = Competition(name=name, season=2023, client=client)
+        assert spider.name == name
+
+    with pytest.raises(KeyError):
+        spider = Competition(name="Foo", season=2023, client=client)
+        assert spider.name == "Foo"

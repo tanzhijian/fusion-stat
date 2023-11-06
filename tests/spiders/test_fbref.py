@@ -1,9 +1,10 @@
 import typing
+from functools import partial
 
 import httpx
 import pytest
 
-from tests.utils import read_fbref_test_data
+from tests.utils import read_data
 from fusion_stat.spiders.fbref import (
     Competitions,
     Competition,
@@ -12,6 +13,9 @@ from fusion_stat.spiders.fbref import (
     Matches,
     Match,
 )
+
+
+read_test_data = partial(read_data, "fbref")
 
 
 class TestCompetitions:
@@ -26,7 +30,7 @@ class TestCompetitions:
         assert url == "https://fbref.com/en/comps/"
 
     def test_parse(self, spider: Competitions) -> None:
-        text = read_fbref_test_data("comps_.html")
+        text = read_test_data("comps_.html")
         response = httpx.Response(200, text=text)
         coms = spider.parse(response)
         assert coms[0].name == "Premier League"
@@ -68,7 +72,7 @@ class TestCompetition:
             assert url2 == spider2.request.url
 
     def test_parse(self, spider: Competition) -> None:
-        text = read_fbref_test_data("comps_9_Premier-League-Stats.html")
+        text = read_test_data("comps_9_Premier-League-Stats.html")
         response = httpx.Response(200, text=text)
         com = spider.parse(response)
         assert com.name == "Premier League"
@@ -105,7 +109,7 @@ class TestTeam:
             assert url2 == spider2.request.url
 
     def test_parse(self, spider: Team) -> None:
-        text = read_fbref_test_data("squads_18bb7c10_Arsenal-Stats.html")
+        text = read_test_data("squads_18bb7c10_Arsenal-Stats.html")
         response = httpx.Response(200, text=text)
         team = spider.parse(response)
         assert team.name == "Arsenal"
@@ -127,7 +131,7 @@ class TestMember:
         assert spider2.request.url == "https://fbref.com/en/players/bc7dc64d/"
 
     def test_parse(self, spider: Member) -> None:
-        text = read_fbref_test_data("players_bc7dc64d_Bukayo-Saka.html")
+        text = read_test_data("players_bc7dc64d_Bukayo-Saka.html")
         response = httpx.Response(200, text=text)
         member = spider.parse(response)
         assert member.name == "Bukayo Saka"
@@ -145,7 +149,7 @@ class TestMatches:
         assert url == "https://fbref.com/en/matches/2023-09-03"
 
     def test_parse(self, spider: Matches) -> None:
-        text = read_fbref_test_data("matches_2023-09-03.html")
+        text = read_test_data("matches_2023-09-03.html")
         response = httpx.Response(200, text=text)
         matches = spider.parse(response)
         match = matches[0]
@@ -165,7 +169,7 @@ class TestMatch:
         assert url == "https://fbref.com/en/matches/74125d47"
 
     def test_parse(self, spider: Match) -> None:
-        text = read_fbref_test_data("matches_74125d47.html")
+        text = read_test_data("matches_74125d47.html")
         response = httpx.Response(200, text=text)
         match = spider.parse(response)
         assert match.name == "Arsenal vs Manchester United"

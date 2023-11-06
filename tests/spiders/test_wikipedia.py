@@ -4,7 +4,7 @@ import httpx
 import pytest
 
 from fusion_stat.spiders.wikipedia import Competition, Image
-from tests.utils import read_wikipedia_test_data
+from tests.utils import read_data
 
 
 class TestImage:
@@ -22,7 +22,7 @@ class TestImage:
         )
 
     def test_parse(self, spider: Image) -> None:
-        data = read_wikipedia_test_data("summary|Arsenal_F.C.json")
+        data = read_data("wikipedia", "summary|Arsenal_F.C.json")
         response = httpx.Response(200, json=data)
         image_url = spider.parse(response)
         assert (

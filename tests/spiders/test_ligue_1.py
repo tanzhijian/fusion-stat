@@ -3,7 +3,7 @@ import typing
 import httpx
 import pytest
 
-from tests.utils import read_ligue_1_test_data
+from tests.utils import read_data
 from fusion_stat.spiders.ligue_1 import Competition
 
 
@@ -21,7 +21,7 @@ class TestCompetition:
         )
 
     def test_parse(self, spider: Competition) -> None:
-        text = read_ligue_1_test_data("clubs_List?seasonId=2023-2024.html")
+        text = read_data("ligue_1", "clubs_List?seasonId=2023-2024.html")
         response = httpx.Response(200, text=text)
         com = spider.parse(response)
         assert com.id == "Ligue 1 2023-2024"

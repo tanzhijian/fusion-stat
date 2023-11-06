@@ -3,7 +3,7 @@ import typing
 import httpx
 import pytest
 
-from tests.utils import read_serie_a_test_data
+from tests.utils import read_data
 from fusion_stat.spiders.serie_a import Competition
 
 
@@ -21,7 +21,7 @@ class TestCompetition:
         )
 
     def test_parse(self, spider: Competition) -> None:
-        data = read_serie_a_test_data("STAGIONE=2023-24.json")
+        data = read_data("serie_a", "STAGIONE=2023-24.json")
         response = httpx.Response(200, json=data)
         com = spider.parse(response)
         assert com.id == "Serie A 2023-24"

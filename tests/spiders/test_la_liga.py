@@ -3,7 +3,7 @@ import typing
 import httpx
 import pytest
 
-from tests.utils import read_laliga_test_data
+from tests.utils import read_data
 from fusion_stat.spiders.la_liga import Competition
 
 
@@ -29,8 +29,8 @@ class TestCompetition:
         )
 
     def test_parse(self, spider: Competition) -> None:
-        data = read_laliga_test_data(
-            "subscriptionSlug=laliga-easports-2023.json"
+        data = read_data(
+            "la_liga", "subscriptionSlug=laliga-easports-2023.json"
         )
         response = httpx.Response(200, json=data)
         com = spider.parse(response)

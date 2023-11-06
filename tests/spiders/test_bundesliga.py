@@ -3,7 +3,7 @@ import typing
 import httpx
 import pytest
 
-from tests.utils import read_bundesliga_test_data
+from tests.utils import read_data
 from fusion_stat.spiders.bundesliga import Competition
 
 
@@ -21,7 +21,7 @@ class TestCurrentCompetition:
         )
 
     def test_parse(self, spider: Competition) -> None:
-        text = read_bundesliga_test_data("en_bundesliga_clubs.html")
+        text = read_data("bundesliga", "en_bundesliga_clubs.html")
         response = httpx.Response(200, text=text)
         com = spider.parse(response)
         assert com.id == "Bundesliga 2023-2024"
@@ -52,9 +52,7 @@ class Test2022Competition:
         )
 
     def test_parse(self, spider: Competition) -> None:
-        data = read_bundesliga_test_data(
-            "assets_historic_season_2022-2023.json"
-        )
+        data = read_data("bundesliga", "assets_historic_season_2022-2023.json")
         response = httpx.Response(200, json=data)
         com = spider.parse(response)
         assert com.id == "Bundesliga 2022-2023"
@@ -81,9 +79,7 @@ class Test2021Competition:
         )
 
     def test_parse(self, spider: Competition) -> None:
-        data = read_bundesliga_test_data(
-            "assets_historic_season_2021-2022.json"
-        )
+        data = read_data("bundesliga", "assets_historic_season_2021-2022.json")
         response = httpx.Response(200, json=data)
         com = spider.parse(response)
         assert com.id == "Bundesliga 2021-2022"
