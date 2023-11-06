@@ -4,7 +4,7 @@ import httpx
 import pytest
 
 from tests.utils import read_laliga_test_data
-from fusion_stat.spiders.laliga import Competition
+from fusion_stat.spiders.la_liga import Competition
 
 
 class TestCompetition:
