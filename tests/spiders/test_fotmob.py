@@ -43,9 +43,16 @@ class TestCompetition:
     ) -> typing.Generator[Competition, typing.Any, None]:
         yield Competition(id="47", client=client)
 
-    def test_request(self, spider: Competition) -> None:
-        url = spider.request.url
-        assert url == "https://www.fotmob.com/api/leagues?id=47"
+    def test_request(
+        self, spider: Competition, client: httpx.AsyncClient
+    ) -> None:
+        assert spider.request.url == "https://www.fotmob.com/api/leagues?id=47"
+
+        spider_2022 = Competition(id="47", season=2022, client=client)
+        assert (
+            spider_2022.request.url
+            == "https://www.fotmob.com/api/leagues?id=47&season=2022/2023"
+        )
 
     def test_parse(self, spider: Competition) -> None:
         data = read_test_data("leagues?id=47.json")

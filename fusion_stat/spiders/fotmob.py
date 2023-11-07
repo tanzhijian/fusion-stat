@@ -49,16 +49,29 @@ class Competitions(Spider):
 
 
 class Competition(Spider):
-    def __init__(self, *, id: str, client: httpx.AsyncClient) -> None:
+    def __init__(
+        self,
+        *,
+        id: str,
+        season: int | None = None,
+        client: httpx.AsyncClient,
+    ) -> None:
         super().__init__(client=client)
         self.id = id
+        if season is None:
+            self.season = season
+        else:
+            self.season = f"{season}/{season + 1}"
 
     @property
     def request(self) -> httpx.Request:
+        params = {"id": self.id}
+        if self.season is not None:
+            params["season"] = self.season
         return httpx.Request(
             "GET",
             url=BASE_URL + "/leagues",
-            params={"id": self.id},
+            params=params,
         )
 
     def parse(self, response: httpx.Response) -> CompetitionFotMob:
