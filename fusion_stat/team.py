@@ -4,26 +4,12 @@ import httpx
 from rapidfuzz import process
 from pydantic import BaseModel
 
-from .base import Fusion, Spider
+from .base import Fusion
 from .spiders.fotmob import Team as FotMobTeam
 from .spiders.fbref import Team as FBrefTeam
 from .utils import fuzzy_similarity_mean
 from .config import MEMBERS_SIMILARITY_SCORE
 from .models import TeamFotMob, TeamFBref
-
-
-class FotMobParams(BaseModel):
-    id: str
-
-
-class FBrefParams(BaseModel):
-    id: str
-    path_name: str | None
-
-
-class Params(BaseModel):
-    fotmob: FotMobParams
-    fbref: FBrefParams
 
 
 class MemberParams(BaseModel):
@@ -130,14 +116,17 @@ class Team(Fusion[Response]):
         self.fbref_path_name = fbref_path_name
 
     @property
-    def params(self) -> BaseModel:
-        fotmob = FotMobParams(id=self.fotmob_id)
-        fbref = FBrefParams(id=self.fbref_id, path_name=self.fbref_path_name)
-        return Params(fotmob=fotmob, fbref=fbref)
-
-    @property
-    def spiders_cls(self) -> tuple[type[Spider], ...]:
-        return (FotMobTeam, FBrefTeam)
+    def tasks(
+        self,
+    ) -> tuple[typing.Coroutine[typing.Any, typing.Any, typing.Any], ...]:
+        return (
+            FotMobTeam(id=self.fotmob_id, client=self.client).download(),
+            FBrefTeam(
+                id=self.fbref_id,
+                path_name=self.fbref_path_name,
+                client=self.client,
+            ).download(),
+        )
 
     def parse(self, responses: list[typing.Any]) -> Response:
         fotmob, fbref = responses

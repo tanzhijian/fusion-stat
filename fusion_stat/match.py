@@ -1,25 +1,11 @@
 import typing
 
 import httpx
-from pydantic import BaseModel
 
-from .base import Fusion, Spider
+from .base import Fusion
 from .spiders.fotmob import Match as FotMobMatch
 from .spiders.fbref import Match as FBrefMatch
 from .models import Stat
-
-
-class FotMobParams(BaseModel):
-    id: str
-
-
-class FBrefParams(BaseModel):
-    id: str
-
-
-class Params(BaseModel):
-    fotmob: FotMobParams
-    fbref: FBrefParams
 
 
 class Response:
@@ -46,14 +32,13 @@ class Match(Fusion[Response]):
         self.fbref_id = fbref_id
 
     @property
-    def params(self) -> BaseModel:
-        fotmob = FotMobParams(id=self.fotmob_id)
-        fbref = FBrefParams(id=self.fbref_id)
-        return Params(fotmob=fotmob, fbref=fbref)
-
-    @property
-    def spiders_cls(self) -> tuple[type[Spider], ...]:
-        return (FotMobMatch, FBrefMatch)
+    def tasks(
+        self,
+    ) -> tuple[typing.Coroutine[typing.Any, typing.Any, typing.Any], ...]:
+        return (
+            FotMobMatch(id=self.fotmob_id, client=self.client).download(),
+            FBrefMatch(id=self.fbref_id, client=self.client).download(),
+        )
 
     def parse(self, responses: list[typing.Any]) -> Response:
         fotmob, fbref = responses

@@ -4,7 +4,6 @@ from abc import ABC, abstractmethod
 from types import TracebackType
 
 import httpx
-from pydantic import BaseModel
 
 
 T = typing.TypeVar("T")
@@ -59,51 +58,28 @@ class Fusion(typing.Generic[T], ABC):
         client: httpx.AsyncClient | None = None,
         **kwargs: typing.Any,
     ) -> None:
-        self.client = client
-        self.kwargs = kwargs
-
-    @property
-    def params(self) -> BaseModel | None:
-        return None
+        if client is None:
+            self.has_client = False
+            self.client = httpx.AsyncClient(**kwargs)
+        else:
+            self.has_client = True
+            self.client = client
 
     @property
     @abstractmethod
-    def spiders_cls(self) -> tuple[type[Spider], ...]:
-        ...
-
-    async def create_task(
+    def tasks(
         self,
-        spider_cls: type[Spider],
-        client: httpx.AsyncClient,
-    ) -> typing.Any:
-        if self.params is None:
-            spider = spider_cls(client=client)
-        else:
-            params = self.params.model_dump(exclude_none=True)
-            spider = spider_cls(
-                **params[spider_cls.__module__.split(".")[-1]],
-                client=client,
-            )
-        response = await spider.download()
-        return response
+    ) -> tuple[typing.Coroutine[typing.Any, typing.Any, typing.Any], ...]:
+        ...
 
     @abstractmethod
     def parse(self, responses: list[typing.Any]) -> T:
         ...
 
     async def get(self) -> T:
-        if self.client is None:
-            async with httpx.AsyncClient(**self.kwargs) as client:
-                tasks = [
-                    self.create_task(spider_cls, client)
-                    for spider_cls in self.spiders_cls
-                ]
-                responses = await asyncio.gather(*tasks)
-        else:
-            tasks = [
-                self.create_task(spider_cls, self.client)
-                for spider_cls in self.spiders_cls
-            ]
-            responses = await asyncio.gather(*tasks)
+        responses = await asyncio.gather(*self.tasks)
+
+        if not self.has_client:
+            await self.client.aclose()
 
         return self.parse(responses)

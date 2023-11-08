@@ -4,19 +4,10 @@ import httpx
 from rapidfuzz import process
 from pydantic import BaseModel
 
-from .base import Fusion, Spider
+from .base import Fusion
 from .spiders.fotmob import Matches as FotMobMatches
 from .spiders.fbref import Matches as FBrefMatches
 from .models import Stat, MatchesFotMobMatch
-
-
-class SpiderParams(BaseModel):
-    date: str
-
-
-class Params(BaseModel):
-    fotmob: SpiderParams
-    fbref: SpiderParams
 
 
 class MatchParams(BaseModel):
@@ -70,14 +61,13 @@ class Matches(Fusion[Response]):
         self.date = date
 
     @property
-    def params(self) -> BaseModel:
-        fotmob = SpiderParams(date=self.date)
-        fbref = SpiderParams(date=self.date)
-        return Params(fotmob=fotmob, fbref=fbref)
-
-    @property
-    def spiders_cls(self) -> tuple[type[Spider], ...]:
-        return (FotMobMatches, FBrefMatches)
+    def tasks(
+        self,
+    ) -> tuple[typing.Coroutine[typing.Any, typing.Any, typing.Any], ...]:
+        return (
+            FotMobMatches(date=self.date, client=self.client).download(),
+            FBrefMatches(date=self.date, client=self.client).download(),
+        )
 
     def parse(self, responses: list[typing.Any]) -> Response:
         fotmob, fbref = responses

@@ -4,27 +4,11 @@ import httpx
 from rapidfuzz import process
 from pydantic import BaseModel
 
-from .base import Fusion, Spider
+from .base import Fusion
 from .spiders.fotmob import Competition as FotMobCompetition
 from .spiders.fbref import Competition as FBrefCompetition
 from .utils import sort_table_key
 from .models import CompetitionFotMob, CompetitionFBref
-
-
-class FotMobParams(BaseModel):
-    id: str
-    season: int | None
-
-
-class FBrefParams(BaseModel):
-    id: str
-    path_name: str | None
-    season: int | None
-
-
-class Params(BaseModel):
-    fotmob: FotMobParams
-    fbref: FBrefParams
 
 
 class TeamParams(BaseModel):
@@ -124,18 +108,22 @@ class Competition(Fusion[Response]):
         self.season = season
 
     @property
-    def params(self) -> BaseModel:
-        fotmob = FotMobParams(id=self.fotmob_id, season=self.season)
-        fbref = FBrefParams(
-            id=self.fbref_id,
-            path_name=self.fbref_path_name,
-            season=self.season,
+    def tasks(
+        self,
+    ) -> tuple[typing.Coroutine[typing.Any, typing.Any, typing.Any], ...]:
+        return (
+            FotMobCompetition(
+                id=self.fotmob_id,
+                season=self.season,
+                client=self.client,
+            ).download(),
+            FBrefCompetition(
+                id=self.fbref_id,
+                path_name=self.fbref_path_name,
+                season=self.season,
+                client=self.client,
+            ).download(),
         )
-        return Params(fotmob=fotmob, fbref=fbref)
-
-    @property
-    def spiders_cls(self) -> tuple[type[Spider], ...]:
-        return (FotMobCompetition, FBrefCompetition)
 
     def parse(self, responses: list[typing.Any]) -> Response:
         fotmob, fbref = responses

@@ -22,8 +22,10 @@ class Foo(Spider):
 
 class Bar(Fusion[str]):
     @property
-    def spiders_cls(self) -> tuple[type[Spider], ...]:
-        return (Foo,)
+    def tasks(
+        self,
+    ) -> tuple[typing.Coroutine[typing.Any, typing.Any, typing.Any], ...]:
+        return (Foo(client=self.client).download(),)
 
     def parse(self, responses: list[typing.Any]) -> str:
         return "bar"
@@ -73,9 +75,18 @@ async def test_spider_download(client: httpx.AsyncClient) -> None:
 
 
 @respx.mock
-async def test_fusion_get() -> None:
+async def test_fusion_get(client: httpx.AsyncClient) -> None:
     route = respx.get("https://tanzhijian.org")
-    bar = Bar()
-    response = await bar.get()
+    bar1 = Bar()
+    assert not bar1.has_client
+    response1 = await bar1.get()
     assert route.called
-    assert response == "bar"
+    assert response1 == "bar"
+    assert bar1.client.is_closed
+
+    bar2 = Bar(client=client)
+    assert bar2.has_client
+    response2 = await bar2.get()
+    assert route.call_count == 2
+    assert response2 == "bar"
+    assert not bar2.client.is_closed
