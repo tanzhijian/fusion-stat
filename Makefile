@@ -1,7 +1,6 @@
-test:
-	poetry run ruff .
-	poetry run mypy .
-	poetry run pytest
+PATH := .
 
-init:
-	poetry run python script/init.py
+test:
+	poetry run ruff ${PATH}
+	poetry run mypy ${PATH}
+	poetry run pytest ${PATH}
