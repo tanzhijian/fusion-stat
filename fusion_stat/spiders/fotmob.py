@@ -230,7 +230,7 @@ class Matches(Spider):
     ) -> tuple[MatchesFotMobMatch, ...]:
         json = response.json()
         matches = []
-        competitions_id = {c.fotmob_id for c in COMPETITIONS_INDEX}
+        competitions_id = {c["fotmob_id"] for c in COMPETITIONS_INDEX}
         for competition in json["leagues"]:
             if (competition_id := str(competition["id"])) in competitions_id:
                 for match in competition["matches"]:

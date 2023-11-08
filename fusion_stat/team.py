@@ -2,16 +2,34 @@ import typing
 
 import httpx
 from rapidfuzz import process
+from pydantic import BaseModel
 
 from .base import Fusion, Spider
 from .spiders.fotmob import Team as FotMobTeam
 from .spiders.fbref import Team as FBrefTeam
-from .utils import (
-    unpack_params,
-    fuzzy_similarity_mean,
-)
+from .utils import fuzzy_similarity_mean
 from .config import MEMBERS_SIMILARITY_SCORE
-from .models import Params, TeamFotMob, TeamFBref
+from .models import TeamFotMob, TeamFBref
+
+
+class FotMobParams(BaseModel):
+    id: str
+
+
+class FBrefParams(BaseModel):
+    id: str
+    path_name: str | None
+
+
+class Params(BaseModel):
+    fotmob: FotMobParams
+    fbref: FBrefParams
+
+
+class MemberParams(BaseModel):
+    fotmob_id: str
+    fbref_id: str
+    fbref_path_name: str | None
 
 
 class Response:
@@ -69,8 +87,8 @@ class Response:
 
         return players
 
-    def members_index(self) -> list[Params]:
-        params: list[Params] = []
+    def members_index(self) -> list[dict[str, typing.Any]]:
+        params: list[dict[str, typing.Any]] = []
         for fotmob_member in self.fotmob.members:
             if not fotmob_member.is_staff:
                 try:
@@ -85,13 +103,12 @@ class Response:
                         ],
                         score_cutoff=MEMBERS_SIMILARITY_SCORE,
                     )[0]
-                    params.append(
-                        Params(
-                            fotmob_id=fotmob_member.id,
-                            fbref_id=fbref_member.id,
-                            fbref_path_name=fbref_member.path_name,
-                        )
-                    )
+                    member_params = MemberParams(
+                        fotmob_id=fotmob_member.id,
+                        fbref_id=fbref_member.id,
+                        fbref_path_name=fbref_member.path_name,
+                    ).model_dump(exclude_none=True)
+                    params.append(member_params)
                 except TypeError:
                     pass
         return params
@@ -100,27 +117,27 @@ class Response:
 class Team(Fusion[Response]):
     def __init__(
         self,
-        params: Params | dict[str, str],
         *,
+        fotmob_id: str,
+        fbref_id: str,
+        fbref_path_name: str | None = None,
         client: httpx.AsyncClient | None = None,
         **kwargs: typing.Any,
     ) -> None:
         super().__init__(client=client, **kwargs)
-        self.params = unpack_params(params)
+        self.fotmob_id = fotmob_id
+        self.fbref_id = fbref_id
+        self.fbref_path_name = fbref_path_name
+
+    @property
+    def params(self) -> BaseModel:
+        fotmob = FotMobParams(id=self.fotmob_id)
+        fbref = FBrefParams(id=self.fbref_id, path_name=self.fbref_path_name)
+        return Params(fotmob=fotmob, fbref=fbref)
 
     @property
     def spiders_cls(self) -> tuple[type[Spider], ...]:
         return (FotMobTeam, FBrefTeam)
-
-    async def create_task(
-        self, spider_cls: type[Spider], client: httpx.AsyncClient
-    ) -> typing.Any:
-        spider = spider_cls(
-            **self.params[spider_cls.__module__.split(".")[-1]],
-            client=client,
-        )
-        response = await spider.download()
-        return response
 
     def parse(self, responses: list[typing.Any]) -> Response:
         fotmob, fbref = responses

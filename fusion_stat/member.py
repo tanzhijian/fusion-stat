@@ -1,12 +1,26 @@
 import typing
 
 import httpx
+from pydantic import BaseModel
 
 from .base import Fusion, Spider
 from .spiders.fotmob import Member as FotMobMember
 from .spiders.fbref import Member as FBrefMember
-from .utils import unpack_params
-from .models import Params, MemberFotMob, MemberFBref
+from .models import MemberFotMob, MemberFBref
+
+
+class FotMobParams(BaseModel):
+    id: str
+
+
+class FBrefParams(BaseModel):
+    id: str
+    path_name: str | None
+
+
+class Params(BaseModel):
+    fotmob: FotMobParams
+    fbref: FBrefParams
 
 
 class Response:
@@ -22,27 +36,27 @@ class Response:
 class Member(Fusion[Response]):
     def __init__(
         self,
-        params: Params | dict[str, str],
         *,
+        fotmob_id: str,
+        fbref_id: str,
+        fbref_path_name: str | None = None,
         client: httpx.AsyncClient | None = None,
         **kwargs: typing.Any,
     ) -> None:
         super().__init__(client=client, **kwargs)
-        self.params = unpack_params(params)
+        self.fotmob_id = fotmob_id
+        self.fbref_id = fbref_id
+        self.fbref_path_name = fbref_path_name
+
+    @property
+    def params(self) -> BaseModel:
+        fotmob = FotMobParams(id=self.fotmob_id)
+        fbref = FBrefParams(id=self.fbref_id, path_name=self.fbref_path_name)
+        return Params(fotmob=fotmob, fbref=fbref)
 
     @property
     def spiders_cls(self) -> tuple[type[Spider], ...]:
         return (FotMobMember, FBrefMember)
-
-    async def create_task(
-        self, spider_cls: type[Spider], client: httpx.AsyncClient
-    ) -> typing.Any:
-        spider = spider_cls(
-            **self.params[spider_cls.__module__.split(".")[-1]],
-            client=client,
-        )
-        response = await spider.download()
-        return response
 
     def parse(self, responses: list[typing.Any]) -> Response:
         fotmob, fbref = responses

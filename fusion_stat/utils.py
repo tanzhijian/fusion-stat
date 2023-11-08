@@ -4,26 +4,11 @@ from datetime import date
 from parsel import Selector, SelectorList
 from rapidfuzz import fuzz
 
-from .models import Params
-
 
 def get_element_text(selector_list: SelectorList[Selector]) -> str:
     if (text := selector_list.get()) is None:
         raise ValueError("tag not found")
     return text
-
-
-def unpack_params(
-    params: Params | dict[str, str]
-) -> dict[str, dict[str, str]]:
-    if isinstance(params, dict):
-        params = Params(**params)
-
-    fotmob = {"id": params.fotmob_id}
-    fbref = {"id": params.fbref_id}
-    if params.fbref_path_name:
-        fbref["path_name"] = params.fbref_path_name
-    return {"fotmob": fotmob, "fbref": fbref}
 
 
 def sort_table_key(team: dict[str, typing.Any]) -> tuple[typing.Any, ...]:

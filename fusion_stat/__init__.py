@@ -4,7 +4,7 @@ from .team import Team
 from .member import Member
 from .matches import Matches
 from .match import Match
-from .models import Params
+
 
 __all__ = (
     "Competitions",
@@ -13,5 +13,4 @@ __all__ = (
     "Member",
     "Matches",
     "Match",
-    "Params",
 )

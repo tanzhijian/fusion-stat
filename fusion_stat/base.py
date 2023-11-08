@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from types import TracebackType
 
 import httpx
+from pydantic import BaseModel
 
 
 T = typing.TypeVar("T")
@@ -62,15 +63,29 @@ class Fusion(typing.Generic[T], ABC):
         self.kwargs = kwargs
 
     @property
+    def params(self) -> BaseModel | None:
+        return None
+
+    @property
     @abstractmethod
     def spiders_cls(self) -> tuple[type[Spider], ...]:
         ...
 
-    @abstractmethod
     async def create_task(
-        self, spider_cls: type[Spider], client: httpx.AsyncClient
+        self,
+        spider_cls: type[Spider],
+        client: httpx.AsyncClient,
     ) -> typing.Any:
-        ...
+        if self.params is None:
+            spider = spider_cls(client=client)
+        else:
+            params = self.params.model_dump(exclude_none=True)
+            spider = spider_cls(
+                **params[spider_cls.__module__.split(".")[-1]],
+                client=client,
+            )
+        response = await spider.download()
+        return response
 
     @abstractmethod
     def parse(self, responses: list[typing.Any]) -> T:

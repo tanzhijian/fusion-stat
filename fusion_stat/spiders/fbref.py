@@ -263,7 +263,7 @@ class Matches(Spider):
         matches = []
 
         competitions_id_str = "|".join(
-            (c.fbref_id for c in COMPETITIONS_INDEX)
+            (c["fbref_id"] for c in COMPETITIONS_INDEX)
         )
         tables = selector.xpath(
             f"//table[re:test(@id, 'sched_.*_({competitions_id_str})\\b')]"

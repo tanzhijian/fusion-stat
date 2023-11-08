@@ -2,11 +2,19 @@ import typing
 
 import httpx
 from rapidfuzz import process
+from pydantic import BaseModel
 
 from .base import Fusion, Spider
 from .spiders.fotmob import Competitions as FotMobCompetitions
 from .spiders.fbref import Competitions as FBrefCompetitions
-from .models import Params, Stat
+from .models import Stat
+
+
+class CompetitionParams(BaseModel):
+    fotmob_id: str
+    fbref_id: str
+    fbref_path_name: str | None
+    season: int | None
 
 
 class Response:
@@ -14,12 +22,14 @@ class Response:
         self,
         fotmob: tuple[Stat, ...],
         fbref: tuple[Stat, ...],
+        season: int | None,
     ) -> None:
         self.fotmob = fotmob
         self.fbref = fbref
+        self.season = season
 
-    def index(self) -> list[Params]:
-        params: list[Params] = []
+    def index(self) -> list[dict[str, typing.Any]]:
+        params: list[dict[str, typing.Any]] = []
 
         for fotmob_competition in self.fotmob:
             fbref_competition = process.extractOne(
@@ -28,13 +38,14 @@ class Response:
                 processor=lambda x: x.name,
             )[0]
 
-            params.append(
-                Params(
-                    fotmob_id=fotmob_competition.id,
-                    fbref_id=fbref_competition.id,
-                    fbref_path_name=fbref_competition.name.replace(" ", "-"),
-                )
-            )
+            competition_params = CompetitionParams(
+                fotmob_id=fotmob_competition.id,
+                fbref_id=fbref_competition.id,
+                fbref_path_name=fbref_competition.name.replace(" ", "-"),
+                season=self.season,
+            ).model_dump(exclude_none=True)
+
+            params.append(competition_params)
 
         return params
 
@@ -43,22 +54,17 @@ class Competitions(Fusion[Response]):
     def __init__(
         self,
         *,
+        season: int | None = None,
         client: httpx.AsyncClient | None = None,
         **kwargs: typing.Any,
     ) -> None:
         super().__init__(client=client, **kwargs)
+        self.season = season
 
     @property
     def spiders_cls(self) -> tuple[type[Spider], ...]:
         return (FotMobCompetitions, FBrefCompetitions)
 
-    async def create_task(
-        self, spider_cls: type[Spider], client: httpx.AsyncClient
-    ) -> typing.Any:
-        spider = spider_cls(client=client)
-        response = await spider.download()
-        return response
-
     def parse(self, responses: list[typing.Any]) -> Response:
         fotmob, fbref = responses
-        return Response(fotmob=fotmob, fbref=fbref)
+        return Response(fotmob=fotmob, fbref=fbref, season=self.season)

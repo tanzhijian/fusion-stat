@@ -15,7 +15,7 @@ async def response(
     fotmob_mock("matches?date=20230903.json")
     fbref_mock("matches_2023-09-03.html")
 
-    matches = Matches("2023-09-03", client=client)
+    matches = Matches(date="2023-09-03", client=client)
     with respx.mock:
         response = await matches.get()
     yield response
@@ -44,5 +44,5 @@ def test_index(response: Response) -> None:
     index = response.index()
     assert len(index) == 18
     params = index[0]
-    assert params.fotmob_id == "4193495"
-    assert params.fbref_id == "f9436d32"
+    assert params["fotmob_id"] == "4193495"
+    assert params["fbref_id"] == "f9436d32"

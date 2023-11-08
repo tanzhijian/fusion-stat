@@ -6,7 +6,6 @@ import respx
 
 from .utils import fotmob_mock, fbref_mock
 from fusion_stat.team import Response, Team
-from fusion_stat.models import Params
 
 
 @pytest_asyncio.fixture(scope="module")
@@ -16,12 +15,12 @@ async def response(
     fotmob_mock("teams?id=9825.json")
     fbref_mock("squads_18bb7c10_Arsenal-Stats.html")
 
-    params = Params(
-        fotmob_id="9825",
-        fbref_id="18bb7c10",
-        fbref_path_name="Arsenal",
-    )
-    team = Team(params, client=client)
+    params = {
+        "fotmob_id": "9825",
+        "fbref_id": "18bb7c10",
+        "fbref_path_name": "Arsenal",
+    }
+    team = Team(**params, client=client)
     with respx.mock:
         response = await team.get()
     yield response
@@ -63,6 +62,6 @@ def test_players(response: Response) -> None:
 def test_members_index(response: Response) -> None:
     index = response.members_index()
     params = index[0]
-    assert params.fotmob_id == "562727"
-    assert params.fbref_id == "98ea5115"
-    assert params.fbref_path_name == "David-Raya"
+    assert params["fotmob_id"] == "562727"
+    assert params["fbref_id"] == "98ea5115"
+    assert params["fbref_path_name"] == "David-Raya"

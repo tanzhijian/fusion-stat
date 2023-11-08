@@ -25,13 +25,6 @@ class Bar(Fusion[str]):
     def spiders_cls(self) -> tuple[type[Spider], ...]:
         return (Foo,)
 
-    async def create_task(
-        self, spider_cls: type[Spider], client: httpx.AsyncClient
-    ) -> typing.Any:
-        spider = spider_cls(client=client, **self.kwargs)
-        response = await spider.download()
-        return response
-
     def parse(self, responses: list[typing.Any]) -> str:
         return "bar"
 

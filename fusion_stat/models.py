@@ -1,13 +1,6 @@
 from pydantic import BaseModel, Field
 
 
-class Params(BaseModel):
-    fotmob_id: str
-
-    fbref_id: str
-    fbref_path_name: str | None = None
-
-
 class Stat(BaseModel):
     id: str = Field(exclude=True)
     name: str

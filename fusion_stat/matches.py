@@ -2,11 +2,26 @@ import typing
 
 import httpx
 from rapidfuzz import process
+from pydantic import BaseModel
 
 from .base import Fusion, Spider
 from .spiders.fotmob import Matches as FotMobMatches
 from .spiders.fbref import Matches as FBrefMatches
-from .models import Params, Stat, MatchesFotMobMatch
+from .models import Stat, MatchesFotMobMatch
+
+
+class SpiderParams(BaseModel):
+    date: str
+
+
+class Params(BaseModel):
+    fotmob: SpiderParams
+    fbref: SpiderParams
+
+
+class MatchParams(BaseModel):
+    fotmob_id: str
+    fbref_id: str
 
 
 class Response:
@@ -24,16 +39,17 @@ class Response:
             "matches": [match.model_dump() for match in self.fotmob],
         }
 
-    def index(self) -> list[Params]:
-        params = []
+    def index(self) -> list[dict[str, typing.Any]]:
+        params: list[dict[str, typing.Any]] = []
         for fotmob_match in self.fotmob:
             if not fotmob_match.cancelled:
                 fbref_match = process.extractOne(
                     fotmob_match, self.fbref, processor=lambda x: x.name
                 )[0]
-                params.append(
-                    Params(fotmob_id=fotmob_match.id, fbref_id=fbref_match.id)
-                )
+                match_params = MatchParams(
+                    fotmob_id=fotmob_match.id, fbref_id=fbref_match.id
+                ).model_dump(exclude_none=True)
+                params.append(match_params)
         return params
 
 
@@ -45,8 +61,8 @@ class Matches(Fusion[Response]):
 
     def __init__(
         self,
-        date: str,
         *,
+        date: str,
         client: httpx.AsyncClient | None = None,
         **kwargs: typing.Any,
     ) -> None:
@@ -54,18 +70,14 @@ class Matches(Fusion[Response]):
         self.date = date
 
     @property
+    def params(self) -> BaseModel:
+        fotmob = SpiderParams(date=self.date)
+        fbref = SpiderParams(date=self.date)
+        return Params(fotmob=fotmob, fbref=fbref)
+
+    @property
     def spiders_cls(self) -> tuple[type[Spider], ...]:
         return (FotMobMatches, FBrefMatches)
-
-    async def create_task(
-        self, spider_cls: type[Spider], client: httpx.AsyncClient
-    ) -> typing.Any:
-        spider = spider_cls(
-            **{"date": self.date},
-            client=client,
-        )
-        response = await spider.download()
-        return response
 
     def parse(self, responses: list[typing.Any]) -> Response:
         fotmob, fbref = responses

@@ -6,7 +6,6 @@ import respx
 
 from .utils import fotmob_mock, fbref_mock
 from fusion_stat.member import Response, Member
-from fusion_stat.models import Params
 
 
 @pytest_asyncio.fixture(scope="module")
@@ -16,12 +15,12 @@ async def response(
     fotmob_mock("playerData?id=961995.json")
     fbref_mock("players_bc7dc64d_Bukayo-Saka.html")
 
-    params = Params(
+    member = Member(
         fotmob_id="961995",
         fbref_id="bc7dc64d",
         fbref_path_name="Bukayo-Saka",
+        client=client,
     )
-    member = Member(params, client=client)
     with respx.mock:
         response = await member.get()
     yield response

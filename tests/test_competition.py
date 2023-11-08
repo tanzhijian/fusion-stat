@@ -6,7 +6,6 @@ import respx
 
 from .utils import fotmob_mock, fbref_mock
 from fusion_stat.competition import Response, Competition
-from fusion_stat.models import Params
 
 
 @pytest_asyncio.fixture(scope="module")
@@ -16,12 +15,12 @@ async def response(
     fotmob_mock("leagues?id=47.json")
     fbref_mock("comps_9_Premier-League-Stats.html")
 
-    params = Params(
+    com = Competition(
         fotmob_id="47",
         fbref_id="9",
         fbref_path_name="Premier-League",
+        client=client,
     )
-    com = Competition(params, client=client)
     with respx.mock:
         response = await com.get()
     yield response
@@ -53,7 +52,7 @@ def test_matches(response: Response) -> None:
 def test_teams_index(response: Response) -> None:
     index = response.teams_index()
     assert len(index) == 20
-    assert index[0].fotmob_id == "8456"
+    assert index[0]["fotmob_id"] == "8456"
 
 
 def test_table(response: Response) -> None:

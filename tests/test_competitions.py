@@ -1,6 +1,7 @@
 import typing
 
 import httpx
+import pytest
 import pytest_asyncio
 import respx
 
@@ -27,4 +28,6 @@ def test_get(response: Response) -> None:
 
 def test_index(response: Response) -> None:
     index = response.index()
-    assert index[0].fbref_path_name == "Premier-League"
+    assert index[0]["fbref_path_name"] == "Premier-League"
+    with pytest.raises(KeyError):
+        assert index[0]["season"]

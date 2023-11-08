@@ -2,12 +2,35 @@ import typing
 
 import httpx
 from rapidfuzz import process
+from pydantic import BaseModel
 
 from .base import Fusion, Spider
 from .spiders.fotmob import Competition as FotMobCompetition
 from .spiders.fbref import Competition as FBrefCompetition
-from .utils import unpack_params, sort_table_key
-from .models import Params, CompetitionFotMob, CompetitionFBref
+from .utils import sort_table_key
+from .models import CompetitionFotMob, CompetitionFBref
+
+
+class FotMobParams(BaseModel):
+    id: str
+    season: int | None
+
+
+class FBrefParams(BaseModel):
+    id: str
+    path_name: str | None
+    season: int | None
+
+
+class Params(BaseModel):
+    fotmob: FotMobParams
+    fbref: FBrefParams
+
+
+class TeamParams(BaseModel):
+    fotmob_id: str
+    fbref_id: str
+    fbref_path_name: str | None
 
 
 class Response:
@@ -15,6 +38,7 @@ class Response:
         self,
         fotmob: CompetitionFotMob,
         fbref: CompetitionFBref,
+        season: int | None,
     ) -> None:
         self.fotmob = fotmob
         self.fbref = fbref
@@ -65,48 +89,54 @@ class Response:
     def matches(self) -> list[dict[str, typing.Any]]:
         return [match.model_dump() for match in self.fotmob.matches]
 
-    def teams_index(self) -> list[Params]:
-        params: list[Params] = []
+    def teams_index(self) -> list[dict[str, typing.Any]]:
+        params: list[dict[str, typing.Any]] = []
         for fotmob_team in self.fotmob.teams:
             fbref_team = process.extractOne(
                 fotmob_team, self.fbref.teams, processor=lambda x: x.name
             )[0]
 
-            params.append(
-                Params(
-                    fotmob_id=fotmob_team.id,
-                    fbref_id=fbref_team.id,
-                    fbref_path_name=fbref_team.path_name,
-                )
-            )
+            team_params = TeamParams(
+                fotmob_id=fotmob_team.id,
+                fbref_id=fbref_team.id,
+                fbref_path_name=fbref_team.path_name,
+            ).model_dump(exclude_none=True)
+
+            params.append(team_params)
         return params
 
 
 class Competition(Fusion[Response]):
     def __init__(
         self,
-        params: Params | dict[str, str],
         *,
+        fotmob_id: str,
+        fbref_id: str,
+        fbref_path_name: str | None = None,
+        season: int | None = None,
         client: httpx.AsyncClient | None = None,
         **kwargs: typing.Any,
     ) -> None:
         super().__init__(client=client, **kwargs)
-        self.params = unpack_params(params)
+        self.fotmob_id = fotmob_id
+        self.fbref_id = fbref_id
+        self.fbref_path_name = fbref_path_name
+        self.season = season
+
+    @property
+    def params(self) -> BaseModel:
+        fotmob = FotMobParams(id=self.fotmob_id, season=self.season)
+        fbref = FBrefParams(
+            id=self.fbref_id,
+            path_name=self.fbref_path_name,
+            season=self.season,
+        )
+        return Params(fotmob=fotmob, fbref=fbref)
 
     @property
     def spiders_cls(self) -> tuple[type[Spider], ...]:
         return (FotMobCompetition, FBrefCompetition)
 
-    async def create_task(
-        self, spider_cls: type[Spider], client: httpx.AsyncClient
-    ) -> typing.Any:
-        spider = spider_cls(
-            **self.params[spider_cls.__module__.split(".")[-1]],
-            client=client,
-        )
-        response = await spider.download()
-        return response
-
     def parse(self, responses: list[typing.Any]) -> Response:
         fotmob, fbref = responses
-        return Response(fotmob=fotmob, fbref=fbref)
+        return Response(fotmob=fotmob, fbref=fbref, season=self.season)
