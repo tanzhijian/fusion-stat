@@ -46,12 +46,12 @@ class Spider(ABC):
     def parse(self, response: httpx.Response) -> typing.Any:
         ...
 
-    async def download(self) -> typing.Any:
+    async def process(self) -> typing.Any:
         response = await self.get(self.request)
         return self.parse(response)
 
 
-class Fusion(typing.Generic[T], ABC):
+class Collector(typing.Generic[T], ABC):
     def __init__(
         self,
         *,
@@ -73,13 +73,13 @@ class Fusion(typing.Generic[T], ABC):
         ...
 
     @abstractmethod
-    def parse(self, responses: list[typing.Any]) -> T:
+    def parse(self, items: list[typing.Any]) -> T:
         ...
 
-    async def get(self) -> T:
-        responses = await asyncio.gather(*self.tasks)
+    async def gather(self) -> T:
+        result = await asyncio.gather(*self.tasks)
 
         if not self.has_client:
             await self.client.aclose()
 
-        return self.parse(responses)
+        return self.parse(result)

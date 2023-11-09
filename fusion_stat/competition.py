@@ -4,7 +4,7 @@ import httpx
 from rapidfuzz import process
 from pydantic import BaseModel
 
-from .base import Fusion
+from .base import Collector
 from .spiders.fotmob import Competition as FotMobCompetition
 from .spiders.fbref import Competition as FBrefCompetition
 from .utils import sort_table_key
@@ -17,12 +17,11 @@ class TeamParams(BaseModel):
     fbref_path_name: str | None
 
 
-class Response:
+class Fusion:
     def __init__(
         self,
         fotmob: CompetitionFotMob,
         fbref: CompetitionFBref,
-        season: int | None,
     ) -> None:
         self.fotmob = fotmob
         self.fbref = fbref
@@ -90,7 +89,7 @@ class Response:
         return params
 
 
-class Competition(Fusion[Response]):
+class Competition(Collector[Fusion]):
     def __init__(
         self,
         *,
@@ -116,15 +115,15 @@ class Competition(Fusion[Response]):
                 id=self.fotmob_id,
                 season=self.season,
                 client=self.client,
-            ).download(),
+            ).process(),
             FBrefCompetition(
                 id=self.fbref_id,
                 path_name=self.fbref_path_name,
                 season=self.season,
                 client=self.client,
-            ).download(),
+            ).process(),
         )
 
-    def parse(self, responses: list[typing.Any]) -> Response:
-        fotmob, fbref = responses
-        return Response(fotmob=fotmob, fbref=fbref, season=self.season)
+    def parse(self, items: list[typing.Any]) -> Fusion:
+        fotmob, fbref = items
+        return Fusion(fotmob=fotmob, fbref=fbref)

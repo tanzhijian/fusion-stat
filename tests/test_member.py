@@ -5,13 +5,13 @@ import pytest_asyncio
 import respx
 
 from .utils import fotmob_mock, fbref_mock
-from fusion_stat.member import Response, Member
+from fusion_stat.member import Fusion, Member
 
 
 @pytest_asyncio.fixture(scope="module")
-async def response(
+async def fusion(
     client: httpx.AsyncClient,
-) -> typing.AsyncGenerator[Response, typing.Any]:
+) -> typing.AsyncGenerator[Fusion, typing.Any]:
     fotmob_mock("playerData?id=961995.json")
     fbref_mock("players_bc7dc64d_Bukayo-Saka.html")
 
@@ -22,9 +22,9 @@ async def response(
         client=client,
     )
     with respx.mock:
-        response = await member.get()
-    yield response
+        fusion = await member.gather()
+    yield fusion
 
 
-def test_get(response: Response) -> None:
-    assert response.fotmob.name == "Bukayo Saka"
+def test_get(fusion: Fusion) -> None:
+    assert fusion.fotmob.name == "Bukayo Saka"

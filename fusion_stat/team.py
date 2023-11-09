@@ -4,7 +4,7 @@ import httpx
 from rapidfuzz import process
 from pydantic import BaseModel
 
-from .base import Fusion
+from .base import Collector
 from .spiders.fotmob import Team as FotMobTeam
 from .spiders.fbref import Team as FBrefTeam
 from .utils import fuzzy_similarity_mean
@@ -18,7 +18,7 @@ class MemberParams(BaseModel):
     fbref_path_name: str | None
 
 
-class Response:
+class Fusion:
     def __init__(
         self,
         fotmob: TeamFotMob,
@@ -100,7 +100,7 @@ class Response:
         return params
 
 
-class Team(Fusion[Response]):
+class Team(Collector[Fusion]):
     def __init__(
         self,
         *,
@@ -120,14 +120,14 @@ class Team(Fusion[Response]):
         self,
     ) -> tuple[typing.Coroutine[typing.Any, typing.Any, typing.Any], ...]:
         return (
-            FotMobTeam(id=self.fotmob_id, client=self.client).download(),
+            FotMobTeam(id=self.fotmob_id, client=self.client).process(),
             FBrefTeam(
                 id=self.fbref_id,
                 path_name=self.fbref_path_name,
                 client=self.client,
-            ).download(),
+            ).process(),
         )
 
-    def parse(self, responses: list[typing.Any]) -> Response:
-        fotmob, fbref = responses
-        return Response(fotmob=fotmob, fbref=fbref)
+    def parse(self, items: list[typing.Any]) -> Fusion:
+        fotmob, fbref = items
+        return Fusion(fotmob=fotmob, fbref=fbref)

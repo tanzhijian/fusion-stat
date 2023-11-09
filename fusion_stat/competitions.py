@@ -4,7 +4,7 @@ import httpx
 from rapidfuzz import process
 from pydantic import BaseModel
 
-from .base import Fusion
+from .base import Collector
 from .spiders.fotmob import Competitions as FotMobCompetitions
 from .spiders.fbref import Competitions as FBrefCompetitions
 from .models import Stat
@@ -17,7 +17,7 @@ class CompetitionParams(BaseModel):
     season: int | None
 
 
-class Response:
+class Fusion:
     def __init__(
         self,
         fotmob: tuple[Stat, ...],
@@ -50,7 +50,7 @@ class Response:
         return params
 
 
-class Competitions(Fusion[Response]):
+class Competitions(Collector[Fusion]):
     def __init__(
         self,
         *,
@@ -66,10 +66,10 @@ class Competitions(Fusion[Response]):
         self,
     ) -> tuple[typing.Coroutine[typing.Any, typing.Any, typing.Any], ...]:
         return (
-            FotMobCompetitions(client=self.client).download(),
-            FBrefCompetitions(client=self.client).download(),
+            FotMobCompetitions(client=self.client).process(),
+            FBrefCompetitions(client=self.client).process(),
         )
 
-    def parse(self, responses: list[typing.Any]) -> Response:
-        fotmob, fbref = responses
-        return Response(fotmob=fotmob, fbref=fbref, season=self.season)
+    def parse(self, items: list[typing.Any]) -> Fusion:
+        fotmob, fbref = items
+        return Fusion(fotmob=fotmob, fbref=fbref, season=self.season)

@@ -6,28 +6,28 @@ import pytest_asyncio
 import respx
 
 from .utils import fotmob_mock, fbref_mock
-from fusion_stat.competitions import Response, Competitions
+from fusion_stat.competitions import Fusion, Competitions
 
 
 @pytest_asyncio.fixture(scope="module")
-async def response(
+async def fusion(
     client: httpx.AsyncClient,
-) -> typing.AsyncGenerator[Response, typing.Any]:
+) -> typing.AsyncGenerator[Fusion, typing.Any]:
     fotmob_mock("allLeagues.json")
     fbref_mock("comps_.html")
 
     coms = Competitions(client=client)
     with respx.mock:
-        response = await coms.get()
-    yield response
+        fusion = await coms.gather()
+    yield fusion
 
 
-def test_get(response: Response) -> None:
-    assert len(response.fotmob) > 0
+def test_get(fusion: Fusion) -> None:
+    assert len(fusion.fotmob) > 0
 
 
-def test_index(response: Response) -> None:
-    index = response.index()
+def test_index(fusion: Fusion) -> None:
+    index = fusion.index()
     assert index[0]["fbref_path_name"] == "Premier-League"
     with pytest.raises(KeyError):
         assert index[0]["season"]

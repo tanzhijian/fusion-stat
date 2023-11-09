@@ -5,13 +5,13 @@ import pytest_asyncio
 import respx
 
 from .utils import fotmob_mock, fbref_mock
-from fusion_stat.competition import Response, Competition
+from fusion_stat.competition import Fusion, Competition
 
 
 @pytest_asyncio.fixture(scope="module")
-async def response(
+async def fusion(
     client: httpx.AsyncClient,
-) -> typing.AsyncGenerator[Response, typing.Any]:
+) -> typing.AsyncGenerator[Fusion, typing.Any]:
     fotmob_mock("leagues?id=47.json")
     fbref_mock("comps_9_Premier-League-Stats.html")
 
@@ -22,41 +22,41 @@ async def response(
         client=client,
     )
     with respx.mock:
-        response = await com.get()
-    yield response
+        fusion = await com.gather()
+    yield fusion
 
 
-def test_get(response: Response) -> None:
-    assert response.fotmob.name == "Premier League"
+def test_get(fusion: Fusion) -> None:
+    assert fusion.fotmob.name == "Premier League"
 
 
-def test_info(response: Response) -> None:
-    info = response.info
+def test_info(fusion: Fusion) -> None:
+    info = fusion.info
     assert info["name"] == "Premier League"
     assert "Premier League" in info["names"]
 
 
-def test_teams(response: Response) -> None:
-    teams = response.teams
+def test_teams(fusion: Fusion) -> None:
+    teams = fusion.teams
     assert len(teams) == 20
     assert int(teams[0]["shooting"]["xg"]) == int(8.6)
 
 
-def test_matches(response: Response) -> None:
-    matches = response.matches
+def test_matches(fusion: Fusion) -> None:
+    matches = fusion.matches
     assert len(matches) == 380
     match = matches[0]
     assert match["score"] == "0 - 3"
 
 
-def test_teams_index(response: Response) -> None:
-    index = response.teams_index()
+def test_teams_index(fusion: Fusion) -> None:
+    index = fusion.teams_index()
     assert len(index) == 20
     assert index[0]["fotmob_id"] == "8456"
 
 
-def test_table(response: Response) -> None:
-    table = response.table
+def test_table(fusion: Fusion) -> None:
+    table = fusion.table
     city = table[0]
     assert city["name"] == "Manchester City"
     assert city["draws"] == 0

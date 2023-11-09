@@ -2,13 +2,13 @@ import typing
 
 import httpx
 
-from .base import Fusion
+from .base import Collector
 from .spiders.fotmob import Match as FotMobMatch
 from .spiders.fbref import Match as FBrefMatch
 from .models import Stat
 
 
-class Response:
+class Fusion:
     def __init__(
         self,
         fotmob: Stat,
@@ -18,7 +18,7 @@ class Response:
         self.fbref = fbref
 
 
-class Match(Fusion[Response]):
+class Match(Collector[Fusion]):
     def __init__(
         self,
         *,
@@ -36,10 +36,10 @@ class Match(Fusion[Response]):
         self,
     ) -> tuple[typing.Coroutine[typing.Any, typing.Any, typing.Any], ...]:
         return (
-            FotMobMatch(id=self.fotmob_id, client=self.client).download(),
-            FBrefMatch(id=self.fbref_id, client=self.client).download(),
+            FotMobMatch(id=self.fotmob_id, client=self.client).process(),
+            FBrefMatch(id=self.fbref_id, client=self.client).process(),
         )
 
-    def parse(self, responses: list[typing.Any]) -> Response:
-        fotmob, fbref = responses
-        return Response(fotmob=fotmob, fbref=fbref)
+    def parse(self, items: list[typing.Any]) -> Fusion:
+        fotmob, fbref = items
+        return Fusion(fotmob=fotmob, fbref=fbref)

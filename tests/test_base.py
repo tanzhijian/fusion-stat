@@ -5,13 +5,13 @@ import pytest
 import respx
 
 
-from fusion_stat.base import Spider, Fusion
+from fusion_stat.base import Spider, Collector
 
 
 pytestmark = pytest.mark.asyncio
 
 
-class Foo(Spider):
+class SpiderTest(Spider):
     @property
     def request(self) -> httpx.Request:
         return httpx.Request("GET", "https://tanzhijian.org")
@@ -20,12 +20,12 @@ class Foo(Spider):
         return "foo"
 
 
-class Bar(Fusion[str]):
+class CollectorTest(Collector[str]):
     @property
     def tasks(
         self,
     ) -> tuple[typing.Coroutine[typing.Any, typing.Any, typing.Any], ...]:
-        return (Foo(client=self.client).download(),)
+        return (SpiderTest(client=self.client).process(),)
 
     def parse(self, responses: list[typing.Any]) -> str:
         return "bar"
@@ -39,14 +39,14 @@ async def test_spider_get() -> None:
 
     request = httpx.Request("GET", "https://url.url")
 
-    async with Foo(client=httpx.AsyncClient()) as spider:
+    async with SpiderTest(client=httpx.AsyncClient()) as spider:
         response = await spider.get(request)
         assert response.json()["foo"] == "bar"
 
     with pytest.raises(RuntimeError):
         response = await spider.get(request)
 
-    spider2 = Foo(client=httpx.AsyncClient())
+    spider2 = SpiderTest(client=httpx.AsyncClient())
     response = await spider2.get(request)
     assert response.json()["foo"] == "bar"
     await spider2.aclose()
@@ -58,7 +58,7 @@ async def test_spider_get() -> None:
 @respx.mock
 async def test_spider_bad_get(client: httpx.AsyncClient) -> None:
     respx.get("https://example.org/").mock(side_effect=[httpx.Response(404)])
-    spider = Foo(client=client)
+    spider = SpiderTest(client=client)
     request = httpx.Request("GET", "https://example.org/")
     with pytest.raises(httpx.HTTPStatusError):
         response = await spider.get(request)
@@ -66,27 +66,27 @@ async def test_spider_bad_get(client: httpx.AsyncClient) -> None:
 
 
 @respx.mock
-async def test_spider_download(client: httpx.AsyncClient) -> None:
+async def test_spider_process(client: httpx.AsyncClient) -> None:
     route = respx.get("https://tanzhijian.org")
-    spider = Foo(client=client)
-    response = await spider.download()
+    spider = SpiderTest(client=client)
+    response = await spider.process()
     assert response == "foo"
     assert route.called
 
 
 @respx.mock
-async def test_fusion_get(client: httpx.AsyncClient) -> None:
+async def test_gather_get(client: httpx.AsyncClient) -> None:
     route = respx.get("https://tanzhijian.org")
-    bar1 = Bar()
-    assert not bar1.has_client
-    response1 = await bar1.get()
+    collector1 = CollectorTest()
+    assert not collector1.has_client
+    response1 = await collector1.gather()
     assert route.called
     assert response1 == "bar"
-    assert bar1.client.is_closed
+    assert collector1.client.is_closed
 
-    bar2 = Bar(client=client)
-    assert bar2.has_client
-    response2 = await bar2.get()
+    collector2 = CollectorTest(client=client)
+    assert collector2.has_client
+    response2 = await collector2.gather()
     assert route.call_count == 2
     assert response2 == "bar"
-    assert not bar2.client.is_closed
+    assert not collector2.client.is_closed
