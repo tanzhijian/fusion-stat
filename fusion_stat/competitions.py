@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from .base import Collector
 from .spiders.fotmob import Competitions as FotMobCompetitions
 from .spiders.fbref import Competitions as FBrefCompetitions
+from .config import COMPETITIONS
 from .models import Stat
 
 
@@ -14,6 +15,7 @@ class CompetitionParams(BaseModel):
     fotmob_id: str
     fbref_id: str
     fbref_path_name: str | None
+    official_name: str
     season: int | None
 
 
@@ -37,11 +39,15 @@ class Fusion:
                 self.fbref,
                 processor=lambda x: x.name,
             )[0]
+            official_name = process.extractOne(
+                fotmob_competition.name, COMPETITIONS
+            )[0]
 
             competition_params = CompetitionParams(
                 fotmob_id=fotmob_competition.id,
                 fbref_id=fbref_competition.id,
                 fbref_path_name=fbref_competition.name.replace(" ", "-"),
+                official_name=official_name,
                 season=self.season,
             ).model_dump(exclude_none=True)
 

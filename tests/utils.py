@@ -27,3 +27,9 @@ def fbref_mock(file: str) -> None:
     respx.get(
         f"https://fbref.com/en/{file.replace('_', '/').split('.')[0]}"
     ).mock(httpx.Response(200, text=text))
+
+
+def premier_league_mock(file: str) -> None:
+    data = read_data("premier_league", file)
+    url = f"https://footballapi.pulselive.com/football/{file.split('.')[0]}"
+    respx.get(url).mock(httpx.Response(200, json=data))

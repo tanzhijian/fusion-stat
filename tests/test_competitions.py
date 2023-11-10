@@ -28,6 +28,8 @@ def test_get(fusion: Fusion) -> None:
 
 def test_index(fusion: Fusion) -> None:
     index = fusion.index()
-    assert index[0]["fbref_path_name"] == "Premier-League"
+    competition = index[0]
+    assert competition["fbref_path_name"] == "Premier-League"
+    assert competition["official_name"] == "Premier League"
     with pytest.raises(KeyError):
-        assert index[0]["season"]
+        assert competition["season"]
