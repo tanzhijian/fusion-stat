@@ -32,6 +32,7 @@ class Fusion:
     @property
     def info(self) -> dict[str, typing.Any]:
         return {
+            "id": self.fotmob.id,
             "name": self.fotmob.name,
             "logo": self.official.logo,
             "type": self.fotmob.type,

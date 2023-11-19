@@ -1,8 +1,8 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class Stat(BaseModel):
-    id: str = Field(exclude=True)
+    id: str
     name: str
 
 
