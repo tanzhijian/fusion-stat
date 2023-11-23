@@ -3,9 +3,9 @@ import typing
 import httpx
 import pytest
 
-from tests.utils import read_data
-from fusion_stat.spiders.official import Competition
 from fusion_stat.config import COMPETITIONS
+from fusion_stat.spiders.official import Competition
+from tests.utils import read_data
 
 
 class TestCompetition:

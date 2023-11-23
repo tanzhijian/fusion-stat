@@ -4,8 +4,9 @@ import httpx
 import pytest_asyncio
 import respx
 
-from .utils import fotmob_mock, fbref_mock, premier_league_mock
-from fusion_stat.competition import Fusion, Competition
+from fusion_stat.competition import Competition, Fusion
+
+from .utils import fbref_mock, fotmob_mock, premier_league_mock
 
 
 @pytest_asyncio.fixture(scope="module")

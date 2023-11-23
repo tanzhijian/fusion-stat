@@ -3,9 +3,9 @@ import typing
 import httpx
 
 from .base import Collector
-from .spiders.fotmob import Match as FotMobMatch
-from .spiders.fbref import Match as FBrefMatch
 from .models import Stat
+from .spiders.fbref import Match as FBrefMatch
+from .spiders.fotmob import Match as FotMobMatch
 
 
 class Fusion:

@@ -5,7 +5,6 @@ import httpx
 from fusion_stat.base import Spider
 from fusion_stat.utils import current_season
 
-
 BASE_URL = "https://en.wikipedia.org/api/rest_v1/page"
 
 

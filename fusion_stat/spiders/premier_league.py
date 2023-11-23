@@ -1,14 +1,13 @@
 import httpx
 
 from fusion_stat.base import Spider
-from fusion_stat.utils import current_season
 from fusion_stat.models import (
-    Stat,
-    CompetitionsPremierLeagueCompetition,
     CompetitionOfficial,
     CompetitionOfficialTeam,
+    CompetitionsPremierLeagueCompetition,
+    Stat,
 )
-
+from fusion_stat.utils import current_season
 
 BASE_URL = "https://footballapi.pulselive.com/football"
 HEADERS = {

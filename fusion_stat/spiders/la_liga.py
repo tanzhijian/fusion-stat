@@ -1,12 +1,11 @@
 import httpx
 
 from fusion_stat.base import Spider
-from fusion_stat.utils import current_season
 from fusion_stat.models import (
     CompetitionOfficial,
     CompetitionOfficialTeam,
 )
-
+from fusion_stat.utils import current_season
 
 HEADERS = {
     "Ocp-Apim-Subscription-Key": "c13c3a8e2f6b46da9c5c425cf61fab3e",

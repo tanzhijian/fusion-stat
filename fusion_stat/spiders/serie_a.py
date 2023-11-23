@@ -1,11 +1,11 @@
 import httpx
 
 from fusion_stat.base import Spider
-from fusion_stat.utils import current_season
 from fusion_stat.models import (
     CompetitionOfficial,
     CompetitionOfficialTeam,
 )
+from fusion_stat.utils import current_season
 
 
 class Competition(Spider):

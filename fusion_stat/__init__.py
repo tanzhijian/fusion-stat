@@ -1,10 +1,9 @@
-from .competitions import Competitions
 from .competition import Competition
-from .team import Team
-from .member import Member
-from .matches import Matches
+from .competitions import Competitions
 from .match import Match
-
+from .matches import Matches
+from .member import Member
+from .team import Team
 
 __all__ = (
     "Competitions",

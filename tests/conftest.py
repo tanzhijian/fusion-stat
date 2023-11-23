@@ -1,10 +1,9 @@
+import asyncio
 import typing
 
-import asyncio
-
+import httpx
 import pytest
 import pytest_asyncio
-import httpx
 
 
 @pytest.fixture(scope="module")

@@ -3,9 +3,9 @@ import typing
 import httpx
 
 from .base import Collector
-from .spiders.fotmob import Member as FotMobMember
+from .models import MemberFBref, MemberFotMob
 from .spiders.fbref import Member as FBrefMember
-from .models import MemberFotMob, MemberFBref
+from .spiders.fotmob import Member as FotMobMember
 
 
 class Fusion:

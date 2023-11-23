@@ -2,23 +2,22 @@ import httpx
 from rapidfuzz import process
 
 from fusion_stat.base import Spider
-from fusion_stat.models import (
-    Stat,
-    CompetitionFotMob,
-    CompetitionFotMobTeam,
-    CompetitionFotMobMatch,
-    TeamFotMob,
-    TeamFotMobMember,
-    MemberFotMob,
-    MatchesFotMobMatch,
-)
 from fusion_stat.config import (
     COMPETITIONS,
+    COMPETITIONS_INDEX,
     COMPETITIONS_SIMILARITY_SCORE,
     POSITIONS,
-    COMPETITIONS_INDEX,
 )
-
+from fusion_stat.models import (
+    CompetitionFotMob,
+    CompetitionFotMobMatch,
+    CompetitionFotMobTeam,
+    MatchesFotMobMatch,
+    MemberFotMob,
+    Stat,
+    TeamFotMob,
+    TeamFotMobMember,
+)
 
 BASE_URL = "https://www.fotmob.com/api"
 

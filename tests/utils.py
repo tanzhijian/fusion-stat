@@ -1,5 +1,5 @@
-import typing
 import json
+import typing
 from pathlib import Path
 
 import httpx

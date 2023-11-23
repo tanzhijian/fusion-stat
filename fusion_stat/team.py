@@ -1,15 +1,15 @@
 import typing
 
 import httpx
-from rapidfuzz import process
 from pydantic import BaseModel
+from rapidfuzz import process
 
 from .base import Collector
-from .spiders.fotmob import Team as FotMobTeam
-from .spiders.fbref import Team as FBrefTeam
-from .utils import fuzzy_similarity_mean
 from .config import MEMBERS_SIMILARITY_SCORE
-from .models import TeamFotMob, TeamFBref
+from .models import TeamFBref, TeamFotMob
+from .spiders.fbref import Team as FBrefTeam
+from .spiders.fotmob import Team as FotMobTeam
+from .utils import fuzzy_similarity_mean
 
 
 class MemberParams(BaseModel):

@@ -3,8 +3,8 @@ import typing
 import httpx
 import pytest
 
-from tests.utils import read_data
 from fusion_stat.spiders.serie_a import Competition
+from tests.utils import read_data
 
 
 class TestCompetition:

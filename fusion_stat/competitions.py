@@ -1,14 +1,14 @@
 import typing
 
 import httpx
-from rapidfuzz import process
 from pydantic import BaseModel
+from rapidfuzz import process
 
 from .base import Collector
-from .spiders.fotmob import Competitions as FotMobCompetitions
-from .spiders.fbref import Competitions as FBrefCompetitions
 from .config import COMPETITIONS
 from .models import Stat
+from .spiders.fbref import Competitions as FBrefCompetitions
+from .spiders.fotmob import Competitions as FotMobCompetitions
 
 
 class CompetitionParams(BaseModel):

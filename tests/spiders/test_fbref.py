@@ -4,16 +4,15 @@ from functools import partial
 import httpx
 import pytest
 
-from tests.utils import read_data
 from fusion_stat.spiders.fbref import (
-    Competitions,
     Competition,
-    Team,
-    Member,
-    Matches,
+    Competitions,
     Match,
+    Matches,
+    Member,
+    Team,
 )
-
+from tests.utils import read_data
 
 read_test_data = partial(read_data, "fbref")
 

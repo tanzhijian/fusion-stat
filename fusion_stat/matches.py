@@ -1,13 +1,13 @@
 import typing
 
 import httpx
-from rapidfuzz import process
 from pydantic import BaseModel
+from rapidfuzz import process
 
 from .base import Collector
-from .spiders.fotmob import Matches as FotMobMatches
+from .models import MatchesFotMobMatch, Stat
 from .spiders.fbref import Matches as FBrefMatches
-from .models import Stat, MatchesFotMobMatch
+from .spiders.fotmob import Matches as FotMobMatches
 
 
 class MatchParams(BaseModel):

@@ -5,8 +5,9 @@ import pytest
 import pytest_asyncio
 import respx
 
-from .utils import fotmob_mock, fbref_mock
-from fusion_stat.competitions import Fusion, Competitions
+from fusion_stat.competitions import Competitions, Fusion
+
+from .utils import fbref_mock, fotmob_mock
 
 
 @pytest_asyncio.fixture(scope="module")

@@ -5,7 +5,6 @@ from types import TracebackType
 
 import httpx
 
-
 T = typing.TypeVar("T")
 U = typing.TypeVar("U")
 

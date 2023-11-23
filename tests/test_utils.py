@@ -1,7 +1,7 @@
 from fusion_stat.utils import (
-    sort_table_key,
-    fuzzy_similarity_mean,
     current_season,
+    fuzzy_similarity_mean,
+    sort_table_key,
 )
 
 

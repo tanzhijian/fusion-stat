@@ -2,12 +2,11 @@ import httpx
 from parsel import Selector
 
 from fusion_stat.base import Spider
-from fusion_stat.utils import current_season, get_element_text
 from fusion_stat.models import (
     CompetitionOfficial,
     CompetitionOfficialTeam,
 )
-
+from fusion_stat.utils import current_season, get_element_text
 
 BASE_URL = "https://www.ligue1.com"
 

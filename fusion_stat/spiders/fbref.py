@@ -1,24 +1,23 @@
 import httpx
-from rapidfuzz import process
 from parsel import Selector, SelectorList
+from rapidfuzz import process
 
 from fusion_stat.base import Spider
-from fusion_stat.models import (
-    Stat,
-    ShootingFBref,
-    CompetitionFBref,
-    CompetitionFBrefTeam,
-    TeamFBref,
-    TeamFBrefMember,
-    MemberFBref,
-)
-from fusion_stat.utils import get_element_text
 from fusion_stat.config import (
     COMPETITIONS,
-    COMPETITIONS_SIMILARITY_SCORE,
     COMPETITIONS_INDEX,
+    COMPETITIONS_SIMILARITY_SCORE,
 )
-
+from fusion_stat.models import (
+    CompetitionFBref,
+    CompetitionFBrefTeam,
+    MemberFBref,
+    ShootingFBref,
+    Stat,
+    TeamFBref,
+    TeamFBrefMember,
+)
+from fusion_stat.utils import get_element_text
 
 BASE_URL = "https://fbref.com/en"
 

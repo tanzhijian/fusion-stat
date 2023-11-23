@@ -4,9 +4,7 @@ import httpx
 import pytest
 import respx
 
-
-from fusion_stat.base import Spider, Collector
-
+from fusion_stat.base import Collector, Spider
 
 pytestmark = pytest.mark.asyncio
 
