@@ -31,6 +31,8 @@ class Fusion:
         }
 
     def index(self) -> list[dict[str, typing.Any]]:
+        if not self.fbref:
+            raise ValueError("No fbref id for the current date")
         params: list[dict[str, typing.Any]] = []
         for fotmob_match in self.fotmob:
             if not fotmob_match.cancelled:
