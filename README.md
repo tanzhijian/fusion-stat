@@ -2,6 +2,12 @@
 
 A football data scraper that can scrape data from multiple sources simultaneously.
 
+## Installation
+
+```
+pip install fusion-stat
+```
+
 ## Usage
 
 ```python
