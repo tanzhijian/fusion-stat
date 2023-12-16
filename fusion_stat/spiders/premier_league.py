@@ -1,12 +1,9 @@
 import httpx
 
 from fusion_stat.base import Spider
-from fusion_stat.models import (
-    CompetitionOfficial,
-    CompetitionOfficialTeam,
-    CompetitionsPremierLeagueCompetition,
-    Stat,
-)
+from fusion_stat.models import Stat
+from fusion_stat.models.competition import Official, OfficialTeam
+from fusion_stat.models.competitions import PremierLeagueCompetition
 from fusion_stat.utils import current_season
 
 BASE_URL = "https://footballapi.pulselive.com/football"
@@ -65,7 +62,7 @@ class Competitions(Spider):
 
     def parse(
         self, response: httpx.Response
-    ) -> tuple[CompetitionsPremierLeagueCompetition, ...]:
+    ) -> tuple[PremierLeagueCompetition, ...]:
         json = response.json()
         # only pl
         pl = json["content"][1]
@@ -77,7 +74,7 @@ class Competitions(Spider):
             for season in pl["compSeasons"]
         ]
         return (
-            CompetitionsPremierLeagueCompetition(
+            PremierLeagueCompetition(
                 id=pl["description"],
                 name=pl["description"],
                 seasons=tuple(seasons),
@@ -85,7 +82,7 @@ class Competitions(Spider):
         )
 
     def index(
-        self, competitions: tuple[CompetitionsPremierLeagueCompetition, ...]
+        self, competitions: tuple[PremierLeagueCompetition, ...]
     ) -> dict[str, dict[str, str]]:
         """Generate COMPETITIONS_SEASON_INDEX"""
         competitions_seasons_index = {}
@@ -125,7 +122,7 @@ class Competition(Spider):
             headers=HEADERS,
         )
 
-    def parse(self, response: httpx.Response) -> CompetitionOfficial:
+    def parse(self, response: httpx.Response) -> Official:
         json = response.json()
         teams = []
         for team in json["content"]:
@@ -136,9 +133,9 @@ class Competition(Spider):
                 "https://resources.premierleague.com/premierleague"
                 f"/badges/rb/{image_id}.svg"
             )
-            teams.append(CompetitionOfficialTeam(id=id, name=name, logo=logo))
+            teams.append(OfficialTeam(id=id, name=name, logo=logo))
 
-        return CompetitionOfficial(
+        return Official(
             id=f"{self.name} {self.season}",
             name=self.name,
             logo=(

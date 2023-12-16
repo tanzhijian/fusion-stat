@@ -8,15 +8,12 @@ from fusion_stat.config import (
     COMPETITIONS_INDEX,
     COMPETITIONS_SIMILARITY_SCORE,
 )
-from fusion_stat.models import (
-    CompetitionFBref,
-    CompetitionFBrefTeam,
-    MemberFBref,
-    ShootingFBref,
-    Stat,
-    TeamFBref,
-    TeamFBrefMember,
-)
+from fusion_stat.models import FBrefShooting, Stat
+from fusion_stat.models.competition import FBref as FBrefCompetition
+from fusion_stat.models.competition import FBrefTeam as FBrefCompetitionTeam
+from fusion_stat.models.member import FBref as FBrefMember
+from fusion_stat.models.team import FBref as FBrefTeam
+from fusion_stat.models.team import FBrefMember as FBrefTeamMember
 from fusion_stat.utils import get_element_text
 
 BASE_URL = "https://fbref.com/en"
@@ -91,7 +88,7 @@ class Competition(Spider):
 
         return httpx.Request("GET", url=BASE_URL + path)
 
-    def parse(self, response: httpx.Response) -> CompetitionFBref:
+    def parse(self, response: httpx.Response) -> FBrefCompetition:
         selector = Selector(response.text)
         h1 = get_element_text(selector.xpath("//h1/text()"))
         competition_name = " ".join(h1.split(" ")[1:-1])
@@ -106,7 +103,7 @@ class Competition(Spider):
             name_2 = get_element_text(tr.xpath("./th/a/text()"))
             shooting = parse_shooting(tr)
             teams.append(
-                CompetitionFBrefTeam(
+                FBrefCompetitionTeam(
                     id=href_strs[3],
                     name=name_2,
                     path_name=name.replace(" ", "-"),
@@ -114,7 +111,7 @@ class Competition(Spider):
                     shooting=shooting,
                 )
             )
-        return CompetitionFBref(
+        return FBrefCompetition(
             id=self.id,
             name=competition_name,
             teams=tuple(teams),
@@ -151,7 +148,7 @@ class Team(Spider):
 
         return httpx.Request("GET", url=BASE_URL + path)
 
-    def parse(self, response: httpx.Response) -> TeamFBref:
+    def parse(self, response: httpx.Response) -> FBrefTeam:
         selector = Selector(response.text)
         h1 = get_element_text(selector.xpath("//h1/span/text()"))
         team_name = " ".join(h1.split(" ")[1:-1])
@@ -164,7 +161,7 @@ class Team(Spider):
         )
         team_shooting = parse_shooting(shooting_table.xpath("./tfoot/tr[1]"))
 
-        players_shooting: dict[str, ShootingFBref] = {}
+        players_shooting: dict[str, FBrefShooting] = {}
         for tr in shooting_table.xpath("./tbody/tr"):
             href = get_element_text(tr.xpath("./th/a/@href"))
             id = href.split("/")[3]
@@ -188,9 +185,9 @@ class Team(Spider):
             try:
                 shooting = players_shooting[id]
             except KeyError:
-                shooting = ShootingFBref()
+                shooting = FBrefShooting()
             players.append(
-                TeamFBrefMember(
+                FBrefTeamMember(
                     id=id,
                     name=name,
                     names={name, " ".join(path_name.split("-"))},
@@ -201,7 +198,7 @@ class Team(Spider):
                 )
             )
 
-        return TeamFBref(
+        return FBrefTeam(
             id=self.id,
             name=team_name,
             names={team_name},
@@ -230,7 +227,7 @@ class Member(Spider):
 
         return httpx.Request("GET", url=BASE_URL + path)
 
-    def parse(self, response: httpx.Response) -> MemberFBref:
+    def parse(self, response: httpx.Response) -> FBrefMember:
         selector = Selector(response.text)
         name = get_element_text(selector.xpath("//h1/span/text()"))
 
@@ -239,7 +236,7 @@ class Member(Spider):
         )
         shooting = parse_shooting(tr)
 
-        return MemberFBref(id=self.id, name=name, shooting=shooting)
+        return FBrefMember(id=self.id, name=name, shooting=shooting)
 
 
 class Matches(Spider):
@@ -316,10 +313,10 @@ class Match(Spider):
 
 def parse_shooting(
     tr: Selector | SelectorList[Selector],
-) -> ShootingFBref:
+) -> FBrefShooting:
     shots = get_element_text(tr.xpath('./td[@data-stat="shots"]/text()'))
     xg = get_element_text(tr.xpath('./td[@data-stat="xg"]/text()'))
-    return ShootingFBref(
+    return FBrefShooting(
         shots=float(shots),
         xg=float(xg),
     )

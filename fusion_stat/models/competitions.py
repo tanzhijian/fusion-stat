@@ -1,14 +1,11 @@
 import typing
 
-import httpx
 from pydantic import BaseModel
 from rapidfuzz import process
 
-from .base import Collector
-from .config import COMPETITIONS
-from .models import Stat
-from .spiders.fbref import Competitions as FBrefCompetitions
-from .spiders.fotmob import Competitions as FotMobCompetitions
+from fusion_stat.config import COMPETITIONS
+
+from . import Stat
 
 
 class CompetitionParams(BaseModel):
@@ -19,7 +16,11 @@ class CompetitionParams(BaseModel):
     season: int | None
 
 
-class Fusion:
+class PremierLeagueCompetition(Stat):
+    seasons: tuple[Stat, ...]
+
+
+class Competitions:
     def __init__(
         self,
         fotmob: tuple[Stat, ...],
@@ -54,28 +55,3 @@ class Fusion:
             params.append(competition_params)
 
         return params
-
-
-class Competitions(Collector[Fusion]):
-    def __init__(
-        self,
-        *,
-        season: int | None = None,
-        client: httpx.AsyncClient | None = None,
-        **kwargs: typing.Any,
-    ) -> None:
-        super().__init__(client=client, **kwargs)
-        self.season = season
-
-    @property
-    def tasks(
-        self,
-    ) -> tuple[typing.Coroutine[typing.Any, typing.Any, typing.Any], ...]:
-        return (
-            FotMobCompetitions(client=self.client).process(),
-            FBrefCompetitions(client=self.client).process(),
-        )
-
-    def parse(self, items: list[typing.Any]) -> Fusion:
-        fotmob, fbref = items
-        return Fusion(fotmob=fotmob, fbref=fbref, season=self.season)

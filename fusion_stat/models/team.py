@@ -1,15 +1,12 @@
 import typing
 
-import httpx
 from pydantic import BaseModel
 from rapidfuzz import process
 
-from .base import Collector
-from .config import MEMBERS_SIMILARITY_SCORE
-from .models import TeamFBref, TeamFotMob
-from .spiders.fbref import Team as FBrefTeam
-from .spiders.fotmob import Team as FotMobTeam
-from .utils import fuzzy_similarity_mean
+from fusion_stat.config import MEMBERS_SIMILARITY_SCORE
+from fusion_stat.utils import fuzzy_similarity_mean
+
+from . import FBrefShooting, Stat
 
 
 class MemberParams(BaseModel):
@@ -18,11 +15,37 @@ class MemberParams(BaseModel):
     fbref_path_name: str | None
 
 
-class Fusion:
+class FotMobMember(Stat):
+    country: str
+    country_code: str
+    position: str | None
+    is_staff: bool
+
+
+class FotMob(Stat):
+    names: set[str]
+    members: tuple[FotMobMember, ...]
+
+
+class FBrefMember(Stat):
+    names: set[str]
+    path_name: str
+    country_code: str
+    position: str
+    shooting: FBrefShooting
+
+
+class FBref(Stat):
+    names: set[str]
+    shooting: FBrefShooting
+    members: tuple[FBrefMember, ...]
+
+
+class Team:
     def __init__(
         self,
-        fotmob: TeamFotMob,
-        fbref: TeamFBref,
+        fotmob: FotMob,
+        fbref: FBref,
     ) -> None:
         self.fotmob = fotmob
         self.fbref = fbref
@@ -98,36 +121,3 @@ class Fusion:
                 except TypeError:
                     pass
         return params
-
-
-class Team(Collector[Fusion]):
-    def __init__(
-        self,
-        *,
-        fotmob_id: str,
-        fbref_id: str,
-        fbref_path_name: str | None = None,
-        client: httpx.AsyncClient | None = None,
-        **kwargs: typing.Any,
-    ) -> None:
-        super().__init__(client=client, **kwargs)
-        self.fotmob_id = fotmob_id
-        self.fbref_id = fbref_id
-        self.fbref_path_name = fbref_path_name
-
-    @property
-    def tasks(
-        self,
-    ) -> tuple[typing.Coroutine[typing.Any, typing.Any, typing.Any], ...]:
-        return (
-            FotMobTeam(id=self.fotmob_id, client=self.client).process(),
-            FBrefTeam(
-                id=self.fbref_id,
-                path_name=self.fbref_path_name,
-                client=self.client,
-            ).process(),
-        )
-
-    def parse(self, items: list[typing.Any]) -> Fusion:
-        fotmob, fbref = items
-        return Fusion(fotmob=fotmob, fbref=fbref)

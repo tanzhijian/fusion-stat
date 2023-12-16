@@ -1,15 +1,11 @@
 import typing
 
-import httpx
 from pydantic import BaseModel
 from rapidfuzz import process
 
-from .base import Collector
-from .models import CompetitionFBref, CompetitionFotMob, CompetitionOfficial
-from .spiders.fbref import Competition as FBrefCompetition
-from .spiders.fotmob import Competition as FotMobCompetition
-from .spiders.official import Competition as OfficialCompetition
-from .utils import sort_table_key
+from fusion_stat.utils import sort_table_key
+
+from . import FBrefShooting, Stat
 
 
 class TeamParams(BaseModel):
@@ -18,12 +14,61 @@ class TeamParams(BaseModel):
     fbref_path_name: str | None
 
 
-class Fusion:
+class FotMobTeam(Stat):
+    names: set[str]
+    played: int
+    wins: int
+    draws: int
+    losses: int
+    goals_for: int
+    goals_against: int
+    points: int
+
+
+class FotMobMatch(Stat):
+    utc_time: str
+    finished: bool
+    started: bool
+    cancelled: bool
+    score: str | None
+    competition: Stat
+    home: Stat
+    away: Stat
+
+
+class FotMob(Stat):
+    type: str
+    season: str
+    names: set[str]
+    teams: tuple[FotMobTeam, ...]
+    matches: tuple[FotMobMatch, ...]
+
+
+class FBrefTeam(Stat):
+    path_name: str
+    names: set[str]
+    shooting: FBrefShooting
+
+
+class FBref(Stat):
+    teams: tuple[FBrefTeam, ...]
+
+
+class OfficialTeam(Stat):
+    logo: str
+
+
+class Official(Stat):
+    logo: str
+    teams: tuple[OfficialTeam, ...]
+
+
+class Competition:
     def __init__(
         self,
-        fotmob: CompetitionFotMob,
-        fbref: CompetitionFBref,
-        official: CompetitionOfficial,
+        fotmob: FotMob,
+        fbref: FBref,
+        official: Official,
     ) -> None:
         self.fotmob = fotmob
         self.fbref = fbref
@@ -96,50 +141,3 @@ class Fusion:
 
             params.append(team_params)
         return params
-
-
-class Competition(Collector[Fusion]):
-    def __init__(
-        self,
-        *,
-        fotmob_id: str,
-        fbref_id: str,
-        fbref_path_name: str | None = None,
-        official_name: str,
-        season: int | None = None,
-        client: httpx.AsyncClient | None = None,
-        **kwargs: typing.Any,
-    ) -> None:
-        super().__init__(client=client, **kwargs)
-        self.fotmob_id = fotmob_id
-        self.fbref_id = fbref_id
-        self.fbref_path_name = fbref_path_name
-        self.official_name = official_name
-        self.season = season
-
-    @property
-    def tasks(
-        self,
-    ) -> tuple[typing.Coroutine[typing.Any, typing.Any, typing.Any], ...]:
-        return (
-            FotMobCompetition(
-                id=self.fotmob_id,
-                season=self.season,
-                client=self.client,
-            ).process(),
-            FBrefCompetition(
-                id=self.fbref_id,
-                path_name=self.fbref_path_name,
-                season=self.season,
-                client=self.client,
-            ).process(),
-            OfficialCompetition(
-                name=self.official_name,
-                season=self.season,
-                client=self.client,
-            ).process(),
-        )
-
-    def parse(self, items: list[typing.Any]) -> Fusion:
-        fotmob, fbref, official = items
-        return Fusion(fotmob=fotmob, fbref=fbref, official=official)

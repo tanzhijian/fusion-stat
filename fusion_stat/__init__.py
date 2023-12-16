@@ -1,11 +1,13 @@
-from .competition import Competition
-from .competitions import Competitions
-from .match import Match
-from .matches import Matches
-from .member import Member
-from .team import Team
+from .fusion import Fusion
+from .models.competition import Competition
+from .models.competitions import Competitions
+from .models.match import Match
+from .models.matches import Matches
+from .models.member import Member
+from .models.team import Team
 
 __all__ = (
+    "Fusion",
     "Competitions",
     "Competition",
     "Team",

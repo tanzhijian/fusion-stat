@@ -1,13 +1,9 @@
 import typing
 
-import httpx
 from pydantic import BaseModel
 from rapidfuzz import process
 
-from .base import Collector
-from .models import MatchesFotMobMatch, Stat
-from .spiders.fbref import Matches as FBrefMatches
-from .spiders.fotmob import Matches as FotMobMatches
+from . import Stat
 
 
 class MatchParams(BaseModel):
@@ -15,10 +11,21 @@ class MatchParams(BaseModel):
     fbref_id: str
 
 
-class Fusion:
+class FotMobMatch(Stat):
+    utc_time: str
+    finished: bool
+    started: bool
+    cancelled: bool
+    score: str | None
+    competition: Stat
+    home: Stat
+    away: Stat
+
+
+class Matches:
     def __init__(
         self,
-        fotmob: tuple[MatchesFotMobMatch, ...],
+        fotmob: tuple[FotMobMatch, ...],
         fbref: tuple[Stat, ...],
     ) -> None:
         self.fotmob = fotmob
@@ -44,33 +51,3 @@ class Fusion:
                 ).model_dump(exclude_none=True)
                 params.append(match_params)
         return params
-
-
-class Matches(Collector[Fusion]):
-    """Parameters:
-
-    * date: "%Y-%m-%d", such as "2023-09-03"
-    """
-
-    def __init__(
-        self,
-        *,
-        date: str,
-        client: httpx.AsyncClient | None = None,
-        **kwargs: typing.Any,
-    ) -> None:
-        super().__init__(client=client, **kwargs)
-        self.date = date
-
-    @property
-    def tasks(
-        self,
-    ) -> tuple[typing.Coroutine[typing.Any, typing.Any, typing.Any], ...]:
-        return (
-            FotMobMatches(date=self.date, client=self.client).process(),
-            FBrefMatches(date=self.date, client=self.client).process(),
-        )
-
-    def parse(self, items: list[typing.Any]) -> Fusion:
-        fotmob, fbref = items
-        return Fusion(fotmob=fotmob, fbref=fbref)
