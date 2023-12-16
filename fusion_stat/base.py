@@ -1,21 +1,22 @@
-import asyncio
 import typing
 from abc import ABC, abstractmethod
 from types import TracebackType
 
 import httpx
 
-T = typing.TypeVar("T")
 U = typing.TypeVar("U")
 
 
-class Spider(ABC):
+class Downloader(ABC):
     def __init__(
         self,
         *,
-        client: httpx.AsyncClient,
+        client: httpx.AsyncClient | None = None,
     ) -> None:
-        self.client = client
+        if client is None:
+            self.client = httpx.AsyncClient()
+        else:
+            self.client = client
 
     async def aclose(self) -> None:
         await self.client.aclose()
@@ -31,6 +32,8 @@ class Spider(ABC):
     ) -> None:
         await self.aclose()
 
+
+class Spider(Downloader, ABC):
     async def get(self, request: httpx.Request) -> httpx.Response:
         response = await self.client.send(request)
         response.raise_for_status()
@@ -48,37 +51,3 @@ class Spider(ABC):
     async def process(self) -> typing.Any:
         response = await self.get(self.request)
         return self.parse(response)
-
-
-class Collector(typing.Generic[T], ABC):
-    def __init__(
-        self,
-        *,
-        client: httpx.AsyncClient | None = None,
-        **kwargs: typing.Any,
-    ) -> None:
-        if client is None:
-            self.has_client = False
-            self.client = httpx.AsyncClient(**kwargs)
-        else:
-            self.has_client = True
-            self.client = client
-
-    @property
-    @abstractmethod
-    def tasks(
-        self,
-    ) -> tuple[typing.Coroutine[typing.Any, typing.Any, typing.Any], ...]:
-        ...
-
-    @abstractmethod
-    def parse(self, items: list[typing.Any]) -> T:
-        ...
-
-    async def gather(self) -> T:
-        result = await asyncio.gather(*self.tasks)
-
-        if not self.has_client:
-            await self.client.aclose()
-
-        return self.parse(result)
