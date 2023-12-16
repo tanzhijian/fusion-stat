@@ -1,8 +1,7 @@
 import asyncio
 import typing
 
-from base import Downloader
-
+from .base import Downloader
 from .models.competition import Competition
 from .models.competitions import Competitions
 from .models.match import Match
