@@ -1,6 +1,5 @@
 import typing
 
-import httpx
 import pytest_asyncio
 import respx
 
@@ -11,15 +10,13 @@ from tests.utils import fbref_mock, fotmob_mock, premier_league_mock
 class TestCompetition:
     @pytest_asyncio.fixture(scope="class")
     async def competition(
-        self,
-        client: httpx.AsyncClient,
+        self, fusion: Fusion
     ) -> typing.AsyncGenerator[Competition, typing.Any]:
         fotmob_mock("leagues?id=47.json")
         fbref_mock("comps_9_Premier-League-Stats.html")
         premier_league_mock(
             "teams?pageSize=100&compSeasons=578&comps=1&altIds=true&page=0.json"
         )
-        fusion = Fusion(client=client)
 
         with respx.mock:
             com = await fusion.get_competition(

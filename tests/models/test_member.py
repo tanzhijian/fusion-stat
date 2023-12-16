@@ -1,6 +1,5 @@
 import typing
 
-import httpx
 import pytest_asyncio
 import respx
 
@@ -11,13 +10,11 @@ from tests.utils import fbref_mock, fotmob_mock
 class TestMember:
     @pytest_asyncio.fixture(scope="class")
     async def member(
-        self,
-        client: httpx.AsyncClient,
+        self, fusion: Fusion
     ) -> typing.AsyncGenerator[Member, typing.Any]:
         fotmob_mock("playerData?id=961995.json")
         fbref_mock("players_bc7dc64d_Bukayo-Saka.html")
 
-        fusion = Fusion(client=client)
         with respx.mock:
             member = await fusion.get_member(
                 fotmob_id="961995",

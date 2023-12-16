@@ -1,6 +1,5 @@
 import typing
 
-import httpx
 import pytest_asyncio
 import respx
 
@@ -11,13 +10,10 @@ from tests.utils import fbref_mock, fotmob_mock
 class TestMatch:
     @pytest_asyncio.fixture(scope="class")
     async def match(
-        self,
-        client: httpx.AsyncClient,
+        self, fusion: Fusion
     ) -> typing.AsyncGenerator[Match, typing.Any]:
         fotmob_mock("matchDetails?matchId=4193490.json")
         fbref_mock("matches_74125d47.html")
-
-        fusion = Fusion(client=client)
 
         with respx.mock:
             match = await fusion.get_match(
