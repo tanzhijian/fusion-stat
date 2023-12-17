@@ -11,15 +11,26 @@ pip install fusion-stat
 ## Usage
 
 ```python
-from fusion_stat import Competitions, Competition
+from fusion_stat import Fusion, Competitions, Competition
 ```
 
 You can use it like this
 
 ```python
-competitions = Competitions()
-fusion = await competitions.gather()
-index = fusion.index()
+async with Fusion() as fusion:
+    competitions = await fusion.get_competitions()
+```
+
+or
+
+```python
+fusion = Fusion()
+competitions = await fusion.get_competitions()
+await fusion.aclose()
+```
+
+```python
+index = competitions.index()
 index
 ```
 
@@ -50,35 +61,34 @@ You can also use it like this
 import httpx
 
 async with httpx.AsyncClient() as client:
-    competition = Competition(
-        **index[0],
-        client=client,
-    )
-    fusion = await competition.gather()
+    fusion = Fusion(client=client)
+    competition = await fusion.get_competition(**index[0])
 ```
 
 ```python
-fusion.info
+competition.info
 ```
 
-    {'name': 'Premier League',
+    {'id': '47',
+     'name': 'Premier League',
      'logo': 'https://www.premierleague.com/resources/rebrand/v7.129.2/i/elements/pl-main-logo.png',
      'type': 'league',
      'season': '2023/2024',
      'names': {'Premier League'}}
 
 ```python
-fusion.teams[3]
+competition.teams[1]
 ```
 
-    {'name': 'Arsenal',
+    {'id': '9825',
+     'name': 'Arsenal',
      'names': {'Arsenal'},
-     'played': 11,
-     'wins': 7,
+     'played': 16,
+     'wins': 11,
      'draws': 3,
-     'losses': 1,
-     'goals_for': 23,
-     'goals_against': 9,
-     'points': 24,
+     'losses': 2,
+     'goals_for': 33,
+     'goals_against': 15,
+     'points': 36,
      'logo': 'https://resources.premierleague.com/premierleague/badges/rb/t3.svg',
-     'shooting': {'shots': 152.0, 'xg': 19.2}}
+     'shooting': {'shots': 237.0, 'xg': 29.0}}
