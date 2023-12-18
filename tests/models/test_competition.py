@@ -7,6 +7,23 @@ from fusion_stat import Competition, Fusion
 from tests.utils import fbref_mock, fotmob_mock, premier_league_mock
 
 
+def test_sort_table_key() -> None:
+    key = Competition.sort_table_key(
+        {
+            "name": "A",
+            "points": 20,
+            "goals_for": 20,
+            "goals_against": 10,
+            "played": 0,
+            "wins": 0,
+            "draws": 0,
+            "losses": 0,
+            "xg": 0,
+        }
+    )
+    assert key[0] == -20
+
+
 class TestCompetition:
     @pytest_asyncio.fixture(scope="class")
     async def competition(

@@ -1,6 +1,5 @@
 import typing
 
-from pydantic import BaseModel
 from rapidfuzz import process
 
 from fusion_stat.config import COMPETITIONS
@@ -8,11 +7,14 @@ from fusion_stat.config import COMPETITIONS
 from . import Stat
 
 
-class CompetitionParams(BaseModel):
+class _BaseCompetitionParamsTypes(typing.TypedDict):
     fotmob_id: str
     fbref_id: str
     fbref_path_name: str | None
     official_name: str
+
+
+class CompetitionParamsTypes(_BaseCompetitionParamsTypes, total=False):
     season: int | None
 
 
@@ -31,8 +33,8 @@ class Competitions:
         self.fbref = fbref
         self.season = season
 
-    def index(self) -> list[dict[str, typing.Any]]:
-        params: list[dict[str, typing.Any]] = []
+    def index(self) -> list[CompetitionParamsTypes]:
+        params: list[CompetitionParamsTypes] = []
 
         for fotmob_competition in self.fotmob:
             fbref_competition = process.extractOne(
@@ -44,13 +46,14 @@ class Competitions:
                 fotmob_competition.name, COMPETITIONS
             )[0]
 
-            competition_params = CompetitionParams(
+            competition_params = CompetitionParamsTypes(
                 fotmob_id=fotmob_competition.id,
                 fbref_id=fbref_competition.id,
                 fbref_path_name=fbref_competition.name.replace(" ", "-"),
                 official_name=official_name,
-                season=self.season,
-            ).model_dump(exclude_none=True)
+            )
+            if self.season is not None:
+                competition_params["season"] = self.season
 
             params.append(competition_params)
 

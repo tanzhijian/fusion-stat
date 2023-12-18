@@ -1,17 +1,57 @@
 import typing
 
-from pydantic import BaseModel
 from rapidfuzz import process
 
-from fusion_stat.utils import sort_table_key
-
-from . import FBrefShooting, Stat
+from . import FBrefShooting, FBrefShootingTypes, Stat, StatTypes
 
 
-class TeamParams(BaseModel):
+class TeamParamsTypes(typing.TypedDict):
     fotmob_id: str
     fbref_id: str
     fbref_path_name: str | None
+
+
+class InfoTypes(StatTypes):
+    logo: str
+    type: str
+    season: str
+    names: set[str]
+
+
+class TeamTypes(StatTypes):
+    names: set[str]
+    played: int
+    wins: int
+    draws: int
+    losses: int
+    goals_for: int
+    goals_against: int
+    points: int
+    logo: str
+    shooting: FBrefShootingTypes
+
+
+class TableTeamTypes(typing.TypedDict):
+    name: str
+    played: int
+    wins: int
+    draws: int
+    losses: int
+    goals_for: int
+    goals_against: int
+    xg: float
+    points: int
+
+
+class MatchType(StatTypes):
+    utc_time: str
+    finished: bool
+    started: bool
+    cancelled: bool
+    score: str | None
+    competition: StatTypes
+    home: StatTypes
+    away: StatTypes
 
 
 class FotMobTeam(Stat):
@@ -75,7 +115,7 @@ class Competition:
         self.official = official
 
     @property
-    def info(self) -> dict[str, typing.Any]:
+    def info(self) -> InfoTypes:
         return {
             "id": self.fotmob.id,
             "name": self.fotmob.name,
@@ -86,8 +126,8 @@ class Competition:
         }
 
     @property
-    def teams(self) -> list[dict[str, typing.Any]]:
-        teams = []
+    def teams(self) -> list[TeamTypes]:
+        teams: list[TeamTypes] = []
         for fotmob_team in self.fotmob.teams:
             fbref_team = process.extractOne(
                 fotmob_team, self.fbref.teams, processor=lambda x: x.name
@@ -96,48 +136,71 @@ class Competition:
                 fotmob_team, self.official.teams, processor=lambda x: x.name
             )[0]
 
-            team = fotmob_team.model_dump()
+            # 稍后来手动解包
+            team = TeamTypes(**fotmob_team.model_dump())  # type: ignore
             team["logo"] = official_team.logo
             team["names"] |= fbref_team.names
-            team["shooting"] = fbref_team.shooting.model_dump()
+            team["shooting"] = FBrefShootingTypes(
+                **fbref_team.shooting.model_dump()  # type: ignore
+            )
             teams.append(team)
         return teams
 
+    @staticmethod
+    def sort_table_key(team: TableTeamTypes) -> tuple[int, int, int, str]:
+        """1. 首先按照积分降序排序，积分高的排在前面
+        2. 如果两个或多个球队的积分相同，则根据以下规则进行排序：
+            1. 净胜球降序排序
+            2. 如果净胜球也相同，则根据进球数降序排序
+            3. 如果进球数也相同，则根据球队的名称（字母顺序）升序排序
+        """
+        goal_difference = team["goals_for"] - team["goals_against"]
+        return (
+            -team["points"],
+            -goal_difference,
+            -team["goals_for"],
+            team["name"],
+        )
+
     @property
-    def table(self) -> list[dict[str, typing.Any]]:
+    def table(self) -> list[TableTeamTypes]:
         teams = [
-            {
-                "name": team["name"],
-                "played": team["played"],
-                "wins": team["wins"],
-                "draws": team["draws"],
-                "losses": team["losses"],
-                "goals_for": team["goals_for"],
-                "goals_against": team["goals_against"],
-                "xg": team["shooting"]["xg"],
-                "points": team["points"],
-            }
+            TableTeamTypes(
+                name=team["name"],
+                played=team["played"],
+                wins=team["wins"],
+                draws=team["draws"],
+                losses=team["losses"],
+                goals_for=team["goals_for"],
+                goals_against=team["goals_against"],
+                xg=team["shooting"]["xg"],
+                points=team["points"],
+            )
             for team in self.teams
         ]
-        table = sorted(teams, key=sort_table_key)
+        table = sorted(teams, key=self.sort_table_key)
         return table
 
     @property
-    def matches(self) -> list[dict[str, typing.Any]]:
-        return [match.model_dump() for match in self.fotmob.matches]
+    def matches(self) -> list[MatchType]:
+        # 稍后来手动解包
+        return [
+            MatchType(**match.model_dump())  # type: ignore
+            for match in self.fotmob.matches
+        ]
 
-    def teams_index(self) -> list[dict[str, typing.Any]]:
-        params: list[dict[str, typing.Any]] = []
+    def teams_index(self) -> list[TeamParamsTypes]:
+        params: list[TeamParamsTypes] = []
         for fotmob_team in self.fotmob.teams:
             fbref_team = process.extractOne(
                 fotmob_team, self.fbref.teams, processor=lambda x: x.name
             )[0]
 
-            team_params = TeamParams(
+            team_params = TeamParamsTypes(
                 fotmob_id=fotmob_team.id,
                 fbref_id=fbref_team.id,
                 fbref_path_name=fbref_team.path_name,
-            ).model_dump(exclude_none=True)
+            )
 
             params.append(team_params)
         return params
