@@ -11,7 +11,7 @@ pip install fusion-stat
 ## Usage
 
 ```python
-from fusion_stat import Fusion, Competitions, Competition
+from fusion_stat import Fusion
 ```
 
 You can use it like this
