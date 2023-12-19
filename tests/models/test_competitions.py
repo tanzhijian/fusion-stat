@@ -1,27 +1,25 @@
-import typing
-
+import httpx
 import pytest
-import pytest_asyncio
-import respx
 
-from fusion_stat import Competitions, Fusion
-from tests.utils import fbref_mock, fotmob_mock
+from fusion_stat import Competitions
+from fusion_stat.spiders.fbref import Competitions as FBrefCompetitions
+from fusion_stat.spiders.fotmob import Competitions as FotMobCompetitions
+from tests.utils import read_data
 
 
 class TestCompetitions:
-    @pytest_asyncio.fixture(scope="class")
-    async def competitions(
-        self, fusion: Fusion
-    ) -> typing.AsyncGenerator[Competitions, typing.Any]:
-        fotmob_mock("allLeagues.json")
-        fbref_mock("comps_.html")
+    @pytest.fixture(scope="class")
+    def competitions(self, client: httpx.AsyncClient) -> Competitions:
+        fotmob_data = read_data("fotmob", "allLeagues.json")
+        fbref_data = read_data("fbref", "comps_.html")
 
-        with respx.mock:
-            coms = await fusion.get_competitions()
-        yield coms
+        fotmob = FotMobCompetitions(client=client)
+        fbref = FBrefCompetitions(client=client)
 
-    def test_get(self, competitions: Competitions) -> None:
-        assert len(competitions.fotmob) > 0
+        return Competitions(
+            fotmob=fotmob.parse(httpx.Response(200, json=fotmob_data)),
+            fbref=fbref.parse(httpx.Response(200, text=fbref_data)),
+        )
 
     def test_index(self, competitions: Competitions) -> None:
         index = competitions.index()

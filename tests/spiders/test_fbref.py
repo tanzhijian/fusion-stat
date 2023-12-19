@@ -112,7 +112,12 @@ class TestTeam:
         response = httpx.Response(200, text=text)
         team = spider.parse(response)
         assert team.name == "Arsenal"
-        assert int(team.shooting.xg) == int(8.3)
+        assert int(team.shooting.xg * 10) == int(8.3 * 10)
+        saka = team.members[4]
+        assert saka.position == "FW"
+        assert saka.country_code == "ENG"
+        assert saka.path_name == "Bukayo-Saka"
+        assert int(saka.shooting.shots) == 11
 
 
 class TestMember:
@@ -151,6 +156,7 @@ class TestMatches:
         text = read_test_data("matches_2023-09-03.html")
         response = httpx.Response(200, text=text)
         matches = spider.parse(response)
+        assert len(matches) == 18
         match = matches[0]
         assert match.id == "bdbc722e"
         assert match.name == "Liverpool vs Aston Villa"

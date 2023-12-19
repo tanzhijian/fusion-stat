@@ -1,27 +1,25 @@
-import typing
+import httpx
+import pytest
 
-import pytest_asyncio
-import respx
-
-from fusion_stat import Fusion, Member
-from tests.utils import fbref_mock, fotmob_mock
+from fusion_stat import Member
+from fusion_stat.spiders.fbref import Member as FBrefMember
+from fusion_stat.spiders.fotmob import Member as FotMobMember
+from tests.utils import read_data
 
 
 class TestMember:
-    @pytest_asyncio.fixture(scope="class")
-    async def member(
-        self, fusion: Fusion
-    ) -> typing.AsyncGenerator[Member, typing.Any]:
-        fotmob_mock("playerData?id=961995.json")
-        fbref_mock("players_bc7dc64d_Bukayo-Saka.html")
+    @pytest.fixture(scope="class")
+    def member(self, client: httpx.AsyncClient) -> Member:
+        fotmob_data = read_data("fotmob", "playerData?id=961995.json")
+        fbref_data = read_data("fbref", "players_bc7dc64d_Bukayo-Saka.html")
 
-        with respx.mock:
-            member = await fusion.get_member(
-                fotmob_id="961995",
-                fbref_id="bc7dc64d",
-                fbref_path_name="Bukayo-Saka",
-            )
-        yield member
+        fotmob = FotMobMember(id="961995", client=client)
+        fbref = FBrefMember(id="bc7dc64d", client=client)
 
-    def test_get(self, member: Member) -> None:
+        return Member(
+            fotmob=fotmob.parse(httpx.Response(200, json=fotmob_data)),
+            fbref=fbref.parse(httpx.Response(200, text=fbref_data)),
+        )
+
+    def test_info(self, member: Member) -> None:
         assert member.fotmob.name == "Bukayo Saka"

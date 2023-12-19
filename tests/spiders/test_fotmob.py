@@ -76,6 +76,13 @@ class TestTeam:
         response = httpx.Response(200, json=data)
         team = spider.parse(response)
         assert team.name == "Arsenal"
+        assert len(team.members) == 26
+        coach = team.members[0]
+        assert coach.is_staff
+        player = team.members[1]
+        assert not player.is_staff
+        assert player.position == "GK"
+        assert player.country == "Spain"
 
 
 class TestMember:
@@ -111,6 +118,7 @@ class TestMatches:
         data = read_test_data("matches?date=20230903.json")
         response = httpx.Response(200, json=data)
         matches = spider.parse(response)
+        assert len(matches) == 19
         match = matches[0]
         assert match.id == "4193495"
         assert match.name == "Crystal Palace vs Wolverhampton Wanderers"

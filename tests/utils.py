@@ -15,21 +15,24 @@ def read_data(test_name: str, file: str) -> typing.Any:
     return data
 
 
-def fotmob_mock(file: str) -> None:
+def fotmob_mock(file: str) -> respx.Route:
     data = read_data("fotmob", file)
-    respx.get(url=f"https://www.fotmob.com/api/{file.split('.')[0]}").mock(
-        httpx.Response(200, json=data)
-    )
+    route = respx.get(
+        url=f"https://www.fotmob.com/api/{file.split('.')[0]}"
+    ).mock(httpx.Response(200, json=data))
+    return route
 
 
-def fbref_mock(file: str) -> None:
+def fbref_mock(file: str) -> respx.Route:
     text = read_data("fbref", file)
-    respx.get(
+    route = respx.get(
         f"https://fbref.com/en/{file.replace('_', '/').split('.')[0]}"
     ).mock(httpx.Response(200, text=text))
+    return route
 
 
-def premier_league_mock(file: str) -> None:
+def premier_league_mock(file: str) -> respx.Route:
     data = read_data("premier_league", file)
     url = f"https://footballapi.pulselive.com/football/{file.split('.')[0]}"
-    respx.get(url).mock(httpx.Response(200, json=data))
+    route = respx.get(url).mock(httpx.Response(200, json=data))
+    return route

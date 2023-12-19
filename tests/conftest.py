@@ -5,8 +5,6 @@ import httpx
 import pytest
 import pytest_asyncio
 
-from fusion_stat import Fusion
-
 
 @pytest.fixture(scope="module")
 def event_loop() -> (
@@ -22,8 +20,3 @@ def event_loop() -> (
 async def client() -> typing.AsyncGenerator[httpx.AsyncClient, typing.Any]:
     async with httpx.AsyncClient() as client:
         yield client
-
-
-@pytest.fixture(scope="module")
-def fusion(client: httpx.AsyncClient) -> Fusion:
-    return Fusion(client=client)

@@ -27,7 +27,7 @@ class Competitions:
         self,
         fotmob: tuple[Stat, ...],
         fbref: tuple[Stat, ...],
-        season: int | None,
+        season: int | None = None,
     ) -> None:
         self.fotmob = fotmob
         self.fbref = fbref

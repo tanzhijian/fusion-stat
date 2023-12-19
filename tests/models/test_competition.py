@@ -1,10 +1,11 @@
-import typing
+import httpx
+import pytest
 
-import pytest_asyncio
-import respx
-
-from fusion_stat import Competition, Fusion
-from tests.utils import fbref_mock, fotmob_mock, premier_league_mock
+from fusion_stat import Competition
+from fusion_stat.spiders.fbref import Competition as FBrefCompetition
+from fusion_stat.spiders.fotmob import Competition as FotMobCompetition
+from fusion_stat.spiders.official import Competition as OfficeCompetition
+from tests.utils import read_data
 
 
 def test_sort_table_key() -> None:
@@ -25,27 +26,24 @@ def test_sort_table_key() -> None:
 
 
 class TestCompetition:
-    @pytest_asyncio.fixture(scope="class")
-    async def competition(
-        self, fusion: Fusion
-    ) -> typing.AsyncGenerator[Competition, typing.Any]:
-        fotmob_mock("leagues?id=47.json")
-        fbref_mock("comps_9_Premier-League-Stats.html")
-        premier_league_mock(
-            "teams?pageSize=100&compSeasons=578&comps=1&altIds=true&page=0.json"
+    @pytest.fixture(scope="class")
+    def competition(self, client: httpx.AsyncClient) -> Competition:
+        fotmob_data = read_data("fotmob", "leagues?id=47.json")
+        fbref_data = read_data("fbref", "comps_9_Premier-League-Stats.html")
+        official_data = read_data(
+            "premier_league",
+            "teams?pageSize=100&compSeasons=578&comps=1&altIds=true&page=0.json",
         )
-
-        with respx.mock:
-            com = await fusion.get_competition(
-                fotmob_id="47",
-                fbref_id="9",
-                fbref_path_name="Premier-League",
-                official_name="Premier League",
-            )
-        yield com
-
-    def test_get(self, competition: Competition) -> None:
-        assert competition.fotmob.name == "Premier League"
+        fotmob = FotMobCompetition(id="47", client=client)
+        fbref = FBrefCompetition(
+            id="9", path_name="Premier-League", client=client
+        )
+        official = OfficeCompetition(name="Premier League", client=client)
+        return Competition(
+            fotmob=fotmob.parse(httpx.Response(200, json=fotmob_data)),
+            fbref=fbref.parse(httpx.Response(200, text=fbref_data)),
+            official=official.parse(httpx.Response(200, json=official_data)),
+        )
 
     def test_info(self, competition: Competition) -> None:
         info = competition.info

@@ -1,34 +1,25 @@
-import typing
+import httpx
+import pytest
 
-import pytest_asyncio
-import respx
-
-from fusion_stat import Fusion, Matches
-from tests.utils import fbref_mock, fotmob_mock
+from fusion_stat import Matches
+from fusion_stat.spiders.fbref import Matches as FBrefMatches
+from fusion_stat.spiders.fotmob import Matches as FotMobMatches
+from tests.utils import read_data
 
 
 class TestMatches:
-    @pytest_asyncio.fixture(scope="class")
-    async def matches(
-        self, fusion: Fusion
-    ) -> typing.AsyncGenerator[Matches, typing.Any]:
-        fotmob_mock("matches?date=20230903.json")
-        fbref_mock("matches_2023-09-03.html")
+    @pytest.fixture(scope="class")
+    def matches(self, client: httpx.AsyncClient) -> Matches:
+        fotmob_data = read_data("fotmob", "matches?date=20230903.json")
+        fbref_data = read_data("fbref", "matches_2023-09-03.html")
 
-        with respx.mock:
-            matches = await fusion.get_matches(date="2023-09-03")
-        yield matches
+        fotmob = FotMobMatches(date="2023-09-03", client=client)
+        fbref = FBrefMatches(date="2023-09-03", client=client)
 
-    def test_get(self, matches: Matches) -> None:
-        assert len(matches.fotmob) == len(matches.fbref) + 1
-
-        match_1 = matches.fotmob[0]
-        assert match_1.id == "4193495"
-        assert match_1.name == "Crystal Palace vs Wolverhampton Wanderers"
-
-        match_2 = matches.fbref[0]
-        assert match_2.id == "bdbc722e"
-        assert match_2.name == "Liverpool vs Aston Villa"
+        return Matches(
+            fotmob=fotmob.parse(httpx.Response(200, json=fotmob_data)),
+            fbref=fbref.parse(httpx.Response(200, text=fbref_data)),
+        )
 
     def test_info(self, matches: Matches) -> None:
         info = matches.info
