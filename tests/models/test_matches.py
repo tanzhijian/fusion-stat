@@ -2,8 +2,7 @@ import httpx
 import pytest
 
 from fusion_stat import Matches
-from fusion_stat.spiders.fbref import Matches as FBrefMatches
-from fusion_stat.spiders.fotmob import Matches as FotMobMatches
+from fusion_stat.spiders import fbref, fotmob
 from tests.utils import read_data
 
 
@@ -13,12 +12,12 @@ class TestMatches:
         fotmob_data = read_data("fotmob", "matches?date=20230903.json")
         fbref_data = read_data("fbref", "matches_2023-09-03.html")
 
-        fotmob = FotMobMatches(date="2023-09-03", client=client)
-        fbref = FBrefMatches(date="2023-09-03", client=client)
+        fotmob_spider = fotmob.Matches(date="2023-09-03", client=client)
+        fbref_spider = fbref.Matches(date="2023-09-03", client=client)
 
         return Matches(
-            fotmob=fotmob.parse(httpx.Response(200, json=fotmob_data)),
-            fbref=fbref.parse(httpx.Response(200, text=fbref_data)),
+            fotmob=fotmob_spider.parse(httpx.Response(200, json=fotmob_data)),
+            fbref=fbref_spider.parse(httpx.Response(200, text=fbref_data)),
         )
 
     def test_info(self, matches: Matches) -> None:

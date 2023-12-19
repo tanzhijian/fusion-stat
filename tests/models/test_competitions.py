@@ -2,8 +2,7 @@ import httpx
 import pytest
 
 from fusion_stat import Competitions
-from fusion_stat.spiders.fbref import Competitions as FBrefCompetitions
-from fusion_stat.spiders.fotmob import Competitions as FotMobCompetitions
+from fusion_stat.spiders import fbref, fotmob
 from tests.utils import read_data
 
 
@@ -13,12 +12,12 @@ class TestCompetitions:
         fotmob_data = read_data("fotmob", "allLeagues.json")
         fbref_data = read_data("fbref", "comps_.html")
 
-        fotmob = FotMobCompetitions(client=client)
-        fbref = FBrefCompetitions(client=client)
+        fotmob_spider = fotmob.Competitions(client=client)
+        fbref_spider = fbref.Competitions(client=client)
 
         return Competitions(
-            fotmob=fotmob.parse(httpx.Response(200, json=fotmob_data)),
-            fbref=fbref.parse(httpx.Response(200, text=fbref_data)),
+            fotmob=fotmob_spider.parse(httpx.Response(200, json=fotmob_data)),
+            fbref=fbref_spider.parse(httpx.Response(200, text=fbref_data)),
         )
 
     def test_index(self, competitions: Competitions) -> None:

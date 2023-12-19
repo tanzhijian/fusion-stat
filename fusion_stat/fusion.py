@@ -8,19 +8,7 @@ from .models.match import Match
 from .models.matches import Matches
 from .models.member import Member
 from .models.team import Team
-from .spiders.fbref import Competition as FBrefCompetition
-from .spiders.fbref import Competitions as FBrefCompetitions
-from .spiders.fbref import Match as FBrefMatch
-from .spiders.fbref import Matches as FBrefMatches
-from .spiders.fbref import Member as FBrefMember
-from .spiders.fbref import Team as FBrefTeam
-from .spiders.fotmob import Competition as FotMobCompetition
-from .spiders.fotmob import Competitions as FotMobCompetitions
-from .spiders.fotmob import Match as FotMobMatch
-from .spiders.fotmob import Matches as FotMobMatches
-from .spiders.fotmob import Member as FotMobMember
-from .spiders.fotmob import Team as FotMobTeam
-from .spiders.official import Competition as OfficialCompetition
+from .spiders import fbref, fotmob, official
 
 
 class Fusion(Downloader):
@@ -33,11 +21,13 @@ class Fusion(Downloader):
 
     async def get_competitions(self, season: int | None = None) -> Competitions:
         tasks = (
-            FotMobCompetitions(client=self.client).process(),
-            FBrefCompetitions(client=self.client).process(),
+            fotmob.Competitions(client=self.client).process(),
+            fbref.Competitions(client=self.client).process(),
         )
-        fotmob, fbref = await self.gather(tasks)
-        return Competitions(fotmob=fotmob, fbref=fbref, season=season)
+        fotmob_competitions, fbref_competitions = await self.gather(tasks)
+        return Competitions(
+            fotmob=fotmob_competitions, fbref=fbref_competitions, season=season
+        )
 
     async def get_competition(
         self,
@@ -49,25 +39,33 @@ class Fusion(Downloader):
         season: int | None = None,
     ) -> Competition:
         tasks = (
-            FotMobCompetition(
+            fotmob.Competition(
                 id=fotmob_id,
                 season=season,
                 client=self.client,
             ).process(),
-            FBrefCompetition(
+            fbref.Competition(
                 id=fbref_id,
                 path_name=fbref_path_name,
                 season=season,
                 client=self.client,
             ).process(),
-            OfficialCompetition(
+            official.Competition(
                 name=official_name,
                 season=season,
                 client=self.client,
             ).process(),
         )
-        fotmob, fbref, official = await self.gather(tasks)
-        return Competition(fotmob=fotmob, fbref=fbref, official=official)
+        (
+            fotmob_competition,
+            fbref_competition,
+            official_competition,
+        ) = await self.gather(tasks)
+        return Competition(
+            fotmob=fotmob_competition,
+            fbref=fbref_competition,
+            official=official_competition,
+        )
 
     async def get_team(
         self,
@@ -77,13 +75,13 @@ class Fusion(Downloader):
         fbref_path_name: str | None = None,
     ) -> Team:
         tasks = (
-            FotMobTeam(id=fotmob_id, client=self.client).process(),
-            FBrefTeam(
+            fotmob.Team(id=fotmob_id, client=self.client).process(),
+            fbref.Team(
                 id=fbref_id, path_name=fbref_path_name, client=self.client
             ).process(),
         )
-        fotmob, fbref = await self.gather(tasks)
-        return Team(fotmob=fotmob, fbref=fbref)
+        fotmob_team, fbref_team = await self.gather(tasks)
+        return Team(fotmob=fotmob_team, fbref=fbref_team)
 
     async def get_member(
         self,
@@ -93,15 +91,15 @@ class Fusion(Downloader):
         fbref_path_name: str | None = None,
     ) -> Member:
         tasks = (
-            FotMobMember(id=fotmob_id, client=self.client).process(),
-            FBrefMember(
+            fotmob.Member(id=fotmob_id, client=self.client).process(),
+            fbref.Member(
                 id=fbref_id,
                 path_name=fbref_path_name,
                 client=self.client,
             ).process(),
         )
-        fotmob, fbref = await self.gather(tasks)
-        return Member(fotmob=fotmob, fbref=fbref)
+        fotmob_member, fbref_member = await self.gather(tasks)
+        return Member(fotmob=fotmob_member, fbref=fbref_member)
 
     async def get_matches(self, *, date: str) -> Matches:
         """Parameters:
@@ -109,16 +107,16 @@ class Fusion(Downloader):
         * date: "%Y-%m-%d", such as "2023-09-03"
         """
         tasks = (
-            FotMobMatches(date=date, client=self.client).process(),
-            FBrefMatches(date=date, client=self.client).process(),
+            fotmob.Matches(date=date, client=self.client).process(),
+            fbref.Matches(date=date, client=self.client).process(),
         )
-        fotmob, fbref = await self.gather(tasks)
-        return Matches(fotmob=fotmob, fbref=fbref)
+        fotmob_matches, fbref_matches = await self.gather(tasks)
+        return Matches(fotmob=fotmob_matches, fbref=fbref_matches)
 
     async def get_match(self, *, fotmob_id: str, fbref_id: str) -> Match:
         tasks = (
-            FotMobMatch(id=fotmob_id, client=self.client).process(),
-            FBrefMatch(id=fbref_id, client=self.client).process(),
+            fotmob.Match(id=fotmob_id, client=self.client).process(),
+            fbref.Match(id=fbref_id, client=self.client).process(),
         )
-        fotmob, fbref = await self.gather(tasks)
-        return Match(fotmob=fotmob, fbref=fbref)
+        fotmob_match, fbref_match = await self.gather(tasks)
+        return Match(fotmob=fotmob_match, fbref=fbref_match)

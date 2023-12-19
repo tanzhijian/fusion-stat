@@ -2,9 +2,7 @@ import httpx
 import pytest
 
 from fusion_stat import Competition
-from fusion_stat.spiders.fbref import Competition as FBrefCompetition
-from fusion_stat.spiders.fotmob import Competition as FotMobCompetition
-from fusion_stat.spiders.official import Competition as OfficeCompetition
+from fusion_stat.spiders import fbref, fotmob, official
 from tests.utils import read_data
 
 
@@ -34,15 +32,19 @@ class TestCompetition:
             "premier_league",
             "teams?pageSize=100&compSeasons=578&comps=1&altIds=true&page=0.json",
         )
-        fotmob = FotMobCompetition(id="47", client=client)
-        fbref = FBrefCompetition(
+        fotmob_spider = fotmob.Competition(id="47", client=client)
+        fbref_spider = fbref.Competition(
             id="9", path_name="Premier-League", client=client
         )
-        official = OfficeCompetition(name="Premier League", client=client)
+        official_spider = official.Competition(
+            name="Premier League", client=client
+        )
         return Competition(
-            fotmob=fotmob.parse(httpx.Response(200, json=fotmob_data)),
-            fbref=fbref.parse(httpx.Response(200, text=fbref_data)),
-            official=official.parse(httpx.Response(200, json=official_data)),
+            fotmob=fotmob_spider.parse(httpx.Response(200, json=fotmob_data)),
+            fbref=fbref_spider.parse(httpx.Response(200, text=fbref_data)),
+            official=official_spider.parse(
+                httpx.Response(200, json=official_data)
+            ),
         )
 
     def test_info(self, competition: Competition) -> None:
