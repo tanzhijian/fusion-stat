@@ -2,6 +2,8 @@ import asyncio
 import typing
 
 from .base import Downloader
+from .config import COMPETITIONS_INDEX
+from .models import Stat
 from .models.competition import Competition
 from .models.competitions import Competitions
 from .models.match import Match
@@ -27,6 +29,28 @@ class Fusion(Downloader):
         fotmob_competitions, fbref_competitions = await self.gather(tasks)
         return Competitions(
             fotmob=fotmob_competitions, fbref=fbref_competitions, season=season
+        )
+
+    def get_competitions_cache(self, season: int | None = None) -> Competitions:
+        fotmob_competitions: list[Stat] = []
+        fbref_competitions: list[Stat] = []
+        for competition in COMPETITIONS_INDEX:
+            fotmob_competitions.append(
+                Stat(
+                    id=competition["fotmob_id"],
+                    name=competition["name"],
+                )
+            )
+            fbref_competitions.append(
+                Stat(
+                    id=competition["fbref_id"],
+                    name=competition["fbref_path_name"],
+                )
+            )
+        return Competitions(
+            fotmob=tuple(fotmob_competitions),
+            fbref=tuple(fbref_competitions),
+            season=season,
         )
 
     async def get_competition(
