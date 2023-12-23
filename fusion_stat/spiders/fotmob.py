@@ -4,7 +4,6 @@ from rapidfuzz import process
 from fusion_stat.base import Spider
 from fusion_stat.config import (
     COMPETITIONS,
-    COMPETITIONS_INDEX,
     COMPETITIONS_SIMILARITY_SCORE,
     POSITIONS,
 )
@@ -33,7 +32,7 @@ class Competitions(Spider):
             name = competition["name"]
             if process.extractOne(
                 name,
-                COMPETITIONS,
+                COMPETITIONS.keys(),
                 score_cutoff=COMPETITIONS_SIMILARITY_SCORE,
             ):
                 competitions.append(
@@ -225,7 +224,7 @@ class Matches(Spider):
     def parse(self, response: httpx.Response) -> tuple[FotMobMatchesMatch, ...]:
         json = response.json()
         matches = []
-        competitions_id = {c["fotmob_id"] for c in COMPETITIONS_INDEX}
+        competitions_id = {c["fotmob_id"] for c in COMPETITIONS.values()}
         for competition in json["leagues"]:
             if (competition_id := str(competition["id"])) in competitions_id:
                 for match in competition["matches"]:

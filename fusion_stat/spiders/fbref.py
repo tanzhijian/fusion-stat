@@ -5,7 +5,6 @@ from rapidfuzz import process
 from fusion_stat.base import Spider
 from fusion_stat.config import (
     COMPETITIONS,
-    COMPETITIONS_INDEX,
     COMPETITIONS_SIMILARITY_SCORE,
 )
 from fusion_stat.models import FBrefShooting, Stat
@@ -44,7 +43,7 @@ class Competitions(Spider):
                 if (
                     process.extractOne(
                         name,
-                        COMPETITIONS,
+                        COMPETITIONS.keys(),
                         score_cutoff=COMPETITIONS_SIMILARITY_SCORE,
                     )
                     and gender == "M"
@@ -259,7 +258,7 @@ class Matches(Spider):
         matches = []
 
         competitions_id_str = "|".join(
-            (c["fbref_id"] for c in COMPETITIONS_INDEX)
+            (c["fbref_id"] for c in COMPETITIONS.values())
         )
         tables = selector.xpath(
             f"//table[re:test(@id, 'sched_.*_({competitions_id_str})\\b')]"

@@ -29,6 +29,13 @@ class TestFusion:
         assert len(coms.fotmob) > 0
         assert len(coms.fbref) > 0
 
+        fotmob_com = coms.fotmob[0]
+        fbref_com = coms.fbref[0]
+        assert fotmob_com.id == "47"
+        assert fotmob_com.name == "Premier League"
+        assert fbref_com.id == "9"
+        assert fbref_com.name == "Premier League"
+
     @pytest.mark.asyncio
     async def test_get_competition(self, fusion: Fusion) -> None:
         fotmob_route = fotmob_mock("leagues?id=47.json")

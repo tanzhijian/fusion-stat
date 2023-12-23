@@ -1,21 +1,8 @@
-import typing
-
 from rapidfuzz import process
 
 from fusion_stat.config import COMPETITIONS
 
-from . import Stat
-
-
-class _BaseCompetitionParamsTypes(typing.TypedDict):
-    fotmob_id: str
-    fbref_id: str
-    fbref_path_name: str | None
-    official_name: str
-
-
-class CompetitionParamsTypes(_BaseCompetitionParamsTypes, total=False):
-    season: int | None
+from . import CompetitionParamsTypes, Stat
 
 
 class PremierLeagueCompetition(Stat):
@@ -43,7 +30,7 @@ class Competitions:
                 processor=lambda x: x.name,
             )[0]
             official_name = process.extractOne(
-                fotmob_competition.name, COMPETITIONS
+                fotmob_competition.name, COMPETITIONS.keys()
             )[0]
 
             competition_params = CompetitionParamsTypes(
