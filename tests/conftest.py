@@ -6,7 +6,7 @@ import pytest
 import pytest_asyncio
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def event_loop() -> (
     typing.Generator[asyncio.AbstractEventLoop, typing.Any, None]
 ):
@@ -16,7 +16,7 @@ def event_loop() -> (
     loop.close()
 
 
-@pytest_asyncio.fixture(scope="module")
+@pytest_asyncio.fixture(scope="session")
 async def client() -> typing.AsyncGenerator[httpx.AsyncClient, typing.Any]:
     async with httpx.AsyncClient() as client:
         yield client
