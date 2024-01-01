@@ -12,7 +12,7 @@ class TestFusion:
     def fusion(self, client: httpx.AsyncClient) -> Fusion:
         return Fusion(client=client)
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_get_competitions(self, fusion: Fusion) -> None:
         fotmob_route = fotmob_mock("allLeagues.json")
         fbref_route = fbref_mock("comps_.html")
@@ -36,7 +36,7 @@ class TestFusion:
         assert fbref_com.id == "9"
         assert fbref_com.name == "Premier League"
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_get_competition(self, fusion: Fusion) -> None:
         fotmob_route = fotmob_mock("leagues?id=47.json")
         fbref_route = fbref_mock("comps_9_Premier-League-Stats.html")
@@ -58,7 +58,7 @@ class TestFusion:
         assert com.fbref.name
         assert com.official.name
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_get_team(self, fusion: Fusion) -> None:
         fotmob_route = fotmob_mock("teams?id=9825.json")
         fbref_route = fbref_mock("squads_18bb7c10_Arsenal-Stats.html")
@@ -75,7 +75,7 @@ class TestFusion:
         assert team.fotmob.name
         assert team.fbref.name
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_member(self, fusion: Fusion) -> None:
         fotmob_route = fotmob_mock("playerData?id=961995.json")
         fbref_route = fbref_mock("players_bc7dc64d_Bukayo-Saka.html")
@@ -91,7 +91,7 @@ class TestFusion:
         assert member.fotmob.name
         assert member.fbref.name
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_matches(self, fusion: Fusion) -> None:
         fotmob_route = fotmob_mock("matches?date=20230903.json")
         fbref_route = fbref_mock("matches_2023-09-03.html")
@@ -103,7 +103,7 @@ class TestFusion:
         assert len(matches.fotmob) > 0
         assert len(matches.fbref) > 0
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_match(self, fusion: Fusion) -> None:
         fotmob_route = fotmob_mock("matchDetails?matchId=4193490.json")
         fbref_route = fbref_mock("matches_74125d47.html")
