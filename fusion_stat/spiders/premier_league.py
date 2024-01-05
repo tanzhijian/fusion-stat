@@ -88,9 +88,9 @@ class Competitions(Spider):
         competitions_seasons_index = {}
         for competition in competitions:
             seasons_index = {}
-            for season in competition.seasons:
-                seasons_index[season.name.split("/")[0]] = season.id
-            competitions_seasons_index[competition.name] = seasons_index
+            for season in competition["seasons"]:
+                seasons_index[season["name"].split("/")[0]] = season["id"]
+            competitions_seasons_index[competition["name"]] = seasons_index
         return competitions_seasons_index
 
 

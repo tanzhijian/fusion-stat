@@ -2,27 +2,12 @@ import typing
 
 from rapidfuzz import process
 
-from . import Stat, StatTypes
+from . import Stat
 
 
-class MatchParamsTypes(typing.TypedDict):
+class MatchParams(typing.TypedDict):
     fotmob_id: str
     fbref_id: str
-
-
-class InfoMatchTypes(StatTypes):
-    utc_time: str
-    finished: bool
-    started: bool
-    cancelled: bool
-    score: str | None
-    competition: StatTypes
-    home: StatTypes
-    away: StatTypes
-
-
-class InfoTypes(typing.TypedDict):
-    matches: list[InfoMatchTypes]
 
 
 class FotMobMatch(Stat):
@@ -36,6 +21,14 @@ class FotMobMatch(Stat):
     away: Stat
 
 
+class InfoMatch(FotMobMatch):
+    ...
+
+
+class Info(typing.TypedDict):
+    matches: list[InfoMatch]
+
+
 class Matches:
     def __init__(
         self,
@@ -46,26 +39,22 @@ class Matches:
         self.fbref = fbref
 
     @property
-    def info(self) -> InfoTypes:
-        # 稍后来手动解包
-        matches = [
-            InfoMatchTypes(**match.model_dump())  # type: ignore
-            for match in self.fotmob
-        ]
+    def info(self) -> Info:
+        matches = [InfoMatch(**match) for match in self.fotmob]
         return {"matches": matches}
 
-    def index(self) -> list[MatchParamsTypes]:
+    def index(self) -> list[MatchParams]:
         if not self.fbref:
             raise ValueError("No fbref id for the current date")
-        params: list[MatchParamsTypes] = []
+        params: list[MatchParams] = []
         for fotmob_match in self.fotmob:
-            if not fotmob_match.cancelled:
+            if not fotmob_match["cancelled"]:
                 fbref_match = process.extractOne(
-                    fotmob_match, self.fbref, processor=lambda x: x.name
+                    fotmob_match, self.fbref, processor=lambda x: x["name"]
                 )[0]
 
-                match_params = MatchParamsTypes(
-                    fotmob_id=fotmob_match.id, fbref_id=fbref_match.id
+                match_params = MatchParams(
+                    fotmob_id=fotmob_match["id"], fbref_id=fbref_match["id"]
                 )
                 params.append(match_params)
         return params

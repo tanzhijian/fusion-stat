@@ -32,7 +32,7 @@ class TestCompetitions:
         data = read_test_data("allLeagues.json")
         response = httpx.Response(200, json=data)
         coms = spider.parse(response)
-        assert coms[0].name == "Premier League"
+        assert coms[0]["name"] == "Premier League"
 
 
 class TestCompetition:
@@ -57,7 +57,7 @@ class TestCompetition:
         data = read_test_data("leagues?id=47.json")
         response = httpx.Response(200, json=data)
         com = spider.parse(response)
-        assert com.name == "Premier League"
+        assert com["name"] == "Premier League"
 
 
 class TestTeam:
@@ -75,14 +75,14 @@ class TestTeam:
         data = read_test_data("teams?id=9825.json")
         response = httpx.Response(200, json=data)
         team = spider.parse(response)
-        assert team.name == "Arsenal"
-        assert len(team.members) == 26
-        coach = team.members[0]
-        assert coach.is_staff
-        player = team.members[1]
-        assert not player.is_staff
-        assert player.position == "GK"
-        assert player.country == "Spain"
+        assert team["name"] == "Arsenal"
+        assert len(team["members"]) == 26
+        coach = team["members"][0]
+        assert coach["is_staff"]
+        player = team["members"][1]
+        assert not player["is_staff"]
+        assert player["position"] == "GK"
+        assert player["country"] == "Spain"
 
 
 class TestMember:
@@ -100,7 +100,7 @@ class TestMember:
         data = read_test_data("playerData?id=961995.json")
         response = httpx.Response(200, json=data)
         member = spider.parse(response)
-        assert member.name == "Bukayo Saka"
+        assert member["name"] == "Bukayo Saka"
 
 
 class TestMatches:
@@ -120,8 +120,8 @@ class TestMatches:
         matches = spider.parse(response)
         assert len(matches) == 19
         match = matches[0]
-        assert match.id == "4193495"
-        assert match.name == "Crystal Palace vs Wolverhampton Wanderers"
+        assert match["id"] == "4193495"
+        assert match["name"] == "Crystal Palace vs Wolverhampton Wanderers"
 
 
 class TestMatch:
@@ -139,4 +139,4 @@ class TestMatch:
         data = read_test_data("matchDetails?matchId=4193490.json")
         response = httpx.Response(200, json=data)
         match = spider.parse(response)
-        assert match.name == "Arsenal vs Manchester United"
+        assert match["name"] == "Arsenal vs Manchester United"

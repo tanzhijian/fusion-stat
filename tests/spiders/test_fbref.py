@@ -32,7 +32,7 @@ class TestCompetitions:
         text = read_test_data("comps_.html")
         response = httpx.Response(200, text=text)
         coms = spider.parse(response)
-        assert coms[0].name == "Premier League"
+        assert coms[0]["name"] == "Premier League"
 
 
 class TestCompetition:
@@ -74,7 +74,7 @@ class TestCompetition:
         text = read_test_data("comps_9_Premier-League-Stats.html")
         response = httpx.Response(200, text=text)
         com = spider.parse(response)
-        assert com.name == "Premier League"
+        assert com["name"] == "Premier League"
 
 
 class TestTeam:
@@ -111,13 +111,13 @@ class TestTeam:
         text = read_test_data("squads_18bb7c10_Arsenal-Stats.html")
         response = httpx.Response(200, text=text)
         team = spider.parse(response)
-        assert team.name == "Arsenal"
-        assert int(team.shooting.xg * 10) == int(8.3 * 10)
-        saka = team.members[4]
-        assert saka.position == "FW"
-        assert saka.country_code == "ENG"
-        assert saka.path_name == "Bukayo-Saka"
-        assert int(saka.shooting.shots) == 11
+        assert team["name"] == "Arsenal"
+        assert int(team["shooting"]["xg"] * 10) == int(8.3 * 10)
+        saka = team["members"][4]
+        assert saka["position"] == "FW"
+        assert saka["country_code"] == "ENG"
+        assert saka["path_name"] == "Bukayo-Saka"
+        assert int(saka["shooting"]["shots"]) == 11
 
 
 class TestMember:
@@ -138,7 +138,7 @@ class TestMember:
         text = read_test_data("players_bc7dc64d_Bukayo-Saka.html")
         response = httpx.Response(200, text=text)
         member = spider.parse(response)
-        assert member.name == "Bukayo Saka"
+        assert member["name"] == "Bukayo Saka"
 
 
 class TestMatches:
@@ -158,8 +158,8 @@ class TestMatches:
         matches = spider.parse(response)
         assert len(matches) == 18
         match = matches[0]
-        assert match.id == "bdbc722e"
-        assert match.name == "Liverpool vs Aston Villa"
+        assert match["id"] == "bdbc722e"
+        assert match["name"] == "Liverpool vs Aston Villa"
 
 
 class TestMatch:
@@ -177,4 +177,4 @@ class TestMatch:
         text = read_test_data("matches_74125d47.html")
         response = httpx.Response(200, text=text)
         match = spider.parse(response)
-        assert match.name == "Arsenal vs Manchester United"
+        assert match["name"] == "Arsenal vs Manchester United"

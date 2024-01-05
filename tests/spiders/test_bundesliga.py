@@ -24,16 +24,16 @@ class TestCurrentCompetition:
         text = read_data("bundesliga", "en_bundesliga_clubs.html")
         response = httpx.Response(200, text=text)
         com = spider.parse(response)
-        assert com.id == "Bundesliga 2023-2024"
+        assert com["id"] == "Bundesliga 2023-2024"
         assert (
-            com.logo
+            com["logo"]
             == "https://www.bundesliga.com/assets/favicons/safari-pinned-tab_new.svg"
         )
-        team = com.teams[0]
-        assert team.id == "fc-bayern-muenchen"
-        assert team.name == "FC Bayern München"
+        team = com["teams"][0]
+        assert team["id"] == "fc-bayern-muenchen"
+        assert team["name"] == "FC Bayern München"
         assert (
-            team.logo
+            team["logo"]
             == "https://www.bundesliga.com/assets/clublogo/DFL-CLU-00000G.svg"
         )
 
@@ -55,12 +55,12 @@ class Test2022Competition:
         data = read_data("bundesliga", "assets_historic_season_2022-2023.json")
         response = httpx.Response(200, json=data)
         com = spider.parse(response)
-        assert com.id == "Bundesliga 2022-2023"
-        team = com.teams[0]
-        assert team.id == "fc-bayern-muenchen"
-        assert team.name == "FC Bayern München"
+        assert com["id"] == "Bundesliga 2022-2023"
+        team = com["teams"][0]
+        assert team["id"] == "fc-bayern-muenchen"
+        assert team["name"] == "FC Bayern München"
         assert (
-            team.logo
+            team["logo"]
             == "https://www.bundesliga.com/assets/clublogo/DFL-CLU-00000G.svg"
         )
 
@@ -82,8 +82,8 @@ class Test2021Competition:
         data = read_data("bundesliga", "assets_historic_season_2021-2022.json")
         response = httpx.Response(200, json=data)
         com = spider.parse(response)
-        assert com.id == "Bundesliga 2021-2022"
-        team = com.teams[0]
-        assert team.id == "Bayern"
-        assert team.name == "FC Bayern München"
-        assert not team.logo
+        assert com["id"] == "Bundesliga 2021-2022"
+        team = com["teams"][0]
+        assert team["id"] == "Bayern"
+        assert team["name"] == "FC Bayern München"
+        assert not team["logo"]

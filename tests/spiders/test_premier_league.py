@@ -25,8 +25,8 @@ class testCompetitions:
         )
         response = httpx.Response(200, json=data)
         coms = spider.parse(response)
-        assert coms[0].name == "Premier League"
-        assert coms[0].seasons[0].name == "2023/24"
+        assert coms[0]["name"] == "Premier League"
+        assert coms[0]["seasons"][0]["name"] == "2023/24"
 
         index = spider.index(coms)
         assert index["Premier League"]["2023"] == "578"
@@ -55,11 +55,11 @@ class TestCompetition:
         )
         response = httpx.Response(200, json=data)
         com = spider.parse(response)
-        assert com.id == "Premier League 2023"
-        assert com.name == "Premier League"
-        team = com.teams[0]
-        assert team.name == "Arsenal"
+        assert com["id"] == "Premier League 2023"
+        assert com["name"] == "Premier League"
+        team = com["teams"][0]
+        assert team["name"] == "Arsenal"
         assert (
-            team.logo
+            team["logo"]
             == "https://resources.premierleague.com/premierleague/badges/rb/t3.svg"
         )

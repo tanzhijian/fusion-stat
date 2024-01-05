@@ -184,7 +184,7 @@ class Team(Spider):
             try:
                 shooting = players_shooting[id]
             except KeyError:
-                shooting = FBrefShooting()
+                shooting = FBrefShooting(shots=0, xg=0)
             players.append(
                 FBrefTeamMember(
                     id=id,

@@ -1,34 +1,22 @@
 import typing
 
-from pydantic import BaseModel
 
-
-class StatTypes(typing.TypedDict):
+class Stat(typing.TypedDict):
     id: str
     name: str
 
 
-class _BaseCompetitionParamsTypes(typing.TypedDict):
+class _BaseCompetitionParamsDict(typing.TypedDict):
     fotmob_id: str
     fbref_id: str
     fbref_path_name: str | None
     official_name: str
 
 
-class CompetitionParamsTypes(_BaseCompetitionParamsTypes, total=False):
+class CompetitionParams(_BaseCompetitionParamsDict, total=False):
     season: int | None
 
 
-class FBrefShootingTypes(typing.TypedDict):
+class FBrefShooting(typing.TypedDict):
     shots: float
     xg: float
-
-
-class Stat(BaseModel):
-    id: str
-    name: str
-
-
-class FBrefShooting(BaseModel):
-    shots: float = 0
-    xg: float = 0

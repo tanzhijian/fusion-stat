@@ -34,11 +34,11 @@ class TestCompetition:
         )
         response = httpx.Response(200, json=data)
         com = spider.parse(response)
-        assert com.id == "laliga-easports-2023"
-        assert com.name == "La Liga"
-        team = com.teams[13]
-        assert team.name == "Real Madrid"
+        assert com["id"] == "laliga-easports-2023"
+        assert com["name"] == "La Liga"
+        team = com["teams"][13]
+        assert team["name"] == "Real Madrid"
         assert (
-            team.logo
+            team["logo"]
             == "https://assets.laliga.com/assets/2019/06/07/small/real-madrid.png"
         )

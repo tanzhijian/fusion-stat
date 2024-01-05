@@ -5,31 +5,31 @@ from rapidfuzz import process
 from fusion_stat.config import MEMBERS_SIMILARITY_SCORE
 from fusion_stat.utils import fuzzy_similarity_mean
 
-from . import FBrefShooting, FBrefShootingTypes, Stat
+from . import FBrefShooting, Stat
 
 
-class MemberParamsTypes(typing.TypedDict):
+class MemberParams(typing.TypedDict):
     fotmob_id: str
     fbref_id: str
     fbref_path_name: str | None
 
 
-class InfoTypes(typing.TypedDict):
+class Info(typing.TypedDict):
     name: str
     names: set[str]
 
 
-class StaffTypes(typing.TypedDict):
+class Staff(typing.TypedDict):
     name: str
     country: str
 
 
-class PlayerTypes(typing.TypedDict):
+class Player(typing.TypedDict):
     name: str
     names: set[str]
     country: str
     position: str | None
-    shooting: FBrefShootingTypes
+    shooting: FBrefShooting
 
 
 class FotMobMember(Stat):
@@ -68,48 +68,46 @@ class Team:
         self.fbref = fbref
 
     @property
-    def info(self) -> InfoTypes:
+    def info(self) -> Info:
         return {
-            "name": self.fotmob.name,
-            "names": self.fotmob.names | self.fbref.names,
+            "name": self.fotmob["name"],
+            "names": self.fotmob["names"] | self.fbref["names"],
         }
 
     @property
-    def staff(self) -> list[StaffTypes]:
+    def staff(self) -> list[Staff]:
         return [
-            {"name": member.name, "country": member.country}
-            for member in self.fotmob.members
-            if member.is_staff
+            {"name": member["name"], "country": member["country"]}
+            for member in self.fotmob["members"]
+            if member["is_staff"]
         ]
 
     @property
-    def players(self) -> list[PlayerTypes]:
-        players: list[PlayerTypes] = []
-        for fotmob_member in self.fotmob.members:
-            if not fotmob_member.is_staff:
+    def players(self) -> list[Player]:
+        players: list[Player] = []
+        for fotmob_member in self.fotmob["members"]:
+            if not fotmob_member["is_staff"]:
                 try:
                     fbref_member = process.extractOne(
                         fotmob_member,
-                        self.fbref.members,
+                        self.fbref["members"],
                         scorer=fuzzy_similarity_mean,
                         processor=lambda x: [
-                            x.name,
-                            x.country_code,
-                            x.position,
+                            x["name"],
+                            x["country_code"],
+                            x["position"],
                         ],
                         score_cutoff=MEMBERS_SIMILARITY_SCORE,
                     )[0]
 
-                    # 稍后来手动解包
-                    shooting = FBrefShootingTypes(
-                        **fbref_member.shooting.model_dump(),  # type: ignore
-                    )
+                    shooting = fbref_member["shooting"]
                     players.append(
-                        PlayerTypes(
-                            name=fotmob_member.name,
-                            names={fotmob_member.name} | fbref_member.names,
-                            country=fotmob_member.country,
-                            position=fotmob_member.position,
+                        Player(
+                            name=fotmob_member["name"],
+                            names={fotmob_member["name"]}
+                            | fbref_member["names"],
+                            country=fotmob_member["country"],
+                            position=fotmob_member["position"],
                             shooting=shooting,
                         )
                     )
@@ -118,26 +116,26 @@ class Team:
 
         return players
 
-    def members_index(self) -> list[MemberParamsTypes]:
-        params: list[MemberParamsTypes] = []
-        for fotmob_member in self.fotmob.members:
-            if not fotmob_member.is_staff:
+    def members_index(self) -> list[MemberParams]:
+        params: list[MemberParams] = []
+        for fotmob_member in self.fotmob["members"]:
+            if not fotmob_member["is_staff"]:
                 try:
                     fbref_member = process.extractOne(
                         fotmob_member,
-                        self.fbref.members,
+                        self.fbref["members"],
                         scorer=fuzzy_similarity_mean,
                         processor=lambda x: [
-                            x.name,
-                            x.country_code,
-                            x.position,
+                            x["name"],
+                            x["country_code"],
+                            x["position"],
                         ],
                         score_cutoff=MEMBERS_SIMILARITY_SCORE,
                     )[0]
-                    member_params = MemberParamsTypes(
-                        fotmob_id=fotmob_member.id,
-                        fbref_id=fbref_member.id,
-                        fbref_path_name=fbref_member.path_name,
+                    member_params = MemberParams(
+                        fotmob_id=fotmob_member["id"],
+                        fbref_id=fbref_member["id"],
+                        fbref_path_name=fbref_member["path_name"],
                     )
                     params.append(member_params)
                 except TypeError:

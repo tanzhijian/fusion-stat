@@ -31,10 +31,10 @@ class TestFusion:
 
         fotmob_com = coms.fotmob[0]
         fbref_com = coms.fbref[0]
-        assert fotmob_com.id == "47"
-        assert fotmob_com.name == "Premier League"
-        assert fbref_com.id == "9"
-        assert fbref_com.name == "Premier League"
+        assert fotmob_com["id"] == "47"
+        assert fotmob_com["name"] == "Premier League"
+        assert fbref_com["id"] == "9"
+        assert fbref_com["name"] == "Premier League"
 
     @pytest.mark.anyio
     async def test_get_competition(self, fusion: Fusion) -> None:
@@ -54,9 +54,9 @@ class TestFusion:
             assert fotmob_route.called
             assert fbref_route.called
             assert pl_route.called
-        assert com.fotmob.name
-        assert com.fbref.name
-        assert com.official.name
+        assert com.fotmob["name"]
+        assert com.fbref["name"]
+        assert com.official["name"]
 
     @pytest.mark.anyio
     async def test_get_team(self, fusion: Fusion) -> None:
@@ -72,8 +72,8 @@ class TestFusion:
             team = await fusion.get_team(**params)
             assert fotmob_route.called
             assert fbref_route.called
-        assert team.fotmob.name
-        assert team.fbref.name
+        assert team.fotmob["name"]
+        assert team.fbref["name"]
 
     @pytest.mark.anyio
     async def test_member(self, fusion: Fusion) -> None:
@@ -88,8 +88,8 @@ class TestFusion:
             )
             assert fotmob_route.called
             assert fbref_route.called
-        assert member.fotmob.name
-        assert member.fbref.name
+        assert member.fotmob["name"]
+        assert member.fbref["name"]
 
     @pytest.mark.anyio
     async def test_matches(self, fusion: Fusion) -> None:
@@ -114,5 +114,5 @@ class TestFusion:
             )
             assert fotmob_route.called
             assert fbref_route.called
-        assert match.fotmob.name
-        assert match.fbref.name
+        assert match.fotmob["name"]
+        assert match.fbref["name"]

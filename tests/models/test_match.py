@@ -21,5 +21,5 @@ class TestMatch:
         )
 
     def test_info(self, match: Match) -> None:
-        assert match.fotmob.name == "Arsenal vs Manchester United"
-        assert match.fbref.name == "Arsenal vs Manchester United"
+        assert match.fotmob["name"] == "Arsenal vs Manchester United"
+        assert match.fbref["name"] == "Arsenal vs Manchester United"

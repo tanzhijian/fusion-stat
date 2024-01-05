@@ -21,4 +21,4 @@ class TestMember:
         )
 
     def test_info(self, member: Member) -> None:
-        assert member.fotmob.name == "Bukayo Saka"
+        assert member.fotmob["name"] == "Bukayo Saka"

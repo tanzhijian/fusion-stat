@@ -31,11 +31,11 @@ class TestCompetition:
         )
         response = httpx.Response(200, json=data)
         com = spider.parse(response)
-        assert com.name == "Premier League"
-        team = com.teams[0]
-        assert team.name == "Arsenal"
+        assert com["name"] == "Premier League"
+        team = com["teams"][0]
+        assert team["name"] == "Arsenal"
         assert (
-            team.logo
+            team["logo"]
             == "https://resources.premierleague.com/premierleague/badges/rb/t3.svg"
         )
 
