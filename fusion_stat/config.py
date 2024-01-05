@@ -1,34 +1,34 @@
-from .models import CompetitionParams
+from .models import CompetitionParamsDict
 
 COMPETITIONS_SIMILARITY_SCORE = 90
 MEMBERS_SIMILARITY_SCORE = 80
 
 COMPETITIONS = {
-    "Premier League": CompetitionParams(
+    "Premier League": CompetitionParamsDict(
         fotmob_id="47",
         fbref_id="9",
         fbref_path_name="Premier-League",
         official_name="Premier League",
     ),
-    "La Liga": CompetitionParams(
+    "La Liga": CompetitionParamsDict(
         fotmob_id="87",
         fbref_id="12",
         fbref_path_name="La-Liga",
         official_name="La Liga",
     ),
-    "Bundesliga": CompetitionParams(
+    "Bundesliga": CompetitionParamsDict(
         fotmob_id="54",
         fbref_id="20",
         fbref_path_name="Bundesliga",
         official_name="Bundesliga",
     ),
-    "Serie A": CompetitionParams(
+    "Serie A": CompetitionParamsDict(
         fotmob_id="55",
         fbref_id="11",
         fbref_path_name="Serie-A",
         official_name="Serie A",
     ),
-    "Ligue 1": CompetitionParams(
+    "Ligue 1": CompetitionParamsDict(
         fotmob_id="53",
         fbref_id="13",
         fbref_path_name="Ligue-1",

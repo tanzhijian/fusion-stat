@@ -6,8 +6,8 @@ from parsel import Selector
 
 from fusion_stat.base import Spider
 from fusion_stat.models.competition import (
-    Official,
-    OfficialTeam,
+    OfficialDict,
+    OfficialTeamDict,
 )
 from fusion_stat.utils import current_season, get_element_text
 
@@ -40,12 +40,12 @@ class Competition(Spider):
             path = f"/assets/historic-season/{self.season}.json"
         return httpx.Request("GET", url=BASE_URL + path)
 
-    def parse(self, response: httpx.Response) -> Official:
+    def parse(self, response: httpx.Response) -> OfficialDict:
         if self.is_current_season:
             teams = self._parse_current_season_teams(response)
         else:
             teams = self._parse_historic_season_teams(response)
-        return Official(
+        return OfficialDict(
             id=f"{self.name} {self.season}",
             name=self.name,
             logo=BASE_URL + "/assets/favicons/safari-pinned-tab_new.svg",
@@ -54,7 +54,7 @@ class Competition(Spider):
 
     def _parse_current_season_teams(
         self, response: httpx.Response
-    ) -> tuple[OfficialTeam, ...]:
+    ) -> tuple[OfficialTeamDict, ...]:
         selector = Selector(response.text)
         club_cards = selector.xpath('//div[@class="clubs grid"]/club-card')
         teams = []
@@ -65,12 +65,12 @@ class Competition(Spider):
             name = get_element_text(img.xpath("./@alt"))
             logo = BASE_URL + get_element_text(img.xpath("./@src"))
 
-            teams.append(OfficialTeam(id=id, name=name, logo=logo))
+            teams.append(OfficialTeamDict(id=id, name=name, logo=logo))
         return tuple(teams)
 
     def _parse_historic_season_teams(
         self, response: httpx.Response
-    ) -> tuple[OfficialTeam, ...]:
+    ) -> tuple[OfficialTeamDict, ...]:
         json = response.json()
         teams = []
         for team in json["entries"]:
@@ -85,5 +85,5 @@ class Competition(Spider):
             else:
                 logo = ""
 
-            teams.append(OfficialTeam(id=id, name=name, logo=logo))
+            teams.append(OfficialTeamDict(id=id, name=name, logo=logo))
         return tuple(teams)

@@ -2,58 +2,58 @@ import typing
 
 from rapidfuzz import process
 
-from . import Stat
+from . import StatDict
 
 
-class MatchParams(typing.TypedDict):
+class MatchParamsDict(typing.TypedDict):
     fotmob_id: str
     fbref_id: str
 
 
-class FotMobMatch(Stat):
+class FotMobMatchDict(StatDict):
     utc_time: str
     finished: bool
     started: bool
     cancelled: bool
     score: str | None
-    competition: Stat
-    home: Stat
-    away: Stat
+    competition: StatDict
+    home: StatDict
+    away: StatDict
 
 
-class InfoMatch(FotMobMatch):
+class MatchDict(FotMobMatchDict):
     ...
 
 
-class Info(typing.TypedDict):
-    matches: list[InfoMatch]
+class InfoDict(typing.TypedDict):
+    matches: list[MatchDict]
 
 
 class Matches:
     def __init__(
         self,
-        fotmob: tuple[FotMobMatch, ...],
-        fbref: tuple[Stat, ...],
+        fotmob: tuple[FotMobMatchDict, ...],
+        fbref: tuple[StatDict, ...],
     ) -> None:
         self.fotmob = fotmob
         self.fbref = fbref
 
     @property
-    def info(self) -> Info:
-        matches = [InfoMatch(**match) for match in self.fotmob]
+    def info(self) -> InfoDict:
+        matches = [MatchDict(**match) for match in self.fotmob]
         return {"matches": matches}
 
-    def index(self) -> list[MatchParams]:
+    def index(self) -> list[MatchParamsDict]:
         if not self.fbref:
             raise ValueError("No fbref id for the current date")
-        params: list[MatchParams] = []
+        params: list[MatchParamsDict] = []
         for fotmob_match in self.fotmob:
             if not fotmob_match["cancelled"]:
                 fbref_match = process.extractOne(
                     fotmob_match, self.fbref, processor=lambda x: x["name"]
                 )[0]
 
-                match_params = MatchParams(
+                match_params = MatchParamsDict(
                     fotmob_id=fotmob_match["id"], fbref_id=fbref_match["id"]
                 )
                 params.append(match_params)

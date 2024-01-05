@@ -7,14 +7,18 @@ from fusion_stat.config import (
     COMPETITIONS_SIMILARITY_SCORE,
     POSITIONS,
 )
-from fusion_stat.models import Stat
-from fusion_stat.models.competition import FotMob as FotMobCompetition
-from fusion_stat.models.competition import FotMobMatch as FotMobCompetitionMatch
-from fusion_stat.models.competition import FotMobTeam as FotMobCompetitionTeam
-from fusion_stat.models.matches import FotMobMatch as FotMobMatchesMatch
-from fusion_stat.models.member import FotMob as FotMobMember
-from fusion_stat.models.team import FotMob as FotMobTeam
-from fusion_stat.models.team import FotMobMember as FotMobTeamMember
+from fusion_stat.models import StatDict
+from fusion_stat.models.competition import FotMobDict as FotMobCompetitionDict
+from fusion_stat.models.competition import (
+    FotMobMatchDict as FotMobCompetitionMatchDict,
+)
+from fusion_stat.models.competition import (
+    FotMobTeamDict as FotMobCompetitionTeamDict,
+)
+from fusion_stat.models.matches import FotMobMatchDict as FotMobMatchesMatchDict
+from fusion_stat.models.member import FotMobDict as FotMobMemberDict
+from fusion_stat.models.team import FotMobDict as FotMobTeamDict
+from fusion_stat.models.team import FotMobMemberDict as FotMobTeamMemberDict
 
 BASE_URL = "https://www.fotmob.com/api"
 
@@ -24,9 +28,9 @@ class Competitions(Spider):
     def request(self) -> httpx.Request:
         return httpx.Request("GET", url=BASE_URL + "/allLeagues")
 
-    def parse(self, response: httpx.Response) -> tuple[Stat, ...]:
+    def parse(self, response: httpx.Response) -> tuple[StatDict, ...]:
         json = response.json()
-        competitions: list[Stat] = []
+        competitions: list[StatDict] = []
         selection = json["popular"]
         for competition in selection:
             name = competition["name"]
@@ -36,7 +40,7 @@ class Competitions(Spider):
                 score_cutoff=COMPETITIONS_SIMILARITY_SCORE,
             ):
                 competitions.append(
-                    Stat(
+                    StatDict(
                         id=str(competition["id"]),
                         name=name,
                     )
@@ -70,7 +74,7 @@ class Competition(Spider):
             params=params,
         )
 
-    def parse(self, response: httpx.Response) -> FotMobCompetition:
+    def parse(self, response: httpx.Response) -> FotMobCompetitionDict:
         json = response.json()
         name = json["details"]["name"]
         type = json["details"]["type"]
@@ -81,7 +85,7 @@ class Competition(Spider):
         for team in json["table"][0]["data"]["table"]["all"]:
             goals_for, goals_against = team["scoresStr"].split("-")
             teams.append(
-                FotMobCompetitionTeam(
+                FotMobCompetitionTeamDict(
                     id=str(team["id"]),
                     name=team["name"],
                     names={team["name"], team["shortName"]},
@@ -100,7 +104,7 @@ class Competition(Spider):
             home_name = match["home"]["name"]
             away_name = match["away"]["name"]
             matches.append(
-                FotMobCompetitionMatch(
+                FotMobCompetitionMatchDict(
                     id=str(match["id"]),
                     name=f"{home_name} vs {away_name}",
                     utc_time=match["status"]["utcTime"],
@@ -108,19 +112,19 @@ class Competition(Spider):
                     started=match["status"]["started"],
                     cancelled=match["status"]["cancelled"],
                     score=match["status"].get("scoreStr"),
-                    competition=Stat(id=self.id, name=name),
-                    home=Stat(
+                    competition=StatDict(id=self.id, name=name),
+                    home=StatDict(
                         id=str(match["home"]["id"]),
                         name=home_name,
                     ),
-                    away=Stat(
+                    away=StatDict(
                         id=str(match["away"]["id"]),
                         name=away_name,
                     ),
                 )
             )
 
-        return FotMobCompetition(
+        return FotMobCompetitionDict(
             id=self.id,
             name=name,
             type=type,
@@ -144,7 +148,7 @@ class Team(Spider):
             params={"id": self.id},
         )
 
-    def parse(self, response: httpx.Response) -> FotMobTeam:
+    def parse(self, response: httpx.Response) -> FotMobTeamDict:
         json = response.json()
         id = str(json["details"]["id"])
         name = json["details"]["name"]
@@ -157,7 +161,7 @@ class Team(Spider):
                 if position:
                     position = POSITIONS[position]
                 members.append(
-                    FotMobTeamMember(
+                    FotMobTeamMemberDict(
                         id=str(member["id"]),
                         name=member["name"],
                         country=member["cname"],
@@ -167,7 +171,7 @@ class Team(Spider):
                     )
                 )
 
-        return FotMobTeam(
+        return FotMobTeamDict(
             id=id,
             name=name,
             names=names,
@@ -188,13 +192,13 @@ class Member(Spider):
             params={"id": self.id},
         )
 
-    def parse(self, response: httpx.Response) -> FotMobMember:
+    def parse(self, response: httpx.Response) -> FotMobMemberDict:
         json = response.json()
         name = json["name"]
         country = json["meta"]["personJSONLD"]["nationality"]["name"]
         position = json["origin"]["positionDesc"]["primaryPosition"]["label"]
         is_staff = position == "Coach"
-        return FotMobMember(
+        return FotMobMemberDict(
             id=self.id,
             name=name,
             country=country,
@@ -221,7 +225,9 @@ class Matches(Spider):
             params={"date": self.date},
         )
 
-    def parse(self, response: httpx.Response) -> tuple[FotMobMatchesMatch, ...]:
+    def parse(
+        self, response: httpx.Response
+    ) -> tuple[FotMobMatchesMatchDict, ...]:
         json = response.json()
         matches = []
         competitions_id = {c["fotmob_id"] for c in COMPETITIONS.values()}
@@ -231,7 +237,7 @@ class Matches(Spider):
                     home_name = match["home"]["longName"]
                     away_name = match["away"]["longName"]
                     matches.append(
-                        FotMobMatchesMatch(
+                        FotMobMatchesMatchDict(
                             id=str(match["id"]),
                             name=f"{home_name} vs {away_name}",
                             utc_time=match["status"]["utcTime"],
@@ -239,14 +245,14 @@ class Matches(Spider):
                             started=match["status"]["started"],
                             cancelled=match["status"]["cancelled"],
                             score=match["status"].get("scoreStr"),
-                            competition=Stat(
+                            competition=StatDict(
                                 id=competition_id, name=competition["name"]
                             ),
-                            home=Stat(
+                            home=StatDict(
                                 id=str(match["home"]["id"]),
                                 name=home_name,
                             ),
-                            away=Stat(
+                            away=StatDict(
                                 id=str(match["away"]["id"]),
                                 name=away_name,
                             ),
@@ -268,9 +274,9 @@ class Match(Spider):
             params={"matchId": self.id},
         )
 
-    def parse(self, response: httpx.Response) -> Stat:
+    def parse(self, response: httpx.Response) -> StatDict:
         json = response.json()
         home_team, away_team = json["header"]["teams"]
         home_name = home_team["name"]
         away_name = away_team["name"]
-        return Stat(id=self.id, name=f"{home_name} vs {away_name}")
+        return StatDict(id=self.id, name=f"{home_name} vs {away_name}")

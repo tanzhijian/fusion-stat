@@ -1,21 +1,21 @@
-from . import FBrefShooting, Stat
+from . import FBrefShootingDict, StatDict
 
 
-class FotMob(Stat):
+class FotMobDict(StatDict):
     country: str
     is_staff: bool
     position: str
 
 
-class FBref(Stat):
-    shooting: FBrefShooting
+class FBrefDict(StatDict):
+    shooting: FBrefShootingDict
 
 
 class Member:
     def __init__(
         self,
-        fotmob: FotMob,
-        fbref: FBref,
+        fotmob: FotMobDict,
+        fbref: FBrefDict,
     ) -> None:
         self.fotmob = fotmob
         self.fbref = fbref

@@ -1,11 +1,11 @@
-from . import Stat
+from . import StatDict
 
 
 class Match:
     def __init__(
         self,
-        fotmob: Stat,
-        fbref: Stat,
+        fotmob: StatDict,
+        fbref: StatDict,
     ) -> None:
         self.fotmob = fotmob
         self.fbref = fbref

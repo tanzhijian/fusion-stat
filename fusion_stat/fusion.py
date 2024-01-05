@@ -3,7 +3,7 @@ import typing
 
 from .base import Downloader
 from .config import COMPETITIONS
-from .models import Stat
+from .models import StatDict
 from .models.competition import Competition
 from .models.competitions import Competitions
 from .models.match import Match
@@ -32,11 +32,11 @@ class Fusion(Downloader):
         )
 
     def get_competitions_cache(self, season: int | None = None) -> Competitions:
-        fotmob_competitions: list[Stat] = []
-        fbref_competitions: list[Stat] = []
+        fotmob_competitions: list[StatDict] = []
+        fbref_competitions: list[StatDict] = []
         for name, competition in COMPETITIONS.items():
             fotmob_competitions.append(
-                Stat(
+                StatDict(
                     id=competition["fotmob_id"],
                     name=name,
                     # 这里有个问题是fotmob.Competitions 使用的是 fotmob.name,
@@ -49,7 +49,7 @@ class Fusion(Downloader):
                 raise ValueError("Config COMPETITIONS is not fbref_path_name")
             fbref_name = " ".join(fbref_path_name.split("-"))
             fbref_competitions.append(
-                Stat(
+                StatDict(
                     id=competition["fbref_id"],
                     name=fbref_name,
                 )

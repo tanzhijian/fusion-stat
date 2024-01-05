@@ -1,7 +1,7 @@
 import typing
 
 
-class Stat(typing.TypedDict):
+class StatDict(typing.TypedDict):
     id: str
     name: str
 
@@ -13,10 +13,10 @@ class _BaseCompetitionParamsDict(typing.TypedDict):
     official_name: str
 
 
-class CompetitionParams(_BaseCompetitionParamsDict, total=False):
+class CompetitionParamsDict(_BaseCompetitionParamsDict, total=False):
     season: int | None
 
 
-class FBrefShooting(typing.TypedDict):
+class FBrefShootingDict(typing.TypedDict):
     shots: float
     xg: float

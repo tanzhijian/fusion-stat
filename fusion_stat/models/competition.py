@@ -2,23 +2,23 @@ import typing
 
 from rapidfuzz import process
 
-from . import FBrefShooting, Stat
+from . import FBrefShootingDict, StatDict
 
 
-class TeamParams(typing.TypedDict):
+class TeamParamsDict(typing.TypedDict):
     fotmob_id: str
     fbref_id: str
     fbref_path_name: str | None
 
 
-class Info(Stat):
+class InfoDict(StatDict):
     logo: str
     type: str
     season: str
     names: set[str]
 
 
-class Team(Stat):
+class TeamDict(StatDict):
     names: set[str]
     played: int
     wins: int
@@ -28,10 +28,10 @@ class Team(Stat):
     goals_against: int
     points: int
     logo: str
-    shooting: FBrefShooting
+    shooting: FBrefShootingDict
 
 
-class TableTeam(typing.TypedDict):
+class TableTeamDict(typing.TypedDict):
     name: str
     played: int
     wins: int
@@ -43,7 +43,7 @@ class TableTeam(typing.TypedDict):
     points: int
 
 
-class FotMobTeam(Stat):
+class FotMobTeamDict(StatDict):
     names: set[str]
     played: int
     wins: int
@@ -54,61 +54,61 @@ class FotMobTeam(Stat):
     points: int
 
 
-class FotMobMatch(Stat):
+class FotMobMatchDict(StatDict):
     utc_time: str
     finished: bool
     started: bool
     cancelled: bool
     score: str | None
-    competition: Stat
-    home: Stat
-    away: Stat
+    competition: StatDict
+    home: StatDict
+    away: StatDict
 
 
-class Match(FotMobMatch):
+class MatchDict(FotMobMatchDict):
     ...
 
 
-class FotMob(Stat):
+class FotMobDict(StatDict):
     type: str
     season: str
     names: set[str]
-    teams: tuple[FotMobTeam, ...]
-    matches: tuple[FotMobMatch, ...]
+    teams: tuple[FotMobTeamDict, ...]
+    matches: tuple[FotMobMatchDict, ...]
 
 
-class FBrefTeam(Stat):
+class FBrefTeamDict(StatDict):
     path_name: str
     names: set[str]
-    shooting: FBrefShooting
+    shooting: FBrefShootingDict
 
 
-class FBref(Stat):
-    teams: tuple[FBrefTeam, ...]
+class FBrefDict(StatDict):
+    teams: tuple[FBrefTeamDict, ...]
 
 
-class OfficialTeam(Stat):
+class OfficialTeamDict(StatDict):
     logo: str
 
 
-class Official(Stat):
+class OfficialDict(StatDict):
     logo: str
-    teams: tuple[OfficialTeam, ...]
+    teams: tuple[OfficialTeamDict, ...]
 
 
 class Competition:
     def __init__(
         self,
-        fotmob: FotMob,
-        fbref: FBref,
-        official: Official,
+        fotmob: FotMobDict,
+        fbref: FBrefDict,
+        official: OfficialDict,
     ) -> None:
         self.fotmob = fotmob
         self.fbref = fbref
         self.official = official
 
     @property
-    def info(self) -> Info:
+    def info(self) -> InfoDict:
         return {
             "id": self.fotmob["id"],
             "name": self.fotmob["name"],
@@ -119,8 +119,8 @@ class Competition:
         }
 
     @property
-    def teams(self) -> list[Team]:
-        teams: list[Team] = []
+    def teams(self) -> list[TeamDict]:
+        teams: list[TeamDict] = []
         for fotmob_team in self.fotmob["teams"]:
             fbref_team = process.extractOne(
                 fotmob_team,
@@ -133,7 +133,7 @@ class Competition:
                 processor=lambda x: x["name"],
             )[0]
 
-            team = Team(
+            team = TeamDict(
                 **fotmob_team,
                 logo=official_team["logo"],
                 shooting=fbref_team["shooting"],
@@ -143,7 +143,7 @@ class Competition:
         return teams
 
     @staticmethod
-    def sort_table_key(team: TableTeam) -> tuple[int, int, int, str]:
+    def sort_table_key(team: TableTeamDict) -> tuple[int, int, int, str]:
         """1. 首先按照积分降序排序，积分高的排在前面
         2. 如果两个或多个球队的积分相同，则根据以下规则进行排序：
             1. 净胜球降序排序
@@ -159,9 +159,9 @@ class Competition:
         )
 
     @property
-    def table(self) -> list[TableTeam]:
+    def table(self) -> list[TableTeamDict]:
         teams = [
-            TableTeam(
+            TableTeamDict(
                 name=team["name"],
                 played=team["played"],
                 wins=team["wins"],
@@ -178,11 +178,11 @@ class Competition:
         return table
 
     @property
-    def matches(self) -> list[Match]:
-        return [Match(**match) for match in self.fotmob["matches"]]
+    def matches(self) -> list[MatchDict]:
+        return [MatchDict(**match) for match in self.fotmob["matches"]]
 
-    def teams_index(self) -> list[TeamParams]:
-        params: list[TeamParams] = []
+    def teams_index(self) -> list[TeamParamsDict]:
+        params: list[TeamParamsDict] = []
         for fotmob_team in self.fotmob["teams"]:
             fbref_team = process.extractOne(
                 fotmob_team,
@@ -190,7 +190,7 @@ class Competition:
                 processor=lambda x: x["name"],
             )[0]
 
-            team_params = TeamParams(
+            team_params = TeamParamsDict(
                 fotmob_id=fotmob_team["id"],
                 fbref_id=fbref_team["id"],
                 fbref_path_name=fbref_team["path_name"],

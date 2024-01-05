@@ -5,77 +5,77 @@ from rapidfuzz import process
 from fusion_stat.config import MEMBERS_SIMILARITY_SCORE
 from fusion_stat.utils import fuzzy_similarity_mean
 
-from . import FBrefShooting, Stat
+from . import FBrefShootingDict, StatDict
 
 
-class MemberParams(typing.TypedDict):
+class MemberParamsDict(typing.TypedDict):
     fotmob_id: str
     fbref_id: str
     fbref_path_name: str | None
 
 
-class Info(typing.TypedDict):
+class InfoDict(typing.TypedDict):
     name: str
     names: set[str]
 
 
-class Staff(typing.TypedDict):
+class StaffDict(typing.TypedDict):
     name: str
     country: str
 
 
-class Player(typing.TypedDict):
+class PlayerDict(typing.TypedDict):
     name: str
     names: set[str]
     country: str
     position: str | None
-    shooting: FBrefShooting
+    shooting: FBrefShootingDict
 
 
-class FotMobMember(Stat):
+class FotMobMemberDict(StatDict):
     country: str
     country_code: str
     position: str | None
     is_staff: bool
 
 
-class FotMob(Stat):
+class FotMobDict(StatDict):
     names: set[str]
-    members: tuple[FotMobMember, ...]
+    members: tuple[FotMobMemberDict, ...]
 
 
-class FBrefMember(Stat):
+class FBrefMemberDict(StatDict):
     names: set[str]
     path_name: str
     country_code: str
     position: str
-    shooting: FBrefShooting
+    shooting: FBrefShootingDict
 
 
-class FBref(Stat):
+class FBrefDict(StatDict):
     names: set[str]
-    shooting: FBrefShooting
-    members: tuple[FBrefMember, ...]
+    shooting: FBrefShootingDict
+    members: tuple[FBrefMemberDict, ...]
 
 
 class Team:
     def __init__(
         self,
-        fotmob: FotMob,
-        fbref: FBref,
+        fotmob: FotMobDict,
+        fbref: FBrefDict,
     ) -> None:
         self.fotmob = fotmob
         self.fbref = fbref
 
     @property
-    def info(self) -> Info:
+    def info(self) -> InfoDict:
         return {
             "name": self.fotmob["name"],
             "names": self.fotmob["names"] | self.fbref["names"],
         }
 
     @property
-    def staff(self) -> list[Staff]:
+    def staff(self) -> list[StaffDict]:
         return [
             {"name": member["name"], "country": member["country"]}
             for member in self.fotmob["members"]
@@ -83,8 +83,8 @@ class Team:
         ]
 
     @property
-    def players(self) -> list[Player]:
-        players: list[Player] = []
+    def players(self) -> list[PlayerDict]:
+        players: list[PlayerDict] = []
         for fotmob_member in self.fotmob["members"]:
             if not fotmob_member["is_staff"]:
                 try:
@@ -102,7 +102,7 @@ class Team:
 
                     shooting = fbref_member["shooting"]
                     players.append(
-                        Player(
+                        PlayerDict(
                             name=fotmob_member["name"],
                             names={fotmob_member["name"]}
                             | fbref_member["names"],
@@ -116,8 +116,8 @@ class Team:
 
         return players
 
-    def members_index(self) -> list[MemberParams]:
-        params: list[MemberParams] = []
+    def members_index(self) -> list[MemberParamsDict]:
+        params: list[MemberParamsDict] = []
         for fotmob_member in self.fotmob["members"]:
             if not fotmob_member["is_staff"]:
                 try:
@@ -132,7 +132,7 @@ class Team:
                         ],
                         score_cutoff=MEMBERS_SIMILARITY_SCORE,
                     )[0]
-                    member_params = MemberParams(
+                    member_params = MemberParamsDict(
                         fotmob_id=fotmob_member["id"],
                         fbref_id=fbref_member["id"],
                         fbref_path_name=fbref_member["path_name"],

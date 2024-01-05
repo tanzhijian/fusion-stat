@@ -2,7 +2,7 @@ import httpx
 from parsel import Selector
 
 from fusion_stat.base import Spider
-from fusion_stat.models.competition import Official, OfficialTeam
+from fusion_stat.models.competition import OfficialDict, OfficialTeamDict
 from fusion_stat.utils import current_season, get_element_text
 
 BASE_URL = "https://www.ligue1.com"
@@ -29,7 +29,7 @@ class Competition(Spider):
         path = f"/clubs/List?seasonId={self.season}"
         return httpx.Request("GET", url=BASE_URL + path)
 
-    def parse(self, response: httpx.Response) -> Official:
+    def parse(self, response: httpx.Response) -> OfficialDict:
         selector = Selector(response.text)
         club_list = selector.xpath('//div[@class="ClubListPage-list"]/a')
         teams = []
@@ -42,8 +42,8 @@ class Competition(Spider):
             name = get_element_text(img.xpath("./@alt"))
             name = self._fix_name(name)
 
-            teams.append(OfficialTeam(id=id, name=name, logo=logo))
-        return Official(
+            teams.append(OfficialTeamDict(id=id, name=name, logo=logo))
+        return OfficialDict(
             id=f"{self.name} {self.season}",
             name=self.name,
             logo=(

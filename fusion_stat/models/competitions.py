@@ -2,26 +2,26 @@ from rapidfuzz import process
 
 from fusion_stat.config import COMPETITIONS
 
-from . import CompetitionParams, Stat
+from . import CompetitionParamsDict, StatDict
 
 
-class PremierLeagueCompetition(Stat):
-    seasons: tuple[Stat, ...]
+class PremierLeagueCompetitionDict(StatDict):
+    seasons: tuple[StatDict, ...]
 
 
 class Competitions:
     def __init__(
         self,
-        fotmob: tuple[Stat, ...],
-        fbref: tuple[Stat, ...],
+        fotmob: tuple[StatDict, ...],
+        fbref: tuple[StatDict, ...],
         season: int | None = None,
     ) -> None:
         self.fotmob = fotmob
         self.fbref = fbref
         self.season = season
 
-    def index(self) -> list[CompetitionParams]:
-        params: list[CompetitionParams] = []
+    def index(self) -> list[CompetitionParamsDict]:
+        params: list[CompetitionParamsDict] = []
 
         for fotmob_competition in self.fotmob:
             fbref_competition = process.extractOne(
@@ -33,7 +33,7 @@ class Competitions:
                 fotmob_competition["name"], COMPETITIONS.keys()
             )[0]
 
-            competition_params = CompetitionParams(
+            competition_params = CompetitionParamsDict(
                 fotmob_id=fotmob_competition["id"],
                 fbref_id=fbref_competition["id"],
                 fbref_path_name=fbref_competition["name"].replace(" ", "-"),

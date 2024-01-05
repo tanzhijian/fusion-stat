@@ -7,12 +7,14 @@ from fusion_stat.config import (
     COMPETITIONS,
     COMPETITIONS_SIMILARITY_SCORE,
 )
-from fusion_stat.models import FBrefShooting, Stat
-from fusion_stat.models.competition import FBref as FBrefCompetition
-from fusion_stat.models.competition import FBrefTeam as FBrefCompetitionTeam
-from fusion_stat.models.member import FBref as FBrefMember
-from fusion_stat.models.team import FBref as FBrefTeam
-from fusion_stat.models.team import FBrefMember as FBrefTeamMember
+from fusion_stat.models import FBrefShootingDict, StatDict
+from fusion_stat.models.competition import FBrefDict as FBrefCompetitionDict
+from fusion_stat.models.competition import (
+    FBrefTeamDict as FBrefCompetitionTeamDict,
+)
+from fusion_stat.models.member import FBrefDict as FBrefMemberDict
+from fusion_stat.models.team import FBrefDict as FBrefTeamDict
+from fusion_stat.models.team import FBrefMemberDict as FBrefTeamMemberDict
 from fusion_stat.utils import get_element_text
 
 BASE_URL = "https://fbref.com/en"
@@ -23,8 +25,8 @@ class Competitions(Spider):
     def request(self) -> httpx.Request:
         return httpx.Request("GET", url=BASE_URL + "/comps/")
 
-    def parse(self, response: httpx.Response) -> tuple[Stat, ...]:
-        competitions: list[Stat] = []
+    def parse(self, response: httpx.Response) -> tuple[StatDict, ...]:
+        competitions: list[StatDict] = []
 
         selector = Selector(response.text)
         index = set()
@@ -49,7 +51,7 @@ class Competitions(Spider):
                     and gender == "M"
                 ):
                     competitions.append(
-                        Stat(
+                        StatDict(
                             id=id,
                             name=name,
                         )
@@ -87,7 +89,7 @@ class Competition(Spider):
 
         return httpx.Request("GET", url=BASE_URL + path)
 
-    def parse(self, response: httpx.Response) -> FBrefCompetition:
+    def parse(self, response: httpx.Response) -> FBrefCompetitionDict:
         selector = Selector(response.text)
         h1 = get_element_text(selector.xpath("//h1/text()"))
         competition_name = " ".join(h1.split(" ")[1:-1])
@@ -102,7 +104,7 @@ class Competition(Spider):
             name_2 = get_element_text(tr.xpath("./th/a/text()"))
             shooting = parse_shooting(tr)
             teams.append(
-                FBrefCompetitionTeam(
+                FBrefCompetitionTeamDict(
                     id=href_strs[3],
                     name=name_2,
                     path_name=name.replace(" ", "-"),
@@ -110,7 +112,7 @@ class Competition(Spider):
                     shooting=shooting,
                 )
             )
-        return FBrefCompetition(
+        return FBrefCompetitionDict(
             id=self.id,
             name=competition_name,
             teams=tuple(teams),
@@ -147,7 +149,7 @@ class Team(Spider):
 
         return httpx.Request("GET", url=BASE_URL + path)
 
-    def parse(self, response: httpx.Response) -> FBrefTeam:
+    def parse(self, response: httpx.Response) -> FBrefTeamDict:
         selector = Selector(response.text)
         h1 = get_element_text(selector.xpath("//h1/span/text()"))
         team_name = " ".join(h1.split(" ")[1:-1])
@@ -160,7 +162,7 @@ class Team(Spider):
         )
         team_shooting = parse_shooting(shooting_table.xpath("./tfoot/tr[1]"))
 
-        players_shooting: dict[str, FBrefShooting] = {}
+        players_shooting: dict[str, FBrefShootingDict] = {}
         for tr in shooting_table.xpath("./tbody/tr"):
             href = get_element_text(tr.xpath("./th/a/@href"))
             id = href.split("/")[3]
@@ -184,9 +186,9 @@ class Team(Spider):
             try:
                 shooting = players_shooting[id]
             except KeyError:
-                shooting = FBrefShooting(shots=0, xg=0)
+                shooting = FBrefShootingDict(shots=0, xg=0)
             players.append(
-                FBrefTeamMember(
+                FBrefTeamMemberDict(
                     id=id,
                     name=name,
                     names={name, " ".join(path_name.split("-"))},
@@ -197,7 +199,7 @@ class Team(Spider):
                 )
             )
 
-        return FBrefTeam(
+        return FBrefTeamDict(
             id=self.id,
             name=team_name,
             names={team_name},
@@ -226,7 +228,7 @@ class Member(Spider):
 
         return httpx.Request("GET", url=BASE_URL + path)
 
-    def parse(self, response: httpx.Response) -> FBrefMember:
+    def parse(self, response: httpx.Response) -> FBrefMemberDict:
         selector = Selector(response.text)
         name = get_element_text(selector.xpath("//h1/span/text()"))
 
@@ -235,7 +237,7 @@ class Member(Spider):
         )
         shooting = parse_shooting(tr)
 
-        return FBrefMember(id=self.id, name=name, shooting=shooting)
+        return FBrefMemberDict(id=self.id, name=name, shooting=shooting)
 
 
 class Matches(Spider):
@@ -253,7 +255,7 @@ class Matches(Spider):
         path = f"/matches/{self.date}"
         return httpx.Request("GET", url=BASE_URL + path)
 
-    def parse(self, response: httpx.Response) -> tuple[Stat, ...]:
+    def parse(self, response: httpx.Response) -> tuple[StatDict, ...]:
         selector = Selector(response.text)
         matches = []
 
@@ -279,7 +281,7 @@ class Matches(Spider):
                 )
                 id = href.split("/")[3]
                 matches.append(
-                    Stat(
+                    StatDict(
                         id=id,
                         name=f"{home_name} vs {away_name}",
                     )
@@ -299,12 +301,12 @@ class Match(Spider):
         path = f"/matches/{self.id}"
         return httpx.Request("GET", url=BASE_URL + path)
 
-    def parse(self, response: httpx.Response) -> Stat:
+    def parse(self, response: httpx.Response) -> StatDict:
         selector = Selector(response.text)
         home_name, away_name = selector.xpath(
             '//div[@class="scorebox"]//strong/a/text()'
         ).getall()[:2]
-        return Stat(
+        return StatDict(
             id=self.id,
             name=f"{home_name} vs {away_name}",
         )
@@ -312,10 +314,10 @@ class Match(Spider):
 
 def parse_shooting(
     tr: Selector | SelectorList[Selector],
-) -> FBrefShooting:
+) -> FBrefShootingDict:
     shots = get_element_text(tr.xpath('./td[@data-stat="shots"]/text()'))
     xg = get_element_text(tr.xpath('./td[@data-stat="xg"]/text()'))
-    return FBrefShooting(
+    return FBrefShootingDict(
         shots=float(shots),
         xg=float(xg),
     )
