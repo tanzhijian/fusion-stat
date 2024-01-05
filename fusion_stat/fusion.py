@@ -2,8 +2,6 @@ import asyncio
 import typing
 
 from .base import Downloader
-from .config import COMPETITIONS
-from .models import StatDict
 from .models.competition import Competition
 from .models.competitions import Competitions
 from .models.match import Match
@@ -29,35 +27,6 @@ class Fusion(Downloader):
         fotmob_competitions, fbref_competitions = await self.gather(tasks)
         return Competitions(
             fotmob=fotmob_competitions, fbref=fbref_competitions, season=season
-        )
-
-    def get_competitions_cache(self, season: int | None = None) -> Competitions:
-        fotmob_competitions: list[StatDict] = []
-        fbref_competitions: list[StatDict] = []
-        for name, competition in COMPETITIONS.items():
-            fotmob_competitions.append(
-                StatDict(
-                    id=competition["fotmob_id"],
-                    name=name,
-                    # 这里有个问题是fotmob.Competitions 使用的是 fotmob.name,
-                    # 而现在使用的是 config.key,
-                    # 需要保证之后的 config.key 和 fotmob.name 都要一致，或者之后修正
-                )
-            )
-
-            if (fbref_path_name := competition["fbref_path_name"]) is None:
-                raise ValueError("Config COMPETITIONS is not fbref_path_name")
-            fbref_name = " ".join(fbref_path_name.split("-"))
-            fbref_competitions.append(
-                StatDict(
-                    id=competition["fbref_id"],
-                    name=fbref_name,
-                )
-            )
-        return Competitions(
-            fotmob=tuple(fotmob_competitions),
-            fbref=tuple(fbref_competitions),
-            season=season,
         )
 
     async def get_competition(
