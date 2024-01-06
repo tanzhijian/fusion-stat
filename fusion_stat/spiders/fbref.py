@@ -7,7 +7,7 @@ from fusion_stat.config import (
     COMPETITIONS,
     COMPETITIONS_SIMILARITY_SCORE,
 )
-from fusion_stat.models import FBrefShootingDict, StatDict
+from fusion_stat.models.base import FBrefShootingDict, StatDict
 from fusion_stat.models.competition import FBrefDict as FBrefCompetitionDict
 from fusion_stat.models.competition import (
     FBrefTeamDict as FBrefCompetitionTeamDict,

@@ -1,7 +1,7 @@
 import httpx
 
 from fusion_stat.base import Spider
-from fusion_stat.models import StatDict
+from fusion_stat.models.base import StatDict
 from fusion_stat.models.competition import OfficialDict, OfficialTeamDict
 from fusion_stat.models.competitions import PremierLeagueCompetitionDict
 from fusion_stat.utils import current_season

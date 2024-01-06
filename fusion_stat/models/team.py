@@ -5,31 +5,7 @@ from rapidfuzz import process
 from fusion_stat.config import MEMBERS_SIMILARITY_SCORE
 from fusion_stat.utils import fuzzy_similarity_mean
 
-from . import FBrefShootingDict, StatDict
-
-
-class MemberParamsDict(typing.TypedDict):
-    fotmob_id: str
-    fbref_id: str
-    fbref_path_name: str | None
-
-
-class InfoDict(typing.TypedDict):
-    name: str
-    names: set[str]
-
-
-class StaffDict(typing.TypedDict):
-    name: str
-    country: str
-
-
-class PlayerDict(typing.TypedDict):
-    name: str
-    names: set[str]
-    country: str
-    position: str | None
-    shooting: FBrefShootingDict
+from .base import FBrefShootingDict, ParamsDict, StatDict
 
 
 class FotMobMemberDict(StatDict):
@@ -56,6 +32,28 @@ class FBrefDict(StatDict):
     names: set[str]
     shooting: FBrefShootingDict
     members: tuple[FBrefMemberDict, ...]
+
+
+class MemberParamsDict(ParamsDict):
+    fbref_path_name: str | None
+
+
+class InfoDict(typing.TypedDict):
+    name: str
+    names: set[str]
+
+
+class StaffDict(typing.TypedDict):
+    name: str
+    country: str
+
+
+class PlayerDict(typing.TypedDict):
+    name: str
+    names: set[str]
+    country: str
+    position: str | None
+    shooting: FBrefShootingDict
 
 
 class Team:

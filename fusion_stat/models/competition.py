@@ -1,46 +1,6 @@
-import typing
-
 from rapidfuzz import process
 
-from . import FBrefShootingDict, StatDict
-
-
-class TeamParamsDict(typing.TypedDict):
-    fotmob_id: str
-    fbref_id: str
-    fbref_path_name: str | None
-
-
-class InfoDict(StatDict):
-    logo: str
-    type: str
-    season: str
-    names: set[str]
-
-
-class TeamDict(StatDict):
-    names: set[str]
-    played: int
-    wins: int
-    draws: int
-    losses: int
-    goals_for: int
-    goals_against: int
-    points: int
-    logo: str
-    shooting: FBrefShootingDict
-
-
-class TableTeamDict(typing.TypedDict):
-    name: str
-    played: int
-    wins: int
-    draws: int
-    losses: int
-    goals_for: int
-    goals_against: int
-    xg: float
-    points: int
+from .base import FBrefShootingDict, ParamsDict, StatDict
 
 
 class FotMobTeamDict(StatDict):
@@ -63,10 +23,6 @@ class FotMobMatchDict(StatDict):
     competition: StatDict
     home: StatDict
     away: StatDict
-
-
-class MatchDict(FotMobMatchDict):
-    ...
 
 
 class FotMobDict(StatDict):
@@ -94,6 +50,41 @@ class OfficialTeamDict(StatDict):
 class OfficialDict(StatDict):
     logo: str
     teams: tuple[OfficialTeamDict, ...]
+
+
+class TeamParamsDict(ParamsDict):
+    fbref_path_name: str | None
+
+
+class InfoDict(StatDict):
+    logo: str
+    type: str
+    season: str
+    names: set[str]
+
+
+class _BaseTeamDict(StatDict):
+    played: int
+    wins: int
+    draws: int
+    losses: int
+    goals_for: int
+    goals_against: int
+    points: int
+    logo: str
+
+
+class TeamDict(_BaseTeamDict):
+    names: set[str]
+    shooting: FBrefShootingDict
+
+
+class TableTeamDict(_BaseTeamDict):
+    xg: float
+
+
+class MatchDict(FotMobMatchDict):
+    ...
 
 
 class Competition:
@@ -162,6 +153,7 @@ class Competition:
     def table(self) -> list[TableTeamDict]:
         teams = [
             TableTeamDict(
+                id=team["id"],
                 name=team["name"],
                 played=team["played"],
                 wins=team["wins"],
@@ -169,8 +161,9 @@ class Competition:
                 losses=team["losses"],
                 goals_for=team["goals_for"],
                 goals_against=team["goals_against"],
-                xg=team["shooting"]["xg"],
                 points=team["points"],
+                xg=team["shooting"]["xg"],
+                logo=team["logo"],
             )
             for team in self.teams
         ]

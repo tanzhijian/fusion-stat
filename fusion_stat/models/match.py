@@ -1,4 +1,4 @@
-from . import StatDict
+from .base import StatDict
 
 
 class Match:

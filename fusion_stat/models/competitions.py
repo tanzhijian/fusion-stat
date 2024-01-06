@@ -2,11 +2,20 @@ from rapidfuzz import process
 
 from fusion_stat.config import COMPETITIONS
 
-from . import CompetitionParamsDict, StatDict
+from .base import ParamsDict, StatDict
 
 
 class PremierLeagueCompetitionDict(StatDict):
     seasons: tuple[StatDict, ...]
+
+
+class _BaseCompetitionParamsDict(ParamsDict):
+    fbref_path_name: str | None
+    official_name: str
+
+
+class CompetitionParamsDict(_BaseCompetitionParamsDict, total=False):
+    season: int | None
 
 
 class Competitions:
@@ -30,7 +39,8 @@ class Competitions:
                 processor=lambda x: x["name"],
             )[0]
             official_name = process.extractOne(
-                fotmob_competition["name"], COMPETITIONS.keys()
+                fotmob_competition["name"],
+                COMPETITIONS.keys(),
             )[0]
 
             competition_params = CompetitionParamsDict(

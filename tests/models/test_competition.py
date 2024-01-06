@@ -9,6 +9,7 @@ from tests.utils import read_data
 def test_sort_table_key() -> None:
     key = Competition.sort_table_key(
         {
+            "id": "4",
             "name": "A",
             "points": 20,
             "goals_for": 20,
@@ -17,6 +18,7 @@ def test_sort_table_key() -> None:
             "wins": 0,
             "draws": 0,
             "losses": 0,
+            "logo": "https://a.png",
             "xg": 0,
         }
     )

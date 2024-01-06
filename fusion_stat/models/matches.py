@@ -2,12 +2,7 @@ import typing
 
 from rapidfuzz import process
 
-from . import StatDict
-
-
-class MatchParamsDict(typing.TypedDict):
-    fotmob_id: str
-    fbref_id: str
+from .base import ParamsDict, StatDict
 
 
 class FotMobMatchDict(StatDict):
@@ -19,6 +14,10 @@ class FotMobMatchDict(StatDict):
     competition: StatDict
     home: StatDict
     away: StatDict
+
+
+class MatchParamsDict(ParamsDict):
+    ...
 
 
 class MatchDict(FotMobMatchDict):

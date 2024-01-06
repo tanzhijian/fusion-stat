@@ -1,4 +1,4 @@
-from . import FBrefShootingDict, StatDict
+from .base import FBrefShootingDict, StatDict
 
 
 class FotMobDict(StatDict):

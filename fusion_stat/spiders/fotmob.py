@@ -7,7 +7,7 @@ from fusion_stat.config import (
     COMPETITIONS_SIMILARITY_SCORE,
     POSITIONS,
 )
-from fusion_stat.models import StatDict
+from fusion_stat.models.base import StatDict
 from fusion_stat.models.competition import FotMobDict as FotMobCompetitionDict
 from fusion_stat.models.competition import (
     FotMobMatchDict as FotMobCompetitionMatchDict,
