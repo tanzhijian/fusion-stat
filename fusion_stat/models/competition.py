@@ -100,6 +100,16 @@ class Competition:
 
     @property
     def info(self) -> InfoDict:
+        """
+        Return a dict that includes the following keys:
+
+        * id (str): competition id.
+        * name (str): competition name.
+        * logo (str): Competition logo.
+        * type (str): Competition type.
+        * season (str): Competition season.
+        * names (set[str]): All competition names.
+        """
         return {
             "id": self.fotmob["id"],
             "name": self.fotmob["name"],
@@ -111,6 +121,24 @@ class Competition:
 
     @property
     def teams(self) -> list[TeamDict]:
+        """
+        Return a list of dicts that include the following keys:
+
+        * id (str): team id.
+        * name (str): team name.
+        * names (set[str]): All team names.
+        * played (int): number of matches played.
+        * wins (int): number of matches won.
+        * draws (int): number of matches drawn.
+        * losses (int): number of matches lost.
+        * goals_for (int): number of goals scored.
+        * goals_against (int): number of goals conceded.
+        * points (int): number of points.
+        * logo (str): team logo.
+        * shooting (dict): shooting data.
+                * shots (int): number of shots.
+                * xg (float): expected goals.
+        """
         teams: list[TeamDict] = []
         for fotmob_team in self.fotmob["teams"]:
             fbref_team = process.extractOne(
@@ -135,7 +163,8 @@ class Competition:
 
     @staticmethod
     def sort_table_key(team: TableTeamDict) -> tuple[int, int, int, str]:
-        """1. 首先按照积分降序排序，积分高的排在前面
+        """
+        1. 首先按照积分降序排序，积分高的排在前面
         2. 如果两个或多个球队的积分相同，则根据以下规则进行排序：
             1. 净胜球降序排序
             2. 如果净胜球也相同，则根据进球数降序排序
@@ -151,6 +180,21 @@ class Competition:
 
     @property
     def table(self) -> list[TableTeamDict]:
+        """
+        Return a list of dicts sorted by the standings that include the following keys:
+
+        * id (str): team id.
+        * name (str): team name.
+        * played (int): number of matches played.
+        * wins (int): number of matches won.
+        * draws (int): number of matches drawn.
+        * losses (int): number of matches lost.
+        * goals_for (int): number of goals scored.
+        * goals_against (int): number of goals conceded.
+        * points (int): number of points.
+        * xg (float): expected goals.
+        * logo (str): team logo.
+        """
         teams = [
             TableTeamDict(
                 id=team["id"],
@@ -172,6 +216,26 @@ class Competition:
 
     @property
     def matches(self) -> list[MatchDict]:
+        """
+        Return a list of dicts that include the following keys:
+
+        * id (str): match id.
+        * name (str): match name.
+        * utc_time (str): match kickoff time.
+        * finished (bool): whether the match is finished or not.
+        * started (bool): whether the match has started or not.
+        * cancelled (bool): whether the match is cancelled or not.
+        * score (str): match score, '0:0'.
+        * competition (dict): competition data.
+                * id (str): competition id.
+                * name (str): competition name.
+        * home (dict): home team data.
+                * id (str): team id.
+                * name (str): team name.
+        * away (dict): away team data.
+                * id (str): team id.
+                * name (str): team name.
+        """
         return [MatchDict(**match) for match in self.fotmob["matches"]]
 
     def teams_index(self) -> list[TeamParamsDict]:
