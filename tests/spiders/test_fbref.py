@@ -119,7 +119,7 @@ class TestTeam:
         assert saka["position"] == "FW"
         assert saka["country_code"] == "ENG"
         assert saka["path_name"] == "Bukayo-Saka"
-        assert int(saka["shooting"]["shots"]) == 11
+        assert saka["shooting"]["shots"] == 11
 
 
 class TestMember:

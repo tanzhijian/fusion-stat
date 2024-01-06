@@ -304,6 +304,6 @@ def parse_shooting(
     shots = get_element_text(tr.xpath('./td[@data-stat="shots"]/text()'))
     xg = get_element_text(tr.xpath('./td[@data-stat="xg"]/text()'))
     return FBrefShootingDict(
-        shots=float(shots),
+        shots=int(shots),
         xg=float(xg),
     )

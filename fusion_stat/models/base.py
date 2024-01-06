@@ -12,5 +12,5 @@ class ParamsDict(typing.TypedDict):
 
 
 class FBrefShootingDict(typing.TypedDict):
-    shots: float
+    shots: int
     xg: float
