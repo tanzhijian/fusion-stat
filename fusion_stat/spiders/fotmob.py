@@ -1,12 +1,7 @@
 import httpx
-from rapidfuzz import process
 
 from fusion_stat.base import Spider
-from fusion_stat.config import (
-    COMPETITIONS,
-    COMPETITIONS_SIMILARITY_SCORE,
-    POSITIONS,
-)
+from fusion_stat.config import COMPETITIONS, POSITIONS
 from fusion_stat.models.base import StatDict
 from fusion_stat.models.competition import FotMobDict as FotMobCompetitionDict
 from fusion_stat.models.competition import (
@@ -31,18 +26,16 @@ class Competitions(Spider):
     def parse(self, response: httpx.Response) -> tuple[StatDict, ...]:
         json = response.json()
         competitions: list[StatDict] = []
+        competitions_id = {
+            params["fotmob_id"] for params in COMPETITIONS.values()
+        }
         selection = json["popular"]
         for competition in selection:
-            name = competition["name"]
-            if process.extractOne(
-                name,
-                COMPETITIONS.keys(),
-                score_cutoff=COMPETITIONS_SIMILARITY_SCORE,
-            ):
+            if (id := str(competition["id"])) in competitions_id:
                 competitions.append(
                     StatDict(
-                        id=str(competition["id"]),
-                        name=name,
+                        id=id,
+                        name=competition["name"],
                     )
                 )
         return tuple(competitions)

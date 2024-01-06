@@ -4,6 +4,7 @@ from functools import partial
 import httpx
 import pytest
 
+from fusion_stat.config import COMPETITIONS
 from fusion_stat.spiders.fbref import (
     Competition,
     Competitions,
@@ -32,6 +33,7 @@ class TestCompetitions:
         text = read_test_data("comps_.html")
         response = httpx.Response(200, text=text)
         coms = spider.parse(response)
+        assert len(coms) == len(COMPETITIONS)
         assert coms[0]["name"] == "Premier League"
 
 

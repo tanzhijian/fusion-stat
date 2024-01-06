@@ -1,6 +1,5 @@
 from .models.base import ParamsDict
 
-COMPETITIONS_SIMILARITY_SCORE = 90
 MEMBERS_SIMILARITY_SCORE = 80
 
 COMPETITIONS = {

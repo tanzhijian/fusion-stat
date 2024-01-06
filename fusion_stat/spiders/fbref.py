@@ -1,12 +1,8 @@
 import httpx
 from parsel import Selector, SelectorList
-from rapidfuzz import process
 
 from fusion_stat.base import Spider
-from fusion_stat.config import (
-    COMPETITIONS,
-    COMPETITIONS_SIMILARITY_SCORE,
-)
+from fusion_stat.config import COMPETITIONS
 from fusion_stat.models.base import FBrefShootingDict, StatDict
 from fusion_stat.models.competition import FBrefDict as FBrefCompetitionDict
 from fusion_stat.models.competition import (
@@ -29,33 +25,23 @@ class Competitions(Spider):
         competitions: list[StatDict] = []
 
         selector = Selector(response.text)
-        index = set()
+        competitions_id = {
+            params["fbref_id"] for params in COMPETITIONS.values()
+        }
         trs = selector.xpath(
             "//table[@id='comps_intl_club_cup' or @id='comps_club']/tbody/tr"
         )
         for tr in trs:
             href_strs = get_element_text(tr.xpath("./th/a/@href")).split("/")
             id = href_strs[3]
-            if id not in index:
-                index.add(id)
-                gender = get_element_text(
-                    tr.xpath("./td[@data-stat='gender']/text()")
-                )
+            if id in competitions_id:
                 name = " ".join(href_strs[-1].split("-")[:-1])
-                if (
-                    process.extractOne(
-                        name,
-                        COMPETITIONS.keys(),
-                        score_cutoff=COMPETITIONS_SIMILARITY_SCORE,
+                competitions.append(
+                    StatDict(
+                        id=id,
+                        name=name,
                     )
-                    and gender == "M"
-                ):
-                    competitions.append(
-                        StatDict(
-                            id=id,
-                            name=name,
-                        )
-                    )
+                )
         return tuple(competitions)
 
 
