@@ -15,7 +15,7 @@ class FotMobMemberDict(StatDict):
 
 class FotMobDict(StatDict):
     names: set[str]
-    members: tuple[FotMobMemberDict, ...]
+    members: list[FotMobMemberDict]
 
 
 class FBrefMemberDict(StatDict):
@@ -29,7 +29,7 @@ class FBrefMemberDict(StatDict):
 class FBrefDict(StatDict):
     names: set[str]
     shooting: FBrefShootingDict
-    members: tuple[FBrefMemberDict, ...]
+    members: list[FBrefMemberDict]
 
 
 class InfoDict(StatDict):

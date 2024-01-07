@@ -6,7 +6,7 @@ from .base import ParamsDict, StatDict
 
 
 class PremierLeagueCompetitionDict(StatDict):
-    seasons: tuple[StatDict, ...]
+    seasons: list[StatDict]
 
 
 class _BaseCompetitionParamsDict(ParamsDict):
@@ -31,8 +31,8 @@ class CompetitionParamsDict(_BaseCompetitionParamsDict, total=False):
 class Competitions:
     def __init__(
         self,
-        fotmob: tuple[StatDict, ...],
-        fbref: tuple[StatDict, ...],
+        fotmob: list[StatDict],
+        fbref: list[StatDict],
         season: int | None = None,
     ) -> None:
         self.fotmob = fotmob
@@ -84,7 +84,7 @@ class Competitions:
         return items
 
     def _find_competition_by_id(
-        self, competitions: tuple[StatDict, ...], competition_id: str
+        self, competitions: list[StatDict], competition_id: str
     ) -> StatDict:
         for competition in competitions:
             if competition["id"] == competition_id:

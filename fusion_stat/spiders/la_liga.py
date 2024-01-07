@@ -59,5 +59,5 @@ class Competition(Spider):
                 "/629b7af6-84a6-4437-ae29-fefaefb3f5d2"
                 "/RGB_Logotipo_LALIGA_coral.png"
             ),
-            teams=tuple(teams),
+            teams=teams,
         )

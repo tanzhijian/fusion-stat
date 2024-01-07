@@ -14,7 +14,9 @@ from .spiders import fbref, fotmob, official
 class Fusion(Downloader):
     async def gather(
         self,
-        tasks: tuple[typing.Coroutine[typing.Any, typing.Any, typing.Any], ...],
+        tasks: typing.Iterable[
+            typing.Coroutine[typing.Any, typing.Any, typing.Any]
+        ],
     ) -> list[typing.Any]:
         result = await asyncio.gather(*tasks)
         return result

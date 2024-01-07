@@ -22,7 +22,7 @@ class TestCompetitions:
         )
 
     def test_find_competition_by_id(self, competitions: Competitions) -> None:
-        stats_dict = (StatDict(id="1", name="a"),)
+        stats_dict = [StatDict(id="1", name="a")]
         result = competitions._find_competition_by_id(stats_dict, "1")
         assert result["name"] == "a"
 

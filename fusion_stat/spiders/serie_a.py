@@ -48,5 +48,5 @@ class Competition(Spider):
                 "https://img.legaseriea.it/vimages"
                 "/62cef685/SerieA_RGB.jpg?webp&q=70&size=-x0"
             ),
-            teams=tuple(teams),
+            teams=teams,
         )

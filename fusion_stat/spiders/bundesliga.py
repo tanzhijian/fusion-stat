@@ -54,7 +54,7 @@ class Competition(Spider):
 
     def _parse_current_season_teams(
         self, response: httpx.Response
-    ) -> tuple[OfficialTeamDict, ...]:
+    ) -> list[OfficialTeamDict]:
         selector = Selector(response.text)
         club_cards = selector.xpath('//div[@class="clubs grid"]/club-card')
         teams = []
@@ -66,11 +66,11 @@ class Competition(Spider):
             logo = BASE_URL + get_element_text(img.xpath("./@src"))
 
             teams.append(OfficialTeamDict(id=id, name=name, logo=logo))
-        return tuple(teams)
+        return teams
 
     def _parse_historic_season_teams(
         self, response: httpx.Response
-    ) -> tuple[OfficialTeamDict, ...]:
+    ) -> list[OfficialTeamDict]:
         json = response.json()
         teams = []
         for team in json["entries"]:
@@ -86,4 +86,4 @@ class Competition(Spider):
                 logo = ""
 
             teams.append(OfficialTeamDict(id=id, name=name, logo=logo))
-        return tuple(teams)
+        return teams

@@ -31,8 +31,8 @@ class MatchParamsDict(ParamsDict):
 class Matches:
     def __init__(
         self,
-        fotmob: tuple[FotMobMatchDict, ...],
-        fbref: tuple[StatDict, ...],
+        fotmob: list[FotMobMatchDict],
+        fbref: list[StatDict],
     ) -> None:
         self.fotmob = fotmob
         self.fbref = fbref

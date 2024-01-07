@@ -62,7 +62,7 @@ class Competitions(Spider):
 
     def parse(
         self, response: httpx.Response
-    ) -> tuple[PremierLeagueCompetitionDict, ...]:
+    ) -> list[PremierLeagueCompetitionDict]:
         json = response.json()
         # only pl
         pl = json["content"][1]
@@ -73,16 +73,16 @@ class Competitions(Spider):
             )
             for season in pl["compSeasons"]
         ]
-        return (
+        return [
             PremierLeagueCompetitionDict(
                 id=pl["description"],
                 name=pl["description"],
-                seasons=tuple(seasons),
+                seasons=seasons,
             ),
-        )
+        ]
 
     def index(
-        self, competitions: tuple[PremierLeagueCompetitionDict, ...]
+        self, competitions: list[PremierLeagueCompetitionDict]
     ) -> dict[str, dict[str, str]]:
         """Generate COMPETITIONS_SEASON_INDEX"""
         competitions_seasons_index = {}
@@ -142,5 +142,5 @@ class Competition(Spider):
                 "https://www.premierleague.com/resources/rebrand"
                 "/v7.129.2/i/elements/pl-main-logo.png"
             ),
-            teams=tuple(teams),
+            teams=teams,
         )

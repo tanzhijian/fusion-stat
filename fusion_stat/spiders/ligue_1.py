@@ -50,7 +50,7 @@ class Competition(Spider):
                 f"{BASE_URL}/-/media/Project/LFP/shared/Images"
                 "/Competition/Favicon/L1-favicon.png"
             ),
-            teams=tuple(teams),
+            teams=teams,
         )
 
     def _fix_name(self, name: str) -> str:

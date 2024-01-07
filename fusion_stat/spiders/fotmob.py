@@ -23,7 +23,7 @@ class Competitions(Spider):
     def request(self) -> httpx.Request:
         return httpx.Request("GET", url=BASE_URL + "/allLeagues")
 
-    def parse(self, response: httpx.Response) -> tuple[StatDict, ...]:
+    def parse(self, response: httpx.Response) -> list[StatDict]:
         json = response.json()
         competitions: list[StatDict] = []
         competitions_id = {
@@ -38,7 +38,7 @@ class Competitions(Spider):
                         name=competition["name"],
                     )
                 )
-        return tuple(competitions)
+        return competitions
 
 
 class Competition(Spider):
@@ -123,8 +123,8 @@ class Competition(Spider):
             type=type,
             season=season,
             names=names,
-            teams=tuple(teams),
-            matches=tuple(matches),
+            teams=teams,
+            matches=matches,
         )
 
 
@@ -168,7 +168,7 @@ class Team(Spider):
             id=id,
             name=name,
             names=names,
-            members=tuple(members),
+            members=members,
         )
 
 
@@ -218,9 +218,7 @@ class Matches(Spider):
             params={"date": self.date},
         )
 
-    def parse(
-        self, response: httpx.Response
-    ) -> tuple[FotMobMatchesMatchDict, ...]:
+    def parse(self, response: httpx.Response) -> list[FotMobMatchesMatchDict]:
         json = response.json()
         matches = []
         competitions_id = {c["fotmob_id"] for c in COMPETITIONS.values()}
@@ -251,7 +249,7 @@ class Matches(Spider):
                             ),
                         )
                     )
-        return tuple(matches)
+        return matches
 
 
 class Match(Spider):

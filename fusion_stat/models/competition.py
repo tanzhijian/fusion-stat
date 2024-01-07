@@ -29,8 +29,8 @@ class FotMobDict(StatDict):
     type: str
     season: str
     names: set[str]
-    teams: tuple[FotMobTeamDict, ...]
-    matches: tuple[FotMobMatchDict, ...]
+    teams: list[FotMobTeamDict]
+    matches: list[FotMobMatchDict]
 
 
 class FBrefTeamDict(StatDict):
@@ -40,7 +40,7 @@ class FBrefTeamDict(StatDict):
 
 
 class FBrefDict(StatDict):
-    teams: tuple[FBrefTeamDict, ...]
+    teams: list[FBrefTeamDict]
 
 
 class OfficialTeamDict(StatDict):
@@ -49,7 +49,7 @@ class OfficialTeamDict(StatDict):
 
 class OfficialDict(StatDict):
     logo: str
-    teams: tuple[OfficialTeamDict, ...]
+    teams: list[OfficialTeamDict]
 
 
 class InfoDict(StatDict):

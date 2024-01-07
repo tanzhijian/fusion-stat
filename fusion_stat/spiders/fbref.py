@@ -21,7 +21,7 @@ class Competitions(Spider):
     def request(self) -> httpx.Request:
         return httpx.Request("GET", url=BASE_URL + "/comps/")
 
-    def parse(self, response: httpx.Response) -> tuple[StatDict, ...]:
+    def parse(self, response: httpx.Response) -> list[StatDict]:
         competitions: list[StatDict] = []
 
         selector = Selector(response.text)
@@ -42,7 +42,7 @@ class Competitions(Spider):
                         name=name,
                     )
                 )
-        return tuple(competitions)
+        return competitions
 
 
 class Competition(Spider):
@@ -101,7 +101,7 @@ class Competition(Spider):
         return FBrefCompetitionDict(
             id=self.id,
             name=competition_name,
-            teams=tuple(teams),
+            teams=teams,
         )
 
 
@@ -190,7 +190,7 @@ class Team(Spider):
             name=team_name,
             names={team_name},
             shooting=team_shooting,
-            members=tuple(players),
+            members=players,
         )
 
 
@@ -241,7 +241,7 @@ class Matches(Spider):
         path = f"/matches/{self.date}"
         return httpx.Request("GET", url=BASE_URL + path)
 
-    def parse(self, response: httpx.Response) -> tuple[StatDict, ...]:
+    def parse(self, response: httpx.Response) -> list[StatDict]:
         selector = Selector(response.text)
         matches = []
 
@@ -274,7 +274,7 @@ class Matches(Spider):
                 )
             except ValueError:
                 pass
-        return tuple(matches)
+        return matches
 
 
 class Match(Spider):
