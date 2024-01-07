@@ -6,7 +6,10 @@ from .models.matches import Matches
 from .models.member import Member
 from .models.team import Team
 
+__version__ = "0.0.4"
+
 __all__ = (
+    "__version__",
     "Fusion",
     "Competitions",
     "Competition",
