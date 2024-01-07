@@ -52,10 +52,6 @@ class OfficialDict(StatDict):
     teams: tuple[OfficialTeamDict, ...]
 
 
-class TeamParamsDict(ParamsDict):
-    fbref_path_name: str | None
-
-
 class InfoDict(StatDict):
     logo: str
     type: str
@@ -85,6 +81,10 @@ class TableTeamDict(_BaseTeamDict):
 
 class MatchDict(FotMobMatchDict):
     ...
+
+
+class TeamParamsDict(ParamsDict):
+    fbref_path_name: str | None
 
 
 class Competition:
@@ -225,7 +225,7 @@ class Competition:
         * finished (bool): whether the match is finished or not.
         * started (bool): whether the match has started or not.
         * cancelled (bool): whether the match is cancelled or not.
-        * score (str): match score, '0:0'.
+        * score (str): match score.
         * competition (dict): competition data.
                 * id (str): competition id.
                 * name (str): competition name.
@@ -238,7 +238,7 @@ class Competition:
         """
         return [MatchDict(**match) for match in self.fotmob["matches"]]
 
-    def teams_index(self) -> list[TeamParamsDict]:
+    def get_teams_params(self) -> list[TeamParamsDict]:
         params: list[TeamParamsDict] = []
         for fotmob_team in self.fotmob["teams"]:
             fbref_team = process.extractOne(

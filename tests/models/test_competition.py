@@ -72,10 +72,10 @@ class TestCompetition:
         match = matches[0]
         assert match["score"] == "0 - 3"
 
-    def test_teams_index(self, competition: Competition) -> None:
-        index = competition.teams_index()
-        assert len(index) == 20
-        assert index[0]["fotmob_id"] == "8456"
+    def test_get_teams_params(self, competition: Competition) -> None:
+        params = competition.get_teams_params()
+        assert len(params) == 20
+        assert params[0]["fotmob_id"] == "8456"
 
     def test_table(self, competition: Competition) -> None:
         table = competition.table

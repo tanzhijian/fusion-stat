@@ -32,10 +32,6 @@ class FBrefDict(StatDict):
     members: tuple[FBrefMemberDict, ...]
 
 
-class MemberParamsDict(ParamsDict):
-    fbref_path_name: str | None
-
-
 class InfoDict(StatDict):
     names: set[str]
 
@@ -49,6 +45,10 @@ class PlayerDict(StatDict):
     country: str
     position: str | None
     shooting: FBrefShootingDict
+
+
+class MemberParamsDict(ParamsDict):
+    fbref_path_name: str | None
 
 
 class Team:
@@ -115,7 +115,7 @@ class Team:
 
         return players
 
-    def members_index(self) -> list[MemberParamsDict]:
+    def get_members_params(self) -> list[MemberParamsDict]:
         params: list[MemberParamsDict] = []
         for fotmob_member in self.fotmob["members"]:
             if not fotmob_member["is_staff"]:

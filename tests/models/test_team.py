@@ -34,9 +34,9 @@ class TestTeam:
         assert martin["name"] == "Gabriel Martinelli"
         assert "Gabriel Martinelli" in martin["names"]
 
-    def test_members_index(self, team: Team) -> None:
-        index = team.members_index()
-        params = index[0]
-        assert params["fotmob_id"] == "562727"
-        assert params["fbref_id"] == "98ea5115"
-        assert params["fbref_path_name"] == "David-Raya"
+    def test_get_members_params(self, team: Team) -> None:
+        params = team.get_members_params()
+        member = params[0]
+        assert member["fotmob_id"] == "562727"
+        assert member["fbref_id"] == "98ea5115"
+        assert member["fbref_path_name"] == "David-Raya"
