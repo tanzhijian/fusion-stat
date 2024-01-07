@@ -1,5 +1,6 @@
 import typing
 from functools import partial
+from urllib.parse import unquote
 
 import httpx
 import pytest
@@ -48,9 +49,14 @@ class TestCompetition:
         assert spider.request.url == "https://www.fotmob.com/api/leagues?id=47"
 
         spider_2022 = Competition(id="47", season=2022, client=client)
+        assert spider_2022.request
+
         assert (
             spider_2022.request.url
-            == "https://www.fotmob.com/api/leagues?id=47&season=2022/2023"
+            == "https://www.fotmob.com/api/leagues?id=47&season=2022%2F2023"
+        )
+        assert unquote(str(spider_2022.request.url)) == (
+            "https://www.fotmob.com/api/leagues?id=47&season=2022/2023"
         )
 
     def test_parse(self, spider: Competition) -> None:

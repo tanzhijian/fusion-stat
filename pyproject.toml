@@ -12,14 +12,14 @@ repository = "https://github.com/tanzhijian/fusion-stat"
 [tool.poetry.dependencies]
 python = ">=3.10"
 parsel = "^1.8.1"
-rapidfuzz = "^3.5.2"
-httpx = "^0.25.2"
+rapidfuzz = "^3.6.1"
+httpx = "^0.26.0"
 
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^7.4.3"
-mypy = "^1.7.1"
-ruff = "^0.1.8"
+pytest = "^7.4.4"
+mypy = "^1.8.0"
+ruff = "^0.1.11"
 respx = "^0.20.2"
 trio = "^0.23.2"
 
