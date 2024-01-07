@@ -1,5 +1,3 @@
-import typing
-
 from rapidfuzz import process
 
 from fusion_stat.config import MEMBERS_SIMILARITY_SCORE
@@ -38,18 +36,15 @@ class MemberParamsDict(ParamsDict):
     fbref_path_name: str | None
 
 
-class InfoDict(typing.TypedDict):
-    name: str
+class InfoDict(StatDict):
     names: set[str]
 
 
-class StaffDict(typing.TypedDict):
-    name: str
+class StaffDict(StatDict):
     country: str
 
 
-class PlayerDict(typing.TypedDict):
-    name: str
+class PlayerDict(StatDict):
     names: set[str]
     country: str
     position: str | None
@@ -68,6 +63,7 @@ class Team:
     @property
     def info(self) -> InfoDict:
         return {
+            "id": self.fotmob["id"],
             "name": self.fotmob["name"],
             "names": self.fotmob["names"] | self.fbref["names"],
         }
@@ -75,7 +71,11 @@ class Team:
     @property
     def staff(self) -> list[StaffDict]:
         return [
-            {"name": member["name"], "country": member["country"]}
+            {
+                "id": member["id"],
+                "name": member["name"],
+                "country": member["country"],
+            }
             for member in self.fotmob["members"]
             if member["is_staff"]
         ]
@@ -101,6 +101,7 @@ class Team:
                     shooting = fbref_member["shooting"]
                     players.append(
                         PlayerDict(
+                            id=fotmob_member["id"],
                             name=fotmob_member["name"],
                             names={fotmob_member["name"]}
                             | fbref_member["names"],
