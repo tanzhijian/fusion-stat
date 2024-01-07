@@ -16,16 +16,16 @@ class FotMobMatchDict(StatDict):
     away: StatDict
 
 
-class MatchParamsDict(ParamsDict):
-    ...
-
-
 class MatchDict(FotMobMatchDict):
     ...
 
 
 class InfoDict(typing.TypedDict):
-    matches: list[MatchDict]
+    count: int
+
+
+class MatchParamsDict(ParamsDict):
+    ...
 
 
 class Matches:
@@ -38,11 +38,14 @@ class Matches:
         self.fbref = fbref
 
     @property
-    def info(self) -> InfoDict:
-        matches = [MatchDict(**match) for match in self.fotmob]
-        return {"matches": matches}
+    def items(self) -> list[MatchDict]:
+        return [MatchDict(**match) for match in self.fotmob]
 
-    def index(self) -> list[MatchParamsDict]:
+    @property
+    def info(self) -> InfoDict:
+        return InfoDict(count=len(self.items))
+
+    def get_params(self) -> list[MatchParamsDict]:
         if not self.fbref:
             raise ValueError("No fbref id for the current date")
         params: list[MatchParamsDict] = []

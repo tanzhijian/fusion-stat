@@ -20,15 +20,19 @@ class TestMatches:
             fbref=fbref_spider.parse(httpx.Response(200, text=fbref_data)),
         )
 
-    def test_info(self, matches: Matches) -> None:
-        info = matches.info
-        match = info["matches"][0]
+    def test_items(self, matches: Matches) -> None:
+        match = matches.items[0]
         assert match["name"] == "Crystal Palace vs Wolverhampton Wanderers"
         assert match["score"] == "3 - 2"
 
-    def test_index(self, matches: Matches) -> None:
-        index = matches.index()
-        assert len(index) == 18
-        params = index[0]
-        assert params["fotmob_id"] == "4193495"
-        assert params["fbref_id"] == "f9436d32"
+    def test_info(self, matches: Matches) -> None:
+        assert matches.info["count"] == 19
+
+    def test_get_params(self, matches: Matches) -> None:
+        params = matches.get_params()
+        # 有一场比赛取消了（马竞）导致生成的 params 少一场
+        # 还没有踢的比赛 fbref 没有 id
+        assert len(params) == 18
+        match = params[0]
+        assert match["fotmob_id"] == "4193495"
+        assert match["fbref_id"] == "f9436d32"
