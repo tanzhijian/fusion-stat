@@ -23,7 +23,6 @@ class TestMatches:
     def test_items(self, matches: Matches) -> None:
         match = matches.items[0]
         assert match["name"] == "Crystal Palace vs Wolverhampton Wanderers"
-        assert match["score"] == "3 - 2"
 
     def test_info(self, matches: Matches) -> None:
         assert matches.info["count"] == 19

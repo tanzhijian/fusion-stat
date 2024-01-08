@@ -128,6 +128,8 @@ class TestMatches:
         match = matches[0]
         assert match["id"] == "4193495"
         assert match["name"] == "Crystal Palace vs Wolverhampton Wanderers"
+        assert match["home"]["score"] == 3
+        assert match["away"]["score"] == 2
 
 
 class TestMatch:

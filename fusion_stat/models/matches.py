@@ -5,15 +5,18 @@ from rapidfuzz import process
 from .base import ParamsDict, StatDict
 
 
+class FotMobTeamDict(StatDict):
+    score: int | None
+
+
 class FotMobMatchDict(StatDict):
     utc_time: str
     finished: bool
     started: bool
     cancelled: bool
-    score: str | None
     competition: StatDict
-    home: StatDict
-    away: StatDict
+    home: FotMobTeamDict
+    away: FotMobTeamDict
 
 
 class MatchDict(FotMobMatchDict):
