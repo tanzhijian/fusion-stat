@@ -2,8 +2,7 @@ import typing
 
 import httpx
 
-from fusion_stat.base import Spider
-
+from ..base import Spider
 from .bundesliga import Competition as BundesligaCompetition
 from .la_liga import Competition as LaLigaCompetition
 from .ligue_1 import Competition as Ligue1Competition

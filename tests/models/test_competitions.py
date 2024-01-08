@@ -2,8 +2,8 @@ import httpx
 import pytest
 
 from fusion_stat import Competitions
-from fusion_stat.models.base import StatDict
 from fusion_stat.spiders import fbref, fotmob
+from fusion_stat.types.base_types import StatDict
 from tests.utils import read_data
 
 

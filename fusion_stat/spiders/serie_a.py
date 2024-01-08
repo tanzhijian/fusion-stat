@@ -1,8 +1,8 @@
 import httpx
 
-from fusion_stat.base import Spider
-from fusion_stat.models.competition import OfficialDict, OfficialTeamDict
-from fusion_stat.utils import current_season
+from ..base import Spider
+from ..types import competition_types
+from ..utils import current_season
 
 
 class Competition(Spider):
@@ -30,18 +30,18 @@ class Competition(Spider):
         )
         return httpx.Request("GET", url=url)
 
-    def parse(self, response: httpx.Response) -> OfficialDict:
+    def parse(self, response: httpx.Response) -> competition_types.OfficialDict:
         json = response.json()
         teams = []
         for team in json["data"]:
             teams.append(
-                OfficialTeamDict(
+                competition_types.OfficialTeamDict(
                     id=team["team_slug"].split("/")[-1],
                     name=team["Nome"].title(),
                     logo=team["team_image"],
                 )
             )
-        return OfficialDict(
+        return competition_types.OfficialDict(
             id=f"{self.name} {self.season}",
             name=self.name,
             logo=(

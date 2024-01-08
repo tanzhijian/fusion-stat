@@ -1,10 +1,8 @@
 import httpx
 
-from fusion_stat.base import Spider
-from fusion_stat.models.base import StatDict
-from fusion_stat.models.competition import OfficialDict, OfficialTeamDict
-from fusion_stat.models.competitions import PremierLeagueCompetitionDict
-from fusion_stat.utils import current_season
+from ..base import Spider
+from ..types import base_types, competition_types, competitions_types
+from ..utils import current_season
 
 BASE_URL = "https://footballapi.pulselive.com/football"
 HEADERS = {
@@ -62,19 +60,19 @@ class Competitions(Spider):
 
     def parse(
         self, response: httpx.Response
-    ) -> list[PremierLeagueCompetitionDict]:
+    ) -> list[competitions_types.PremierLeagueCompetitionDict]:
         json = response.json()
         # only pl
         pl = json["content"][1]
         seasons = [
-            StatDict(
+            base_types.StatDict(
                 id=str(int(season["id"])),
                 name=season["label"],
             )
             for season in pl["compSeasons"]
         ]
         return [
-            PremierLeagueCompetitionDict(
+            competitions_types.PremierLeagueCompetitionDict(
                 id=pl["description"],
                 name=pl["description"],
                 seasons=seasons,
@@ -82,7 +80,8 @@ class Competitions(Spider):
         ]
 
     def index(
-        self, competitions: list[PremierLeagueCompetitionDict]
+        self,
+        competitions: list[competitions_types.PremierLeagueCompetitionDict],
     ) -> dict[str, dict[str, str]]:
         """Generate COMPETITIONS_SEASON_INDEX"""
         competitions_seasons_index = {}
@@ -122,7 +121,7 @@ class Competition(Spider):
             headers=HEADERS,
         )
 
-    def parse(self, response: httpx.Response) -> OfficialDict:
+    def parse(self, response: httpx.Response) -> competition_types.OfficialDict:
         json = response.json()
         teams = []
         for team in json["content"]:
@@ -133,9 +132,11 @@ class Competition(Spider):
                 "https://resources.premierleague.com/premierleague"
                 f"/badges/rb/{image_id}.svg"
             )
-            teams.append(OfficialTeamDict(id=id, name=name, logo=logo))
+            teams.append(
+                competition_types.OfficialTeamDict(id=id, name=name, logo=logo)
+            )
 
-        return OfficialDict(
+        return competition_types.OfficialDict(
             id=f"{self.name} {self.season}",
             name=self.name,
             logo=(

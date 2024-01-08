@@ -1,8 +1,8 @@
 import httpx
 
-from fusion_stat.base import Spider
-from fusion_stat.models.competition import OfficialDict, OfficialTeamDict
-from fusion_stat.utils import current_season
+from ..base import Spider
+from ..types import competition_types
+from ..utils import current_season
 
 HEADERS = {
     "Ocp-Apim-Subscription-Key": "c13c3a8e2f6b46da9c5c425cf61fab3e",
@@ -38,18 +38,18 @@ class Competition(Spider):
         )
         return httpx.Request("GET", url=url, headers=HEADERS)
 
-    def parse(self, response: httpx.Response) -> OfficialDict:
+    def parse(self, response: httpx.Response) -> competition_types.OfficialDict:
         json = response.json()
         teams = []
         for team in json["teams"]:
             teams.append(
-                OfficialTeamDict(
+                competition_types.OfficialTeamDict(
                     id=team["slug"],
                     name=team["nickname"],
                     logo=team["shield"]["resizes"]["small"],
                 )
             )
-        return OfficialDict(
+        return competition_types.OfficialDict(
             id=self.slug,
             name=self.name,
             logo=(

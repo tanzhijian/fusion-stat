@@ -4,12 +4,9 @@
 import httpx
 from parsel import Selector
 
-from fusion_stat.base import Spider
-from fusion_stat.models.competition import (
-    OfficialDict,
-    OfficialTeamDict,
-)
-from fusion_stat.utils import current_season, get_element_text
+from ..base import Spider
+from ..types.competition_types import OfficialDict, OfficialTeamDict
+from ..utils import current_season, get_element_text
 
 BASE_URL = "https://www.bundesliga.com"
 
