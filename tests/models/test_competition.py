@@ -70,7 +70,8 @@ class TestCompetition:
         matches = competition.matches
         assert len(matches) == 380
         match = matches[0]
-        assert match["score"] == "0 - 3"
+        assert match["home"]["score"] == 0
+        assert match["away"]["score"] == 3
 
     def test_get_teams_params(self, competition: Competition) -> None:
         params = competition.get_teams_params()

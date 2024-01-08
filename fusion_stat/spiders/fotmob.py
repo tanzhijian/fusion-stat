@@ -91,6 +91,9 @@ class Competition(Spider):
         for match in json["matches"]["allMatches"]:
             home_name = match["home"]["name"]
             away_name = match["away"]["name"]
+            home_score, away_score = _parse_score(
+                match["status"].get("scoreStr")
+            )
             matches.append(
                 competition_types.FotMobMatchDict(
                     id=str(match["id"]),
@@ -99,15 +102,16 @@ class Competition(Spider):
                     finished=match["status"]["finished"],
                     started=match["status"]["started"],
                     cancelled=match["status"]["cancelled"],
-                    score=match["status"].get("scoreStr"),
                     competition=base_types.StatDict(id=self.id, name=name),
-                    home=base_types.StatDict(
+                    home=competition_types.FotMobMatchTeamDict(
                         id=str(match["home"]["id"]),
                         name=home_name,
+                        score=home_score,
                     ),
-                    away=base_types.StatDict(
+                    away=competition_types.FotMobMatchTeamDict(
                         id=str(match["away"]["id"]),
                         name=away_name,
+                        score=away_score,
                     ),
                 )
             )
@@ -224,12 +228,8 @@ class Matches(Spider):
                 for match in competition["matches"]:
                     home_name = match["home"]["longName"]
                     away_name = match["away"]["longName"]
-                    # scoreStr: '3 - 2' or null
-                    home_score, away_score = (
-                        [int(score) for score in score_str.split(" - ")]
-                        if (score_str := match["status"].get("scoreStr"))
-                        is not None
-                        else (None, None)
+                    home_score, away_score = _parse_score(
+                        match["status"].get("scoreStr")
                     )
                     matches.append(
                         matches_types.FotMobMatchDict(
@@ -278,3 +278,15 @@ class Match(Spider):
         return base_types.StatDict(
             id=self.id, name=f"{home_name} vs {away_name}"
         )
+
+
+def _parse_score(score_str: str | None) -> tuple[int | None, int | None]:
+    """
+    score_str: '3 - 2' or None
+    """
+    home_score, away_score = (
+        [int(score) for score in score_str.split(" - ")]
+        if score_str is not None
+        else (None, None)
+    )
+    return home_score, away_score

@@ -12,15 +12,18 @@ class FotMobTeamDict(StatDict):
     points: int
 
 
+class FotMobMatchTeamDict(StatDict):
+    score: int | None
+
+
 class FotMobMatchDict(StatDict):
     utc_time: str
     finished: bool
     started: bool
     cancelled: bool
-    score: str | None
     competition: StatDict
-    home: StatDict
-    away: StatDict
+    home: FotMobMatchTeamDict
+    away: FotMobMatchTeamDict
 
 
 class FotMobDict(StatDict):

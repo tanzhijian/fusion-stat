@@ -12,6 +12,7 @@ from fusion_stat.spiders.fotmob import (
     Matches,
     Member,
     Team,
+    _parse_score,
 )
 from tests.utils import read_data
 
@@ -60,10 +61,15 @@ class TestCompetition:
         )
 
     def test_parse(self, spider: Competition) -> None:
+        # 待完善字段测试
         data = read_test_data("leagues?id=47.json")
         response = httpx.Response(200, json=data)
         com = spider.parse(response)
         assert com["name"] == "Premier League"
+
+        match = com["matches"][0]
+        assert match["home"]["score"] == 0
+        assert match["away"]["score"] == 3
 
 
 class TestTeam:
@@ -148,3 +154,17 @@ class TestMatch:
         response = httpx.Response(200, json=data)
         match = spider.parse(response)
         assert match["name"] == "Arsenal vs Manchester United"
+
+
+@pytest.mark.parametrize(
+    "score, expected_home_score, expected_away_score",
+    [("3 - 2", 3, 2), (None, None, None)],
+)
+def test_parse_score(
+    score: str | None,
+    expected_home_score: int | None,
+    expected_away_score: int | None,
+) -> None:
+    home_score, away_score = _parse_score(score)
+    assert home_score == expected_home_score
+    assert away_score == expected_away_score

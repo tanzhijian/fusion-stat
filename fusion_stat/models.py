@@ -243,16 +243,17 @@ class Competition:
         * finished (bool): whether the match is finished or not.
         * started (bool): whether the match has started or not.
         * cancelled (bool): whether the match is cancelled or not.
-        * score (str): match score.
         * competition (dict): competition data.
                 * id (str): competition id.
                 * name (str): competition name.
         * home (dict): home team data.
                 * id (str): team id.
                 * name (str): team name.
+                * score (int | None): match score.
         * away (dict): away team data.
                 * id (str): team id.
                 * name (str): team name.
+                * score (int | None): match score.
         """
         return [
             competition_types.MatchDict(**match)
@@ -390,6 +391,27 @@ class Matches:
 
     @property
     def items(self) -> list[matches_types.MatchDict]:
+        """
+        Return a list of dicts that include the following keys:
+
+        * id (str): match id.
+        * name (str): match name.
+        * utc_time (str): match kickoff time.
+        * finished (bool): whether the match is finished or not.
+        * started (bool): whether the match has started or not.
+        * cancelled (bool): whether the match is cancelled or not.
+        * competition (dict): competition data.
+                * id (str): competition id.
+                * name (str): competition name.
+        * home (dict): home team data.
+                * id (str): team id.
+                * name (str): team name.
+                * score (int | None): match score.
+        * away (dict): away team data.
+                * id (str): team id.
+                * name (str): team name.
+                * score (int | None): match score.
+        """
         return [matches_types.MatchDict(**match) for match in self.fotmob]
 
     @property
