@@ -6,6 +6,7 @@ from ..config import COMPETITIONS
 from ..types import (
     base_types,
     competition_types,
+    competitions_types,
     member_types,
     team_types,
 )
@@ -19,8 +20,10 @@ class Competitions(Spider):
     def request(self) -> httpx.Request:
         return httpx.Request("GET", url=BASE_URL + "/comps/")
 
-    def parse(self, response: httpx.Response) -> list[base_types.StatDict]:
-        competitions: list[base_types.StatDict] = []
+    def parse(
+        self, response: httpx.Response
+    ) -> list[competitions_types.FBrefCompetitionDict]:
+        competitions: list[competitions_types.FBrefCompetitionDict] = []
 
         selector = Selector(response.text)
         competitions_id = {
@@ -33,11 +36,19 @@ class Competitions(Spider):
             href_strs = get_element_text(tr.xpath("./th/a/@href")).split("/")
             id = href_strs[3]
             if id in competitions_id:
+                governing_body = tr.xpath(
+                    './td[@data-stat="governing_body"]/text()'
+                ).get()
+                country_code = tr.xpath(
+                    './td[@data-stat="country"]/a[2]/text()'
+                ).get()
                 name = " ".join(href_strs[-1].split("-")[:-1])
                 competitions.append(
-                    base_types.StatDict(
+                    competitions_types.FBrefCompetitionDict(
                         id=id,
                         name=name,
+                        governing_body=governing_body,
+                        country_code=country_code,
                     )
                 )
         return competitions

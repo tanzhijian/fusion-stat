@@ -21,6 +21,11 @@ class TestCompetitions:
             fbref=fbref_spider.parse(httpx.Response(200, text=fbref_data)),
         )
 
+    def test_info(self, competitions: Competitions) -> None:
+        info = competitions.info
+        assert info["count"] == 5
+        assert info["names"][0] == "Premier League"
+
     def test_find_competition_by_id(self, competitions: Competitions) -> None:
         stats_dict = [StatDict(id="1", name="a")]
         result = competitions._find_competition_by_id(stats_dict, "1")
@@ -33,7 +38,7 @@ class TestCompetitions:
         items = competitions.items
         assert len(items) == 5
         competition = items[0]
-        assert competition["id"] == "47"
+        assert competition["id"] == "ENG_Premier_League"
         assert competition["fotmob"]["id"] == "47"
         assert competition["fbref"]["id"] == "9"
         assert (

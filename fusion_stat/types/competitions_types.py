@@ -3,6 +3,11 @@ import typing
 from .base_types import ParamsDict, StatDict
 
 
+class FBrefCompetitionDict(StatDict):
+    country_code: str | None
+    governing_body: str | None
+
+
 class PremierLeagueCompetitionDict(StatDict):
     seasons: list[StatDict]
 
@@ -19,7 +24,7 @@ class InfoDict(typing.TypedDict):
 
 class CompetitionDict(StatDict):
     fotmob: StatDict
-    fbref: StatDict
+    fbref: FBrefCompetitionDict
 
 
 class CompetitionParamsDict(_BaseCompetitionParamsDict, total=False):

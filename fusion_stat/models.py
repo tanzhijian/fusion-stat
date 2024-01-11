@@ -1,3 +1,5 @@
+import typing
+
 from rapidfuzz import process
 
 from .config import COMPETITIONS, MEMBERS_SIMILARITY_SCORE
@@ -9,14 +11,16 @@ from .types import (
     member_types,
     team_types,
 )
-from .utils import fuzzy_similarity_mean
+from .utils import concatenate_strings, fuzzy_similarity_mean
+
+T = typing.TypeVar("T", bound=base_types.StatDict)
 
 
 class Competitions:
     def __init__(
         self,
         fotmob: list[base_types.StatDict],
-        fbref: list[base_types.StatDict],
+        fbref: list[competitions_types.FBrefCompetitionDict],
         season: int | None = None,
     ) -> None:
         self.fotmob = fotmob
@@ -58,8 +62,17 @@ class Competitions:
             fbref_competition = self._find_competition_by_id(
                 self.fbref, params["fbref_id"]
             )
+
+            name = fotmob_competition["name"]
+            code = (
+                fbref_competition["country_code"]
+                or fbref_competition["governing_body"]
+                or ""
+            )
+            id = concatenate_strings(code, name)
+
             item = competitions_types.CompetitionDict(
-                id=params["fotmob_id"],
+                id=id,
                 name=name,
                 fotmob=fotmob_competition,
                 fbref=fbref_competition,
@@ -68,8 +81,8 @@ class Competitions:
         return items
 
     def _find_competition_by_id(
-        self, competitions: list[base_types.StatDict], competition_id: str
-    ) -> base_types.StatDict:
+        self, competitions: list[T], competition_id: str
+    ) -> T:
         for competition in competitions:
             if competition["id"] == competition_id:
                 return competition

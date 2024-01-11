@@ -24,3 +24,7 @@ def current_season() -> tuple[int, int]:
     if today.month < 7:
         return today.year - 1, today.year
     return today.year, today.year + 1
+
+
+def concatenate_strings(*args: str) -> str:
+    return "_".join(arg.replace(" ", "_") for arg in args if arg)
