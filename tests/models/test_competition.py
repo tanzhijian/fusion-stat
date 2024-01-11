@@ -51,7 +51,9 @@ class TestCompetition:
 
     def test_info(self, competition: Competition) -> None:
         info = competition.info
+        assert info["id"] == "ENG_Premier_League"
         assert info["name"] == "Premier League"
+        assert info["country_code"] == "ENG"
         assert "Premier League" in info["names"]
         assert info["logo"]
 

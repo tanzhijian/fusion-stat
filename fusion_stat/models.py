@@ -45,7 +45,7 @@ class Competitions:
         """
         Return a list of dicts that include the following keys:
 
-        * id (str): fotmob competition id
+        * id (str): competition id
         * name (str): config competition name
         * fotmob (dict): fotmob competition
                 * id (str): fotmob competition id
@@ -53,9 +53,10 @@ class Competitions:
         * fbref (dict): fbref competition
                 * id (str): fbref competition id
                 * name (str): fbref competition name
+                * country_code (str): country code, three-letter code
         """
         items: list[competitions_types.CompetitionDict] = []
-        for name, params in COMPETITIONS.items():
+        for params in COMPETITIONS.values():
             fotmob_competition = self._find_competition_by_id(
                 self.fotmob, params["fotmob_id"]
             )
@@ -64,15 +65,11 @@ class Competitions:
             )
 
             name = fotmob_competition["name"]
-            code = (
-                fbref_competition["country_code"]
-                or fbref_competition["governing_body"]
-                or ""
-            )
-            id = concatenate_strings(code, name)
+            country_code = fbref_competition["country_code"]
+            id_ = concatenate_strings(country_code, name)
 
             item = competitions_types.CompetitionDict(
-                id=id,
+                id=id_,
                 name=name,
                 fotmob=fotmob_competition,
                 fbref=fbref_competition,
@@ -137,16 +134,21 @@ class Competition:
         * logo (str): Competition logo.
         * type (str): Competition type.
         * season (str): Competition season.
+        * country_code (str): country code, three-letter code
         * names (set[str]): All competition names.
         """
-        return {
-            "id": self.fotmob["id"],
-            "name": self.fotmob["name"],
-            "logo": self.official["logo"],
-            "type": self.fotmob["type"],
-            "season": self.fotmob["season"],
-            "names": self.fotmob["names"] | {self.fbref["name"]},
-        }
+        country_code = self.fotmob["country_code"]
+        name = self.fotmob["name"]
+        id_ = concatenate_strings(country_code, name)
+        return competition_types.InfoDict(
+            id=id_,
+            name=self.fotmob["name"],
+            logo=self.official["logo"],
+            type=self.fotmob["type"],
+            season=self.fotmob["season"],
+            country_code=self.fotmob["country_code"],
+            names=self.fotmob["names"] | {self.fbref["name"]},
+        )
 
     @property
     def teams(self) -> list[competition_types.TeamDict]:

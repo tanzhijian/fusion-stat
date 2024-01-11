@@ -66,6 +66,7 @@ class TestCompetition:
         response = httpx.Response(200, json=data)
         com = spider.parse(response)
         assert com["name"] == "Premier League"
+        assert com["country_code"] == "ENG"
 
         match = com["matches"][0]
         assert match["home"]["score"] == 0

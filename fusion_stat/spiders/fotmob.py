@@ -65,8 +65,9 @@ class Competition(Spider):
     def parse(self, response: httpx.Response) -> competition_types.FotMobDict:
         json = response.json()
         name = json["details"]["name"]
-        type = json["details"]["type"]
+        type_ = json["details"]["type"]
         season = json["details"]["selectedSeason"]
+        country_code = json["details"]["country"]
         names = {name, json["details"]["shortName"]}
 
         teams = []
@@ -119,8 +120,9 @@ class Competition(Spider):
         return competition_types.FotMobDict(
             id=self.id,
             name=name,
-            type=type,
+            type=type_,
             season=season,
+            country_code=country_code,
             names=names,
             teams=teams,
             matches=matches,

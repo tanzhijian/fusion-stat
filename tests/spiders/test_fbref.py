@@ -36,8 +36,7 @@ class TestCompetitions:
         assert len(coms) == len(COMPETITIONS)
         com = coms[0]
         assert com["name"] == "Premier League"
-        # 目前的赛事清单测试不到 governing_body
-        assert com["governing_body"] is None
+        # 目前的赛事清单测试不到 INT
         assert com["country_code"] == "ENG"
 
 

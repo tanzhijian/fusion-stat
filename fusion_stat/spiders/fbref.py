@@ -36,18 +36,16 @@ class Competitions(Spider):
             href_strs = get_element_text(tr.xpath("./th/a/@href")).split("/")
             id = href_strs[3]
             if id in competitions_id:
-                governing_body = tr.xpath(
-                    './td[@data-stat="governing_body"]/text()'
-                ).get()
-                country_code = tr.xpath(
-                    './td[@data-stat="country"]/a[2]/text()'
-                ).get()
+                # 在没有国家代码的赛事统一采用 fotmob 的规则，命名为 INT
+                country_code = (
+                    tr.xpath('./td[@data-stat="country"]/a[2]/text()').get()
+                    or "INT"
+                )
                 name = " ".join(href_strs[-1].split("-")[:-1])
                 competitions.append(
                     competitions_types.FBrefCompetitionDict(
                         id=id,
                         name=name,
-                        governing_body=governing_body,
                         country_code=country_code,
                     )
                 )

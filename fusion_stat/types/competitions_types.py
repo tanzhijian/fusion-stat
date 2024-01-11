@@ -4,8 +4,7 @@ from .base_types import ParamsDict, StatDict
 
 
 class FBrefCompetitionDict(StatDict):
-    country_code: str | None
-    governing_body: str | None
+    country_code: str
 
 
 class PremierLeagueCompetitionDict(StatDict):

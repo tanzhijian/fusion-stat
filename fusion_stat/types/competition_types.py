@@ -29,6 +29,7 @@ class FotMobMatchDict(StatDict):
 class FotMobDict(StatDict):
     type: str
     season: str
+    country_code: str
     names: set[str]
     teams: list[FotMobTeamDict]
     matches: list[FotMobMatchDict]
@@ -57,6 +58,7 @@ class InfoDict(StatDict):
     logo: str
     type: str
     season: str
+    country_code: str
     names: set[str]
 
 
