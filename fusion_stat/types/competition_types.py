@@ -16,12 +16,15 @@ class FotMobMatchTeamDict(StatDict):
     score: int | None
 
 
-class FotMobMatchDict(StatDict):
+class _BaseMathchDict(StatDict):
     utc_time: str
     finished: bool
     started: bool
     cancelled: bool
     competition: StatDict
+
+
+class FotMobMatchDict(_BaseMathchDict):
     home: FotMobMatchTeamDict
     away: FotMobMatchTeamDict
 
@@ -84,8 +87,13 @@ class TableTeamDict(_BaseTeamDict):
     xg: float
 
 
-class MatchDict(FotMobMatchDict):
+class MatchTeamDict(FotMobMatchTeamDict):
     ...
+
+
+class MatchDict(_BaseMathchDict):
+    home: MatchTeamDict
+    away: MatchTeamDict
 
 
 class TeamParamsDict(ParamsDict):

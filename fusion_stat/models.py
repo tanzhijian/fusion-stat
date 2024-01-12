@@ -11,7 +11,7 @@ from .types import (
     member_types,
     team_types,
 )
-from .utils import concatenate_strings, fuzzy_similarity_mean
+from .utils import concatenate_strings, format_date, fuzzy_similarity_mean
 
 T = typing.TypeVar("T", bound=base_types.StatDict)
 
@@ -254,6 +254,72 @@ class Competition:
         table = sorted(teams, key=self.sort_table_key)
         return table
 
+    def get_matches(
+        self,
+    ) -> typing.Generator[competition_types.MatchDict, typing.Any, None]:
+        """
+        Return a generator of dicts that include the following keys:
+
+        * id (str): match id.
+        * name (str): match name.
+        * utc_time (str): match kickoff time.
+        * finished (bool): whether the match is finished or not.
+        * started (bool): whether the match has started or not.
+        * cancelled (bool): whether the match is cancelled or not.
+        * competition (dict): competition data.
+                * id (str): competition id.
+                * name (str): competition name.
+        * home (dict): home team data.
+                * id (str): team id.
+                * name (str): team name.
+                * score (int | None): match score.
+        * away (dict): away team data.
+                * id (str): team id.
+                * name (str): team name.
+                * score (int | None): match score.
+        """
+        for fotmob_match in self.fotmob["matches"]:
+            date = format_date(fotmob_match["utc_time"])
+            id_ = concatenate_strings(date, fotmob_match["name"])
+
+            home = fotmob_match["home"]
+            home_official_team = process.extractOne(
+                fotmob_match["home"],
+                self.official["teams"],
+                processor=lambda x: x["name"],
+            )[0]
+            home["id"] = concatenate_strings(
+                home_official_team["country_code"],
+                home["name"],
+            )
+
+            away = fotmob_match["away"]
+            away_official_team = process.extractOne(
+                fotmob_match["away"],
+                self.official["teams"],
+                processor=lambda x: x["name"],
+            )[0]
+            away["id"] = concatenate_strings(
+                away_official_team["country_code"],
+                away["name"],
+            )
+
+            competition = fotmob_match["competition"]
+            competition["id"] = self.info["id"]
+
+            match = competition_types.MatchDict(
+                id=id_,
+                name=fotmob_match["name"],
+                utc_time=fotmob_match["utc_time"],
+                finished=fotmob_match["finished"],
+                started=fotmob_match["started"],
+                cancelled=fotmob_match["cancelled"],
+                competition=competition,
+                home=home,
+                away=away,
+            )
+            yield match
+
     @property
     def matches(self) -> list[competition_types.MatchDict]:
         """
@@ -277,10 +343,7 @@ class Competition:
                 * name (str): team name.
                 * score (int | None): match score.
         """
-        return [
-            competition_types.MatchDict(**match)
-            for match in self.fotmob["matches"]
-        ]
+        return list(self.get_matches())
 
     def get_teams_params(self) -> list[competition_types.TeamParamsDict]:
         params: list[competition_types.TeamParamsDict] = []

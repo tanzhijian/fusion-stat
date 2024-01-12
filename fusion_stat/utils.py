@@ -1,5 +1,5 @@
 import typing
-from datetime import date
+from datetime import date, datetime
 
 from parsel import Selector, SelectorList
 from rapidfuzz import fuzz
@@ -28,3 +28,11 @@ def current_season() -> tuple[int, int]:
 
 def concatenate_strings(*args: str) -> str:
     return "_".join(arg.replace(" ", "_") for arg in args if arg)
+
+
+def format_date(utc_time: str) -> str:
+    """
+    "2024-01-07T11:30:00.000Z" => "2024-01-07"
+    """
+    dt = datetime.strptime(utc_time, "%Y-%m-%dT%H:%M:%S.%fZ")
+    return dt.strftime("%Y-%m-%d")

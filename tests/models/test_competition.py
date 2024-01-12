@@ -70,18 +70,6 @@ class TestCompetition:
             == "https://resources.premierleague.com/premierleague/badges/rb/t43.svg"
         )
 
-    def test_matches(self, competition: Competition) -> None:
-        matches = competition.matches
-        assert len(matches) == 380
-        match = matches[0]
-        assert match["home"]["score"] == 0
-        assert match["away"]["score"] == 3
-
-    def test_get_teams_params(self, competition: Competition) -> None:
-        params = competition.get_teams_params()
-        assert len(params) == 20
-        assert params[0]["fotmob_id"] == "8456"
-
     def test_table(self, competition: Competition) -> None:
         table = competition.table
         city = table[0]
@@ -98,3 +86,21 @@ class TestCompetition:
         assert chelsea["goals_against"] == 5
         assert chelsea["points"] == 4
         assert int(chelsea["xg"]) == int(8.3)
+
+    def test_get_matches(self, competition: Competition) -> None:
+        matches = competition.get_matches()
+        match = next(matches)
+        assert match["id"] == "2023-08-11_Burnley_vs_Manchester_City"
+        assert match["competition"]["id"] == "ENG_Premier_League"
+        assert match["home"]["id"] == "ENG_Burnley"
+        assert match["home"]["score"] == 0
+        assert match["away"]["id"] == "ENG_Manchester_City"
+        assert match["away"]["score"] == 3
+
+    def test_matches(self, competition: Competition) -> None:
+        assert len(competition.matches) == 380
+
+    def test_get_teams_params(self, competition: Competition) -> None:
+        params = competition.get_teams_params()
+        assert len(params) == 20
+        assert params[0]["fotmob_id"] == "8456"
