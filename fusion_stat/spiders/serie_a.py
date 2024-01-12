@@ -38,6 +38,7 @@ class Competition(Spider):
                 competition_types.OfficialTeamDict(
                     id=team["team_slug"].split("/")[-1],
                     name=team["Nome"].title(),
+                    country_code="ITA",
                     logo=team["team_image"],
                 )
             )

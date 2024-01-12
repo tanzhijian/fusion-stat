@@ -59,6 +59,7 @@ class TestCompetition:
         assert com["name"] == "Premier League"
         team = com["teams"][0]
         assert team["name"] == "Arsenal"
+        assert team["country_code"] == "ENG"
         assert (
             team["logo"]
             == "https://resources.premierleague.com/premierleague/badges/rb/t3.svg"

@@ -61,7 +61,9 @@ class TestCompetition:
         teams = competition.teams
         assert len(teams) == 20
         team = teams[0]
+        assert team["id"] == "ENG_Manchester_City"
         assert team["name"] == "Manchester City"
+        assert team["country_code"] == "ENG"
         assert int(team["shooting"]["xg"]) == int(8.6)
         assert (
             team["logo"]

@@ -28,6 +28,7 @@ class TestCompetition:
         team = com["teams"][11]
         assert team["id"] == "paris-saint-germain"
         assert team["name"] == "Paris Saint-Germain"
+        assert team["country_code"] == "FRA"
         assert (
             team["logo"]
             == "https://www.ligue1.com/-/media/Project/LFP/shared/Images/Clubs/2023-2024/13.png"

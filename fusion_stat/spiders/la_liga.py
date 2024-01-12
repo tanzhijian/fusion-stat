@@ -46,6 +46,7 @@ class Competition(Spider):
                 competition_types.OfficialTeamDict(
                     id=team["slug"],
                     name=team["nickname"],
+                    country_code="ESP",
                     logo=team["shield"]["resizes"]["small"],
                 )
             )

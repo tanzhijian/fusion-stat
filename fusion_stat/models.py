@@ -166,6 +166,7 @@ class Competition:
         * goals_against (int): number of goals conceded.
         * points (int): number of points.
         * logo (str): team logo.
+        * country_code (str): country code, three-letter code
         * shooting (dict): shooting data.
                 * shots (int): number of shots.
                 * xg (float): expected goals.
@@ -185,10 +186,16 @@ class Competition:
 
             team = competition_types.TeamDict(
                 **fotmob_team,
+                country_code=official_team["country_code"],
                 logo=official_team["logo"],
                 shooting=fbref_team["shooting"],
             )
+
+            team["id"] = concatenate_strings(
+                official_team["country_code"], fotmob_team["name"]
+            )
             team["names"] |= fbref_team["names"]
+
             teams.append(team)
         return teams
 

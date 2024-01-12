@@ -32,6 +32,7 @@ class TestCurrentCompetition:
         team = com["teams"][0]
         assert team["id"] == "fc-bayern-muenchen"
         assert team["name"] == "FC Bayern München"
+        assert team["country_code"] == "GER"
         assert (
             team["logo"]
             == "https://www.bundesliga.com/assets/clublogo/DFL-CLU-00000G.svg"
@@ -59,6 +60,7 @@ class Test2022Competition:
         team = com["teams"][0]
         assert team["id"] == "fc-bayern-muenchen"
         assert team["name"] == "FC Bayern München"
+        assert team["country_code"] == "GER"
         assert (
             team["logo"]
             == "https://www.bundesliga.com/assets/clublogo/DFL-CLU-00000G.svg"
@@ -86,4 +88,5 @@ class Test2021Competition:
         team = com["teams"][0]
         assert team["id"] == "Bayern"
         assert team["name"] == "FC Bayern München"
+        assert team["country_code"] == "GER"
         assert not team["logo"]

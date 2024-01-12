@@ -28,6 +28,7 @@ class TestCompetition:
         team = com["teams"][2]
         assert team["id"] == "milan"
         assert team["name"] == "Milan"
+        assert team["country_code"] == "ITA"
         assert (
             team["logo"]
             == "https://img.legaseriea.it/vimages/62cef513/milan.png"

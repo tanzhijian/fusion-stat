@@ -43,7 +43,12 @@ class Competition(Spider):
             name = self._fix_name(name)
 
             teams.append(
-                competition_types.OfficialTeamDict(id=id, name=name, logo=logo)
+                competition_types.OfficialTeamDict(
+                    id=id,
+                    name=name,
+                    country_code="FRA",
+                    logo=logo,
+                )
             )
         return competition_types.OfficialDict(
             id=f"{self.name} {self.season}",

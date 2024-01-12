@@ -38,6 +38,7 @@ class TestCompetition:
         assert com["name"] == "La Liga"
         team = com["teams"][13]
         assert team["name"] == "Real Madrid"
+        assert team["country_code"] == "ESP"
         assert (
             team["logo"]
             == "https://assets.laliga.com/assets/2019/06/07/small/real-madrid.png"

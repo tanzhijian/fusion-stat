@@ -46,6 +46,7 @@ class FBrefDict(StatDict):
 
 
 class OfficialTeamDict(StatDict):
+    country_code: str
     logo: str
 
 
@@ -74,6 +75,7 @@ class _BaseTeamDict(StatDict):
 
 
 class TeamDict(_BaseTeamDict):
+    country_code: str
     names: set[str]
     shooting: FBrefShootingDict
 

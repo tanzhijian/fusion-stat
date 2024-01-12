@@ -62,7 +62,14 @@ class Competition(Spider):
             name = get_element_text(img.xpath("./@alt"))
             logo = BASE_URL + get_element_text(img.xpath("./@src"))
 
-            teams.append(OfficialTeamDict(id=id, name=name, logo=logo))
+            teams.append(
+                OfficialTeamDict(
+                    id=id,
+                    name=name,
+                    country_code="GER",
+                    logo=logo,
+                )
+            )
         return teams
 
     def _parse_historic_season_teams(
@@ -82,5 +89,12 @@ class Competition(Spider):
             else:
                 logo = ""
 
-            teams.append(OfficialTeamDict(id=id, name=name, logo=logo))
+            teams.append(
+                OfficialTeamDict(
+                    id=id,
+                    name=name,
+                    country_code="GER",
+                    logo=logo,
+                )
+            )
         return teams

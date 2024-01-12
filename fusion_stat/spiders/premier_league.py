@@ -133,7 +133,12 @@ class Competition(Spider):
                 f"/badges/rb/{image_id}.svg"
             )
             teams.append(
-                competition_types.OfficialTeamDict(id=id, name=name, logo=logo)
+                competition_types.OfficialTeamDict(
+                    id=id,
+                    name=name,
+                    country_code="ENG",
+                    logo=logo,
+                )
             )
 
         return competition_types.OfficialDict(
