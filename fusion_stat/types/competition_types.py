@@ -58,6 +58,14 @@ class OfficialDict(StatDict):
     teams: list[OfficialTeamDict]
 
 
+class TransfermarktTeamDict(StatDict):
+    total_market_value: str
+
+
+class TransfermarktDict(StatDict):
+    teams: list[TransfermarktTeamDict]
+
+
 class InfoDict(StatDict):
     logo: str
     type: str
