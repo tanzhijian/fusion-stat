@@ -3,7 +3,7 @@ import typing
 import httpx
 import pytest
 
-from fusion_stat.spiders.transfermarkt import Competition, Competitions
+from fusion_stat.spiders.transfermarkt import Competition, Competitions, Team
 
 from ..utils import read_data
 
@@ -64,3 +64,44 @@ class TestCompetition:
         assert team["id"] == "281"
         assert team["name"] == "Manchester City"
         assert team["total_market_value"] == "€1.29bn"
+
+        assert com["teams"][1]["name"] == "Arsenal FC"
+
+
+class TestTeam:
+    @pytest.fixture(scope="class")
+    def spider(
+        self, client: httpx.AsyncClient
+    ) -> typing.Generator[Team, typing.Any, None]:
+        yield Team(id="11", path_name="arsenal-fc", client=client)
+
+    def test_request(self, spider: Team) -> None:
+        url = spider.request.url
+        assert (
+            url
+            == "https://www.transfermarkt.com/arsenal-fc/startseite/verein/11"
+        )
+
+    def test_request_include_season(self, spider: Team) -> None:
+        spider.season = 2021
+        url = spider.request.url
+        assert (
+            url
+            == "https://www.transfermarkt.com/arsenal-fc/startseite/verein/11/saison_id/2021"
+        )
+
+    def test_parse(self, spider: Team) -> None:
+        text = read_data(
+            "transfermarkt", "arsenal-fc_startseite_verein_11.html"
+        )
+        response = httpx.Response(200, text=text)
+        team = spider.parse(response)
+        assert team["id"] == "11"
+        assert team["name"] == "Arsenal FC"
+        assert len(team["members"]) == 26
+
+        member = team["members"][0]
+        assert member["id"] == "262749"
+        assert member["name"] == "David Raya"
+        assert member["date_of_birth"] == "Sep 15, 1995 (28)"
+        assert member["market_values"] == "€35.00m"

@@ -27,6 +27,15 @@ class FBrefDict(StatDict):
     members: list[FBrefMemberDict]
 
 
+class TransfermarktMemberDict(StatDict):
+    date_of_birth: str
+    market_values: str
+
+
+class TransfermarktDict(StatDict):
+    members: list[TransfermarktMemberDict]
+
+
 class InfoDict(StatDict):
     names: set[str]
 
