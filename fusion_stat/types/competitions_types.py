@@ -11,6 +11,10 @@ class PremierLeagueCompetitionDict(StatDict):
     seasons: list[StatDict]
 
 
+class TransfermarktCompetitionDict(StatDict):
+    path_name: str
+
+
 class _BaseCompetitionParamsDict(ParamsDict):
     fbref_path_name: str | None
     official_name: str

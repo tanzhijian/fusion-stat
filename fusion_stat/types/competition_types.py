@@ -60,6 +60,7 @@ class OfficialDict(StatDict):
 
 class TransfermarktTeamDict(StatDict):
     total_market_value: str
+    path_name: str
 
 
 class TransfermarktDict(StatDict):

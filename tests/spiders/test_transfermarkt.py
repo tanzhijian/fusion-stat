@@ -31,6 +31,7 @@ class TestCompetitions:
         com = coms[0]
         assert com["id"] == "GB1"
         assert com["name"] == "Premier League"
+        assert com["path_name"] == "premier-league"
 
 
 class TestCompetition:
@@ -69,6 +70,7 @@ class TestCompetition:
         assert team["id"] == "281"
         assert team["name"] == "Manchester City"
         assert team["total_market_value"] == "€1.29bn"
+        assert team["path_name"] == "manchester-city"
 
         assert com["teams"][1]["name"] == "Arsenal FC"
 
@@ -110,6 +112,7 @@ class TestTeam:
         assert member["name"] == "David Raya"
         assert member["date_of_birth"] == "Sep 15, 1995 (28)"
         assert member["market_values"] == "€35.00m"
+        assert member["path_name"] == "david-raya"
 
 
 class TestMember:

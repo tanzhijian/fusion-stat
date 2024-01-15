@@ -2,8 +2,12 @@ import httpx
 from parsel import Selector
 
 from ..base import Spider
-from ..types import competition_types, member_types, team_types
-from ..types.base_types import StatDict
+from ..types import (
+    competition_types,
+    competitions_types,
+    member_types,
+    team_types,
+)
 from ..utils import get_element_text
 
 BASE_URL = "https://www.transfermarkt.com"
@@ -19,8 +23,10 @@ class Competitions(Spider):
             headers=HEADERS,
         )
 
-    def parse(self, response: httpx.Response) -> list[StatDict]:
-        competitions: list[StatDict] = []
+    def parse(
+        self, response: httpx.Response
+    ) -> list[competitions_types.TransfermarktCompetitionDict]:
+        competitions: list[competitions_types.TransfermarktCompetitionDict] = []
 
         selector = Selector(response.text)
         trs = selector.xpath('//*[@id="yw1"]/table/tbody/tr')
@@ -28,10 +34,16 @@ class Competitions(Spider):
         for tr in trs[1:]:
             a = tr.xpath("./td[1]/table/tr/td[2]/a")
             name = get_element_text(a.xpath("./text()"))
-            href = get_element_text(a.xpath("./@href"))
-            id_ = href.split("/")[-1]
-
-            competitions.append(StatDict(id=id_, name=name))
+            href_strs = get_element_text(a.xpath("./@href")).split("/")
+            id_ = href_strs[-1]
+            path_name = href_strs[-4]
+            competitions.append(
+                competitions_types.TransfermarktCompetitionDict(
+                    id=id_,
+                    name=name,
+                    path_name=path_name,
+                )
+            )
         return competitions
 
 
@@ -66,25 +78,28 @@ class Competition(Spider):
         self, response: httpx.Response
     ) -> competition_types.TransfermarktDict:
         selector = Selector(response.text)
+        name = get_element_text(selector.xpath("//h1/text()")).strip()
 
         teams: list[competition_types.TransfermarktTeamDict] = []
         trs = selector.xpath('//*[@id="yw1"]/table/tbody/tr')
         for tr in trs:
             a = tr.xpath("./td[7]/a")
-            href = get_element_text(a.xpath("./@href"))
-            id_ = href.split("/")[-3]
-            name = get_element_text(a.xpath("./@title"))
+            href_strs = get_element_text(a.xpath("./@href")).split("/")
+            team_id = href_strs[-3]
+            team_path_name = href_strs[-6]
+            team_name = get_element_text(a.xpath("./@title"))
             total_market_value = get_element_text(a.xpath("./text()"))
             team = competition_types.TransfermarktTeamDict(
-                id=id_,
-                name=name,
+                id=team_id,
+                name=team_name,
                 total_market_value=total_market_value,
+                path_name=team_path_name,
             )
             teams.append(team)
 
         return competition_types.TransfermarktDict(
             id=self.id,
-            name=self.path_name.replace("-", " ").title(),
+            name=name,
             teams=teams,
         )
 
@@ -119,8 +134,9 @@ class Team(Spider):
         for tr in trs:
             tds = tr.xpath("./td")
             a = tds[1].xpath("./table/tr[1]/td[2]/a")
-            href = get_element_text(a.xpath("./@href"))
-            member_id = href.split("/")[-1]
+            href_strs = get_element_text(a.xpath("./@href")).split("/")
+            member_id = href_strs[-1]
+            member_path_name = href_strs[-4]
             member_name = get_element_text(a.xpath("./text()")).strip()
 
             date_of_birth = get_element_text(tds[2].xpath("./text()"))
@@ -131,6 +147,7 @@ class Team(Spider):
                     name=member_name,
                     date_of_birth=date_of_birth,
                     market_values=market_values,
+                    path_name=member_path_name,
                 )
             )
 

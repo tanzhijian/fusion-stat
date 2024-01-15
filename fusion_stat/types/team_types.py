@@ -30,6 +30,7 @@ class FBrefDict(StatDict):
 class TransfermarktMemberDict(StatDict):
     date_of_birth: str
     market_values: str
+    path_name: str
 
 
 class TransfermarktDict(StatDict):
