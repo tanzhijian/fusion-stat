@@ -28,6 +28,7 @@ class TestCompetitions:
         text = read_data("transfermarkt", "wettbewerbe_europa.html")
         response = httpx.Response(200, text=text)
         coms = spider.parse(response)
+        assert len(coms) == 5
         com = coms[0]
         assert com["id"] == "GB1"
         assert com["name"] == "Premier League"

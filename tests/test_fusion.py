@@ -4,7 +4,12 @@ import respx
 
 from fusion_stat import Fusion
 
-from .utils import fbref_mock, fotmob_mock, premier_league_mock
+from .utils import (
+    fbref_mock,
+    fotmob_mock,
+    premier_league_mock,
+    transfermarkt_mock,
+)
 
 
 class TestFusion:
@@ -16,13 +21,16 @@ class TestFusion:
     async def test_get_competitions(self, fusion: Fusion) -> None:
         fotmob_route = fotmob_mock("allLeagues.json")
         fbref_route = fbref_mock("comps_.html")
+        transfermarkt_route = transfermarkt_mock("wettbewerbe_europa.html")
 
         with respx.mock:
             coms = await fusion.get_competitions()
             assert fotmob_route.called
             assert fbref_route.called
+            assert transfermarkt_route.called
         assert len(coms.fotmob) > 0
         assert len(coms.fbref) > 0
+        assert len(coms.transfermarkt) > 0
 
     @pytest.mark.anyio
     async def test_get_competition(self, fusion: Fusion) -> None:

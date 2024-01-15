@@ -16,11 +16,6 @@ class TransfermarktCompetitionDict(StatDict):
     path_name: str
 
 
-class _BaseCompetitionParamsDict(ParamsDict):
-    fbref_path_name: str | None
-    official_name: str
-
-
 class InfoDict(typing.TypedDict):
     count: int
     names: list[str]
@@ -29,7 +24,18 @@ class InfoDict(typing.TypedDict):
 class CompetitionDict(StatDict):
     fotmob: StatDict
     fbref: FBrefCompetitionDict
+    transfermarkt: TransfermarktCompetitionDict
 
 
-class CompetitionParamsDict(_BaseCompetitionParamsDict, total=False):
+class BaseCompetitionParamsDict(ParamsDict):
+    transfermarkt_id: str
+
+
+class _CompetitionParamsDict(BaseCompetitionParamsDict):
+    fbref_path_name: str
+    official_name: str
+    transfermarkt_path_name: str
+
+
+class CompetitionParamsDict(_CompetitionParamsDict, total=False):
     season: int | None

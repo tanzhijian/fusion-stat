@@ -2,6 +2,7 @@ import httpx
 from parsel import Selector
 
 from ..base import Spider
+from ..config import COMPETITIONS
 from ..types import (
     competition_types,
     competitions_types,
@@ -29,21 +30,25 @@ class Competitions(Spider):
         competitions: list[competitions_types.TransfermarktCompetitionDict] = []
 
         selector = Selector(response.text)
+        competitions_id = {
+            params["transfermarkt_id"] for params in COMPETITIONS.values()
+        }
         trs = selector.xpath('//*[@id="yw1"]/table/tbody/tr')
         # 还没有添加 config 的赛事限制
         for tr in trs[1:]:
             a = tr.xpath("./td[1]/table/tr/td[2]/a")
-            name = get_element_text(a.xpath("./text()"))
             href_strs = get_element_text(a.xpath("./@href")).split("/")
             id_ = href_strs[-1]
-            path_name = href_strs[-4]
-            competitions.append(
-                competitions_types.TransfermarktCompetitionDict(
-                    id=id_,
-                    name=name,
-                    path_name=path_name,
+            if id_ in competitions_id:
+                name = get_element_text(a.xpath("./text()"))
+                path_name = href_strs[-4]
+                competitions.append(
+                    competitions_types.TransfermarktCompetitionDict(
+                        id=id_,
+                        name=name,
+                        path_name=path_name,
+                    )
                 )
-            )
         return competitions
 
 

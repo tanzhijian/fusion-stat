@@ -3,7 +3,7 @@ import typing
 
 from .base import Downloader
 from .models import Competition, Competitions, Match, Matches, Member, Team
-from .spiders import fbref, fotmob, official
+from .spiders import fbref, fotmob, official, transfermarkt
 
 
 class Fusion(Downloader):
@@ -20,10 +20,18 @@ class Fusion(Downloader):
         tasks = (
             fotmob.Competitions(client=self.client).process(),
             fbref.Competitions(client=self.client).process(),
+            transfermarkt.Competitions(client=self.client).process(),
         )
-        fotmob_competitions, fbref_competitions = await self.gather(tasks)
+        (
+            fotmob_competitions,
+            fbref_competitions,
+            transfermarkt_competitions,
+        ) = await self.gather(tasks)
         return Competitions(
-            fotmob=fotmob_competitions, fbref=fbref_competitions, season=season
+            fotmob=fotmob_competitions,
+            fbref=fbref_competitions,
+            transfermarkt=transfermarkt_competitions,
+            season=season,
         )
 
     async def get_competition(

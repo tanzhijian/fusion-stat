@@ -36,3 +36,11 @@ def premier_league_mock(file: str) -> respx.Route:
     url = f"https://footballapi.pulselive.com/football/{file.split('.')[0]}"
     route = respx.get(url).mock(httpx.Response(200, json=data))
     return route
+
+
+def transfermarkt_mock(file: str) -> respx.Route:
+    text = read_data("transfermarkt", file)
+    route = respx.get(
+        f"https://www.transfermarkt.com/{file.replace('_', '/').split('.')[0]}"
+    ).mock(httpx.Response(200, text=text))
+    return route

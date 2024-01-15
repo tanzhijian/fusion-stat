@@ -21,10 +21,12 @@ class Competitions:
         self,
         fotmob: list[base_types.StatDict],
         fbref: list[competitions_types.FBrefCompetitionDict],
+        transfermarkt: list[competitions_types.TransfermarktCompetitionDict],
         season: int | None = None,
     ) -> None:
         self.fotmob = fotmob
         self.fbref = fbref
+        self.transfermarkt = transfermarkt
         self.season = season
 
     @property
@@ -54,6 +56,10 @@ class Competitions:
                 * id (str): fbref competition id
                 * name (str): fbref competition name
                 * country_code (str): country code, three-letter code
+        * transfermarkt (dict): transfermarkt competition
+                * id (str): transfermarkt competition id
+                * name (str): transfermarkt competition name
+                * path_name (str): transfermarkt competition path name
         """
         items: list[competitions_types.CompetitionDict] = []
         for params in COMPETITIONS.values():
@@ -62,6 +68,9 @@ class Competitions:
             )
             fbref_competition = self._find_competition_by_id(
                 self.fbref, params["fbref_id"]
+            )
+            transfermarkt_competition = self._find_competition_by_id(
+                self.transfermarkt, params["transfermarkt_id"]
             )
 
             name = fotmob_competition["name"]
@@ -73,6 +82,7 @@ class Competitions:
                 name=name,
                 fotmob=fotmob_competition,
                 fbref=fbref_competition,
+                transfermarkt=transfermarkt_competition,
             )
             items.append(item)
         return items
@@ -93,6 +103,8 @@ class Competitions:
             * fbref_id (str): fbref competition id
             * fbref_path_name (str): fbref competition path name
             * official_name (str): config competition name
+            * transfermarkt_id (str): transfermarkt competition id
+            * transfermarkt_path_name (str): transfermarkt competition path name
             * season (int, optional): fotmob competition season
         """
         params: list[competitions_types.CompetitionParamsDict] = []
@@ -103,6 +115,8 @@ class Competitions:
                 fbref_id=item["fbref"]["id"],
                 fbref_path_name=item["fbref"]["path_name"],
                 official_name=item["name"],
+                transfermarkt_id=item["transfermarkt"]["id"],
+                transfermarkt_path_name=item["transfermarkt"]["path_name"],
             )
 
             if self.season is not None:

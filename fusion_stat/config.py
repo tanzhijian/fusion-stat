@@ -1,27 +1,32 @@
-from .types import base_types
+from .types import competitions_types
 
 MEMBERS_SIMILARITY_SCORE = 80
 
 COMPETITIONS = {
-    "Premier League": base_types.ParamsDict(
+    "Premier League": competitions_types.BaseCompetitionParamsDict(
         fotmob_id="47",
         fbref_id="9",
+        transfermarkt_id="GB1",
     ),
-    "La Liga": base_types.ParamsDict(
+    "La Liga": competitions_types.BaseCompetitionParamsDict(
         fotmob_id="87",
         fbref_id="12",
+        transfermarkt_id="ES1",
     ),
-    "Bundesliga": base_types.ParamsDict(
+    "Bundesliga": competitions_types.BaseCompetitionParamsDict(
         fotmob_id="54",
         fbref_id="20",
+        transfermarkt_id="L1",
     ),
-    "Serie A": base_types.ParamsDict(
+    "Serie A": competitions_types.BaseCompetitionParamsDict(
         fotmob_id="55",
         fbref_id="11",
+        transfermarkt_id="IT1",
     ),
-    "Ligue 1": base_types.ParamsDict(
+    "Ligue 1": competitions_types.BaseCompetitionParamsDict(
         fotmob_id="53",
         fbref_id="13",
+        transfermarkt_id="FR1",
     ),
 }
 
