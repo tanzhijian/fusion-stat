@@ -101,7 +101,7 @@ class Competitions:
             competition_params = competitions_types.CompetitionParamsDict(
                 fotmob_id=item["fotmob"]["id"],
                 fbref_id=item["fbref"]["id"],
-                fbref_path_name=item["fbref"]["name"].replace(" ", "-"),
+                fbref_path_name=item["fbref"]["path_name"],
                 official_name=item["name"],
             )
 

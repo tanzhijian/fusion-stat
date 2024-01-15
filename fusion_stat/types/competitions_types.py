@@ -4,6 +4,7 @@ from .base_types import ParamsDict, StatDict
 
 
 class FBrefCompetitionDict(StatDict):
+    path_name: str
     country_code: str
 
 

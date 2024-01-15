@@ -4,7 +4,6 @@ from functools import partial
 import httpx
 import pytest
 
-from fusion_stat.config import COMPETITIONS
 from fusion_stat.spiders.fbref import (
     Competition,
     Competitions,
@@ -33,9 +32,11 @@ class TestCompetitions:
         text = read_test_data("comps_.html")
         response = httpx.Response(200, text=text)
         coms = spider.parse(response)
-        assert len(coms) == len(COMPETITIONS)
+        assert len(coms) == 5
         com = coms[0]
+        assert com["id"] == "9"
         assert com["name"] == "Premier League"
+        assert com["path_name"] == "Premier-League"
         # 目前的赛事清单测试不到 INT
         assert com["country_code"] == "ENG"
 
@@ -47,13 +48,14 @@ class TestCompetition:
     ) -> typing.Generator[Competition, typing.Any, None]:
         yield Competition(id="9", path_name="Premier-League", client=client)
 
-    def test_request(
-        self, spider: Competition, client: httpx.AsyncClient
-    ) -> None:
+    def test_request(self, spider: Competition) -> None:
         url = spider.request.url
         assert url == "https://fbref.com/en/comps/9/Premier-League-Stats"
 
-        for url2, spider2 in zip(
+    def test_request_path_name_and_season(
+        self, client: httpx.AsyncClient
+    ) -> None:
+        for url, spider in zip(
             (
                 "https://fbref.com/en/comps/9",
                 "https://fbref.com/en/comps/9/2022-2023",
@@ -73,13 +75,24 @@ class TestCompetition:
                 ),
             ),
         ):
-            assert url2 == spider2.request.url
+            assert url == spider.request.url
 
     def test_parse(self, spider: Competition) -> None:
         text = read_test_data("comps_9_Premier-League-Stats.html")
         response = httpx.Response(200, text=text)
         com = spider.parse(response)
+        assert com["id"] == "9"
         assert com["name"] == "Premier League"
+
+        assert len(com["teams"]) == 20
+        ars = com["teams"][0]
+        assert ars["id"] == "18bb7c10"
+        assert ars["name"] == "Arsenal"
+        assert ars["path_name"] == "Arsenal"
+        assert "Arsenal" in ars["names"]
+        ast = com["teams"][1]
+        assert ast["name"] == "Aston Villa"
+        assert ast["path_name"] == "Aston-Villa"
 
 
 class TestTeam:
@@ -89,11 +102,14 @@ class TestTeam:
     ) -> typing.Generator[Team, typing.Any, None]:
         yield Team(id="18bb7c10", path_name="Arsenal", client=client)
 
-    def test_request(self, spider: Team, client: httpx.AsyncClient) -> None:
+    def test_request(self, spider: Team) -> None:
         url = spider.request.url
         assert url == "https://fbref.com/en/squads/18bb7c10/Arsenal-Stats"
 
-        for url2, spider2 in zip(
+    def test_request_path_name_and_season(
+        self, client: httpx.AsyncClient
+    ) -> None:
+        for url, spider in zip(
             (
                 "https://fbref.com/en/squads/18bb7c10",
                 "https://fbref.com/en/squads/18bb7c10/2022-2023",
@@ -110,19 +126,31 @@ class TestTeam:
                 ),
             ),
         ):
-            assert url2 == spider2.request.url
+            assert url == spider.request.url
 
     def test_parse(self, spider: Team) -> None:
         text = read_test_data("squads_18bb7c10_Arsenal-Stats.html")
         response = httpx.Response(200, text=text)
         team = spider.parse(response)
+        assert team["id"] == "18bb7c10"
         assert team["name"] == "Arsenal"
-        assert int(team["shooting"]["xg"] * 10) == int(8.3 * 10)
-        saka = team["members"][4]
-        assert saka["position"] == "FW"
-        assert saka["country_code"] == "ENG"
-        assert saka["path_name"] == "Bukayo-Saka"
-        assert saka["shooting"]["shots"] == 11
+        assert "Arsenal" in team["names"]
+
+        shooting = team["shooting"]
+        assert shooting["shots"] == 63
+        assert int(shooting["xg"] * 10) == int(8.3 * 10)
+
+        assert len(team["members"]) == 23
+        member = team["members"][4]
+        assert member["id"] == "bc7dc64d"
+        assert member["name"] == "Bukayo Saka"
+        assert "Bukayo Saka" in member["names"]
+        assert member["path_name"] == "Bukayo-Saka"
+        assert member["position"] == "FW"
+        assert member["country_code"] == "ENG"
+        member_shooting = member["shooting"]
+        assert member_shooting["shots"] == 11
+        assert int(member_shooting["xg"] * 10) == int(2.2 * 10)
 
 
 class TestMember:
@@ -132,18 +160,23 @@ class TestMember:
     ) -> typing.Generator[Member, typing.Any, None]:
         yield Member(id="bc7dc64d", path_name="Bukayo-Saka", client=client)
 
-    def test_request(self, spider: Member, client: httpx.AsyncClient) -> None:
+    def test_request(self, spider: Member) -> None:
         url = spider.request.url
         assert url == "https://fbref.com/en/players/bc7dc64d/Bukayo-Saka"
 
-        spider2 = Member(id="bc7dc64d", client=client)
-        assert spider2.request.url == "https://fbref.com/en/players/bc7dc64d/"
+    def test_request_exclude_path_name(self, client: httpx.AsyncClient) -> None:
+        spider = Member(id="bc7dc64d", client=client)
+        assert spider.request.url == "https://fbref.com/en/players/bc7dc64d/"
 
     def test_parse(self, spider: Member) -> None:
         text = read_test_data("players_bc7dc64d_Bukayo-Saka.html")
         response = httpx.Response(200, text=text)
         member = spider.parse(response)
+        assert member["id"] == "bc7dc64d"
         assert member["name"] == "Bukayo Saka"
+        member_shooting = member["shooting"]
+        assert member_shooting["shots"] == 266
+        assert int(member_shooting["xg"] * 10) == int(31.6 * 10)
 
 
 class TestMatches:
@@ -182,4 +215,5 @@ class TestMatch:
         text = read_test_data("matches_74125d47.html")
         response = httpx.Response(200, text=text)
         match = spider.parse(response)
+        assert match["id"] == "74125d47"
         assert match["name"] == "Arsenal vs Manchester United"
