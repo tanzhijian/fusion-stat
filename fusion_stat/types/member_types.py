@@ -9,3 +9,7 @@ class FotMobDict(StatDict):
 
 class FBrefDict(StatDict):
     shooting: FBrefShootingDict
+
+
+class TransfermarktDict(StatDict):
+    market_values: str

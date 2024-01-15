@@ -2,7 +2,7 @@ import httpx
 from parsel import Selector
 
 from ..base import Spider
-from ..types import competition_types, team_types
+from ..types import competition_types, member_types, team_types
 from ..types.base_types import StatDict
 from ..utils import get_element_text
 
@@ -138,4 +138,40 @@ class Team(Spider):
             id=self.id,
             name=name,
             members=members,
+        )
+
+
+class Member(Spider):
+    def __init__(
+        self,
+        *,
+        id: str,
+        path_name: str,
+        client: httpx.AsyncClient,
+    ) -> None:
+        super().__init__(client=client)
+        self.id = id
+        self.path_name = path_name
+
+    @property
+    def request(self) -> httpx.Request:
+        path = f"/{self.path_name}/profil/spieler/{self.id}"
+        return httpx.Request("GET", url=f"{BASE_URL}{path}")
+
+    def parse(self, response: httpx.Response) -> member_types.TransfermarktDict:
+        selector = Selector(response.text)
+
+        a = selector.xpath('//a[@class="data-header__market-value-wrapper"]')
+        currency = get_element_text(a.xpath("./span[1]/text()"))
+        number = get_element_text(a.xpath("./text()"))
+        scale = get_element_text(a.xpath("./span[2]/text()"))
+        market_values = f"{currency}{number}{scale}"
+
+        name = get_element_text(
+            selector.xpath(
+                '//div[@class="data-header__profile-container"]//img/@title'
+            )
+        )
+        return member_types.TransfermarktDict(
+            id=self.id, name=name, market_values=market_values
         )

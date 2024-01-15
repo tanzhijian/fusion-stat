@@ -3,7 +3,12 @@ import typing
 import httpx
 import pytest
 
-from fusion_stat.spiders.transfermarkt import Competition, Competitions, Team
+from fusion_stat.spiders.transfermarkt import (
+    Competition,
+    Competitions,
+    Member,
+    Team,
+)
 
 from ..utils import read_data
 
@@ -105,3 +110,28 @@ class TestTeam:
         assert member["name"] == "David Raya"
         assert member["date_of_birth"] == "Sep 15, 1995 (28)"
         assert member["market_values"] == "€35.00m"
+
+
+class TestMember:
+    @pytest.fixture(scope="class")
+    def spider(
+        self, client: httpx.AsyncClient
+    ) -> typing.Generator[Member, typing.Any, None]:
+        yield Member(id="433177", path_name="bukayo-saka", client=client)
+
+    def test_request(self, spider: Member) -> None:
+        url = spider.request.url
+        assert (
+            url
+            == "https://www.transfermarkt.com/bukayo-saka/profil/spieler/433177"
+        )
+
+    def test_parse(self, spider: Member) -> None:
+        text = read_data(
+            "transfermarkt", "bukayo-saka_profil_spieler_433177.html"
+        )
+        response = httpx.Response(200, text=text)
+        member = spider.parse(response)
+        assert member["id"] == "433177"
+        assert member["name"] == "Bukayo Saka"
+        assert member["market_values"] == "€120.00m"
