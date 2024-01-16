@@ -2,7 +2,7 @@ import httpx
 import pytest
 
 from fusion_stat import Competition
-from fusion_stat.spiders import fbref, fotmob, official
+from fusion_stat.spiders import fbref, fotmob, official, transfermarkt
 from tests.utils import read_data
 
 
@@ -34,6 +34,9 @@ class TestCompetition:
             "premier_league",
             "teams?pageSize=100&compSeasons=578&comps=1&altIds=true&page=0.json",
         )
+        transfermarkt_data = read_data(
+            "transfermarkt", "premier-league_startseite_wettbewerb_GB1.html"
+        )
         fotmob_spider = fotmob.Competition(id="47", client=client)
         fbref_spider = fbref.Competition(
             id="9", path_name="Premier-League", client=client
@@ -41,11 +44,17 @@ class TestCompetition:
         official_spider = official.Competition(
             name="Premier League", client=client
         )
+        transfermarkt_spider = transfermarkt.Competition(
+            id="GB1", path_name="premier-league", client=client
+        )
         return Competition(
             fotmob=fotmob_spider.parse(httpx.Response(200, json=fotmob_data)),
             fbref=fbref_spider.parse(httpx.Response(200, text=fbref_data)),
             official=official_spider.parse(
                 httpx.Response(200, json=official_data)
+            ),
+            transfermarkt=transfermarkt_spider.parse(
+                httpx.Response(200, text=transfermarkt_data)
             ),
         )
 

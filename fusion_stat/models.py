@@ -133,10 +133,12 @@ class Competition:
         fotmob: competition_types.FotMobDict,
         fbref: competition_types.FBrefDict,
         official: competition_types.OfficialDict,
+        transfermarkt: competition_types.TransfermarktDict,
     ) -> None:
         self.fotmob = fotmob
         self.fbref = fbref
         self.official = official
+        self.transfermarkt = transfermarkt
 
     @property
     def info(self) -> competition_types.InfoDict:
@@ -383,9 +385,11 @@ class Team:
         self,
         fotmob: team_types.FotMobDict,
         fbref: team_types.FBrefDict,
+        transfermarkt: team_types.TransfermarktDict,
     ) -> None:
         self.fotmob = fotmob
         self.fbref = fbref
+        self.transfermarkt = transfermarkt
 
     @property
     def info(self) -> team_types.InfoDict:
@@ -478,9 +482,11 @@ class Member:
         self,
         fotmob: member_types.FotMobDict,
         fbref: member_types.FBrefDict,
+        transfermarkt: member_types.TransfermarktDict,
     ) -> None:
         self.fotmob = fotmob
         self.fbref = fbref
+        self.transfermarkt = transfermarkt
 
 
 class Matches:

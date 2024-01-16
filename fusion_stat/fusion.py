@@ -41,6 +41,8 @@ class Fusion(Downloader):
         fbref_id: str,
         fbref_path_name: str | None = None,
         official_name: str,
+        transfermarkt_id: str,
+        transfermarkt_path_name: str,
         season: int | None = None,
     ) -> Competition:
         tasks = (
@@ -60,16 +62,23 @@ class Fusion(Downloader):
                 season=season,
                 client=self.client,
             ).process(),
+            transfermarkt.Competition(
+                id=transfermarkt_id,
+                path_name=transfermarkt_path_name,
+                client=self.client,
+            ).process(),
         )
         (
             fotmob_competition,
             fbref_competition,
             official_competition,
+            transfermarkt_competition,
         ) = await self.gather(tasks)
         return Competition(
             fotmob=fotmob_competition,
             fbref=fbref_competition,
             official=official_competition,
+            transfermarkt=transfermarkt_competition,
         )
 
     async def get_team(
@@ -78,15 +87,31 @@ class Fusion(Downloader):
         fotmob_id: str,
         fbref_id: str,
         fbref_path_name: str | None = None,
+        transfermarkt_id: str,
+        transfermarkt_path_name: str,
     ) -> Team:
         tasks = (
-            fotmob.Team(id=fotmob_id, client=self.client).process(),
+            fotmob.Team(
+                id=fotmob_id,
+                client=self.client,
+            ).process(),
             fbref.Team(
-                id=fbref_id, path_name=fbref_path_name, client=self.client
+                id=fbref_id,
+                path_name=fbref_path_name,
+                client=self.client,
+            ).process(),
+            transfermarkt.Team(
+                id=transfermarkt_id,
+                path_name=transfermarkt_path_name,
+                client=self.client,
             ).process(),
         )
-        fotmob_team, fbref_team = await self.gather(tasks)
-        return Team(fotmob=fotmob_team, fbref=fbref_team)
+        fotmob_team, fbref_team, transfermarkt_team = await self.gather(tasks)
+        return Team(
+            fotmob=fotmob_team,
+            fbref=fbref_team,
+            transfermarkt=transfermarkt_team,
+        )
 
     async def get_member(
         self,
@@ -94,6 +119,8 @@ class Fusion(Downloader):
         fotmob_id: str,
         fbref_id: str,
         fbref_path_name: str | None = None,
+        transfermarkt_id: str,
+        transfermarkt_path_name: str,
     ) -> Member:
         tasks = (
             fotmob.Member(id=fotmob_id, client=self.client).process(),
@@ -102,9 +129,22 @@ class Fusion(Downloader):
                 path_name=fbref_path_name,
                 client=self.client,
             ).process(),
+            transfermarkt.Member(
+                id=transfermarkt_id,
+                path_name=transfermarkt_path_name,
+                client=self.client,
+            ).process(),
         )
-        fotmob_member, fbref_member = await self.gather(tasks)
-        return Member(fotmob=fotmob_member, fbref=fbref_member)
+        (
+            fotmob_member,
+            fbref_member,
+            transfermarkt_member,
+        ) = await self.gather(tasks)
+        return Member(
+            fotmob=fotmob_member,
+            fbref=fbref_member,
+            transfermarkt=transfermarkt_member,
+        )
 
     async def get_matches(self, *, date: str) -> Matches:
         """Parameters:

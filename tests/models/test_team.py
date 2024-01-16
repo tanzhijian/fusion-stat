@@ -2,7 +2,7 @@ import httpx
 import pytest
 
 from fusion_stat import Team
-from fusion_stat.spiders import fbref, fotmob
+from fusion_stat.spiders import fbref, fotmob, transfermarkt
 from tests.utils import read_data
 
 
@@ -11,15 +11,24 @@ class TestTeam:
     def team(self, client: httpx.AsyncClient) -> Team:
         fotmob_data = read_data("fotmob", "teams?id=9825.json")
         fbref_data = read_data("fbref", "squads_18bb7c10_Arsenal-Stats.html")
+        transfermarkt_data = read_data(
+            "transfermarkt", "arsenal-fc_startseite_verein_11.html"
+        )
 
         fotmob_spider = fotmob.Team(id="9825", client=client)
         fbref_spider = fbref.Team(
             id="18bb7c10", path_name="Arsenal", client=client
         )
+        transfermarkt_spider = transfermarkt.Team(
+            id="11", path_name="arsenal-fc", client=client
+        )
 
         return Team(
             fotmob=fotmob_spider.parse(httpx.Response(200, json=fotmob_data)),
             fbref=fbref_spider.parse(httpx.Response(200, text=fbref_data)),
+            transfermarkt=transfermarkt_spider.parse(
+                httpx.Response(200, text=transfermarkt_data)
+            ),
         )
 
     def test_info(self, team: Team) -> None:
