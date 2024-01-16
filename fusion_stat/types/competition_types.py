@@ -106,4 +106,6 @@ class MatchDict(_BaseMathchDict):
 
 
 class TeamParamsDict(ParamsDict):
-    fbref_path_name: str | None
+    fbref_path_name: str
+    transfermarkt_id: str
+    transfermarkt_path_name: str

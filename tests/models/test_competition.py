@@ -112,4 +112,9 @@ class TestCompetition:
     def test_get_teams_params(self, competition: Competition) -> None:
         params = competition.get_teams_params()
         assert len(params) == 20
-        assert params[0]["fotmob_id"] == "8456"
+        team = params[0]
+        assert team["fotmob_id"] == "8456"
+        assert team["fbref_id"] == "b8fd03ef"
+        assert team["fbref_path_name"] == "Manchester-City"
+        assert team["transfermarkt_id"] == "281"
+        assert team["transfermarkt_path_name"] == "manchester-city"

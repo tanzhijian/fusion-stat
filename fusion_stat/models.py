@@ -369,11 +369,18 @@ class Competition:
                 self.fbref["teams"],
                 processor=lambda x: x["name"],
             )[0]
+            transfermarkt_team = process.extractOne(
+                fotmob_team,
+                self.transfermarkt["teams"],
+                processor=lambda x: x["name"],
+            )[0]
 
             team_params = competition_types.TeamParamsDict(
                 fotmob_id=fotmob_team["id"],
                 fbref_id=fbref_team["id"],
                 fbref_path_name=fbref_team["path_name"],
+                transfermarkt_id=transfermarkt_team["id"],
+                transfermarkt_path_name=transfermarkt_team["path_name"],
             )
 
             params.append(team_params)
