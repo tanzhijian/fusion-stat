@@ -22,6 +22,13 @@ class TestTeam:
             fbref=fbref_spider.parse(httpx.Response(200, text=fbref_data)),
         )
 
+    def test_info(self, team: Team) -> None:
+        info = team.info
+        assert info["id"] == "ENG_Arsenal"
+        assert info["name"] == "Arsenal"
+        assert "Arsenal" in info["names"]
+        assert info["country_code"] == "ENG"
+
     def test_staff(self, team: Team) -> None:
         staff = team.staff
         assert staff[0]["name"] == "Mikel Arteta"

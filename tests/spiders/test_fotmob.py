@@ -123,6 +123,7 @@ class TestTeam:
         assert team["id"] == "9825"
         assert team["name"] == "Arsenal"
         assert "Arsenal" in team["names"]
+        assert team["country_code"] == "ENG"
 
         assert len(team["members"]) == 26
         coach = team["members"][0]

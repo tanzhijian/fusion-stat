@@ -389,10 +389,14 @@ class Team:
 
     @property
     def info(self) -> team_types.InfoDict:
+        country_code = self.fotmob["country_code"]
+        name = self.fotmob["name"]
+        id_ = concatenate_strings(country_code, name)
         return {
-            "id": self.fotmob["id"],
-            "name": self.fotmob["name"],
+            "id": id_,
+            "name": name,
             "names": self.fotmob["names"] | self.fbref["names"],
+            "country_code": country_code,
         }
 
     @property

@@ -147,6 +147,7 @@ class Team(Spider):
         id = str(json["details"]["id"])
         name = json["details"]["name"]
         names = {name, json["details"]["shortName"]}
+        country_code = json["details"]["country"]
 
         members = []
         for role in json["squad"]:
@@ -169,6 +170,7 @@ class Team(Spider):
             id=id,
             name=name,
             names=names,
+            country_code=country_code,
             members=members,
         )
 

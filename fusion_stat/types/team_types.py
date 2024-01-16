@@ -10,6 +10,7 @@ class FotMobMemberDict(StatDict):
 
 class FotMobDict(StatDict):
     names: set[str]
+    country_code: str
     members: list[FotMobMemberDict]
 
 
@@ -39,6 +40,7 @@ class TransfermarktDict(StatDict):
 
 class InfoDict(StatDict):
     names: set[str]
+    country_code: str
 
 
 class StaffDict(StatDict):
