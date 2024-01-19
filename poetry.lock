@@ -153,6 +153,20 @@ files = [
 test = ["pytest (>=6)"]
 
 [[package]]
+name = "fifacodes"
+version = "0.1.2"
+description = "FIFA member associations codes query and search."
+optional = false
+python-versions = ">=3.10"
+files = [
+    {file = "fifacodes-0.1.2-py3-none-any.whl", hash = "sha256:7550c59e2519177621f6cdc844886783467d4612261bae65abd7d7066f5b6afd"},
+    {file = "fifacodes-0.1.2.tar.gz", hash = "sha256:8ee01f135a56a7f98ba7aaab8ca62e63f1fe9d1dfff46eb129787008683428db"},
+]
+
+[package.dependencies]
+rapidfuzz = ">=3.6.1,<4.0.0"
+
+[[package]]
 name = "h11"
 version = "0.14.0"
 description = "A pure-Python, bring-your-own-I/O implementation of HTTP/1.1"
@@ -713,4 +727,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10"
-content-hash = "658607e50d6063d747d5708b9f402173e90960163135939479d750a70e81d69e"
+content-hash = "2e2ff3d4ae1a6ace1bd7d69910d9cc854a7a285814a32a631272b8a01298b702"

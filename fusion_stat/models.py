@@ -439,14 +439,29 @@ class Team:
                         ],
                         score_cutoff=MEMBERS_SIMILARITY_SCORE,
                     )[0]
+                    transfermarkt_member = process.extractOne(
+                        fotmob_member,
+                        self.transfermarkt["members"],
+                        scorer=fuzzy_similarity_mean,
+                        processor=lambda x: [
+                            x["name"],
+                            x["country_code"],
+                            x["position"],
+                        ],
+                        score_cutoff=MEMBERS_SIMILARITY_SCORE,
+                    )[0]
 
+                    name = fotmob_member["name"]
+                    id_ = concatenate_strings(
+                        transfermarkt_member["date_of_birth"],
+                        name,
+                    )
                     shooting = fbref_member["shooting"]
                     players.append(
                         team_types.PlayerDict(
-                            id=fotmob_member["id"],
-                            name=fotmob_member["name"],
-                            names={fotmob_member["name"]}
-                            | fbref_member["names"],
+                            id=id_,
+                            name=name,
+                            names={name} | fbref_member["names"],
                             country=fotmob_member["country"],
                             position=fotmob_member["position"],
                             shooting=shooting,
@@ -473,10 +488,25 @@ class Team:
                         ],
                         score_cutoff=MEMBERS_SIMILARITY_SCORE,
                     )[0]
+                    transfermarkt_member = process.extractOne(
+                        fotmob_member,
+                        self.transfermarkt["members"],
+                        scorer=fuzzy_similarity_mean,
+                        processor=lambda x: [
+                            x["name"],
+                            x["country_code"],
+                            x["position"],
+                        ],
+                        score_cutoff=MEMBERS_SIMILARITY_SCORE,
+                    )[0]
                     member_params = team_types.MemberParamsDict(
                         fotmob_id=fotmob_member["id"],
                         fbref_id=fbref_member["id"],
                         fbref_path_name=fbref_member["path_name"],
+                        transfermarkt_id=transfermarkt_member["id"],
+                        transfermarkt_path_name=transfermarkt_member[
+                            "path_name"
+                        ],
                     )
                     params.append(member_params)
                 except TypeError:

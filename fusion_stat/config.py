@@ -1,3 +1,5 @@
+from fifacodes import Members
+
 from .types import competitions_types
 
 MEMBERS_SIMILARITY_SCORE = 80
@@ -32,11 +34,25 @@ COMPETITIONS = {
 
 POSITIONS = {
     "goalkeepers": "GK",
+    "Goalkeeper": "GK",
     "GK": "GK",
     "defenders": "DF",
+    "Centre-Back": "DF",
+    "Left-Back": "DF",
+    "Right-Back": "DF",
     "DF": "DF",
     "midfielders": "MF",
+    "Defensive Midfield": "MF",
+    "Central Midfield": "MF",
+    "Right Midfield": "MF",
+    "Left Midfield": "MF",
+    "Attacking Midfield": "MF",
     "MF": "MF",
     "attackers": "FW",
+    "Left Winger": "FW",
+    "Right Winger": "FW",
+    "Centre-Forward": "FW",
     "FW": "FW",
 }
+
+fifa_members = Members()

@@ -8,6 +8,7 @@ from fusion_stat.spiders.transfermarkt import (
     Competitions,
     Member,
     Team,
+    _convert_date_format,
 )
 
 from ..utils import read_data
@@ -111,9 +112,11 @@ class TestTeam:
         member = team["members"][0]
         assert member["id"] == "262749"
         assert member["name"] == "David Raya"
-        assert member["date_of_birth"] == "Sep 15, 1995 (28)"
+        assert member["date_of_birth"] == "1995-09-15"
         assert member["market_values"] == "€35.00m"
         assert member["path_name"] == "david-raya"
+        assert member["position"] == "GK"
+        assert member["country_code"] == "ESP"
 
 
 class TestMember:
@@ -139,3 +142,7 @@ class TestMember:
         assert member["id"] == "433177"
         assert member["name"] == "Bukayo Saka"
         assert member["market_values"] == "€120.00m"
+
+
+def test_convert_date_format() -> None:
+    assert _convert_date_format("Aug 17, 1993 (30)") == "1993-08-17"

@@ -1,8 +1,10 @@
+from datetime import datetime
+
 import httpx
 from parsel import Selector
 
 from ..base import Spider
-from ..config import COMPETITIONS
+from ..config import COMPETITIONS, POSITIONS, fifa_members
 from ..types import (
     competition_types,
     competitions_types,
@@ -138,14 +140,26 @@ class Team(Spider):
         trs = selector.xpath('//*[@id="yw1"]/table/tbody/tr')
         for tr in trs:
             tds = tr.xpath("./td")
+
             a = tds[1].xpath("./table/tr[1]/td[2]/a")
             href_strs = get_element_text(a.xpath("./@href")).split("/")
             member_id = href_strs[-1]
             member_path_name = href_strs[-4]
             member_name = get_element_text(a.xpath("./text()")).strip()
 
+            position = get_element_text(
+                tds[1].xpath("./table/tr[2]/td/text()")
+            ).strip()
+            position = POSITIONS[position]
+
             date_of_birth = get_element_text(tds[2].xpath("./text()"))
+            date_of_birth = _convert_date_format(date_of_birth)
+
             market_values = get_element_text(tds[-1].xpath("./a/text()"))
+
+            country = get_element_text(tds[-2].xpath("./img[1]/@title"))
+            country_code = fifa_members[(country)].code
+
             members.append(
                 team_types.TransfermarktMemberDict(
                     id=member_id,
@@ -153,6 +167,8 @@ class Team(Spider):
                     date_of_birth=date_of_birth,
                     market_values=market_values,
                     path_name=member_path_name,
+                    country_code=country_code,
+                    position=position,
                 )
             )
 
@@ -197,3 +213,13 @@ class Member(Spider):
         return member_types.TransfermarktDict(
             id=self.id, name=name, market_values=market_values
         )
+
+
+def _convert_date_format(s: str) -> str:
+    """
+    'Aug 17, 1993 (30)' => '1993-08-17'
+    """
+    date_string = s.split(" (")[0]
+    date_object = datetime.strptime(date_string, "%b %d, %Y")
+    formatted_date = date_object.strftime("%Y-%m-%d")
+    return formatted_date
