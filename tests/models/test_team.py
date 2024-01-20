@@ -3,6 +3,7 @@ import pytest
 
 from fusion_stat import Team
 from fusion_stat.spiders import fbref, fotmob, transfermarkt
+from fusion_stat.types import team_types
 from tests.utils import read_data
 
 
@@ -30,6 +31,21 @@ class TestTeam:
                 httpx.Response(200, text=transfermarkt_data)
             ),
         )
+
+    def test_most_similar_member(self, team: Team) -> None:
+        query = team_types.BaseMemberDict(
+            id="1", name="ab", country_code="a", position="ab"
+        )
+        choices = [
+            team_types.BaseMemberDict(
+                id="2", name="abc", country_code="a", position="abc"
+            ),
+            team_types.BaseMemberDict(
+                id="3", name="c", country_code="c", position="c"
+            ),
+        ]
+        result = team._most_similar_member(query, choices)
+        assert result["id"] == "2"
 
     def test_info(self, team: Team) -> None:
         info = team.info

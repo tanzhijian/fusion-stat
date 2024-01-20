@@ -3,6 +3,7 @@ import pytest
 
 from fusion_stat import Competition
 from fusion_stat.spiders import fbref, fotmob, official, transfermarkt
+from fusion_stat.types import base_types
 from tests.utils import read_data
 
 
@@ -57,6 +58,15 @@ class TestCompetition:
                 httpx.Response(200, text=transfermarkt_data)
             ),
         )
+
+    def test_most_similar_team(self, competition: Competition) -> None:
+        query: base_types.StatDict = {"id": "1", "name": "ab"}
+        choices: list[base_types.StatDict] = [
+            {"id": "2", "name": "abc"},
+            {"id": "3", "name": "c"},
+        ]
+        result = competition._most_similar_team(query, choices)
+        assert result["id"] == "2"
 
     def test_info(self, competition: Competition) -> None:
         info = competition.info

@@ -14,6 +14,7 @@ from .types import (
 from .utils import concatenate_strings, format_date, fuzzy_similarity_mean
 
 T = typing.TypeVar("T", bound=base_types.StatDict)
+U = typing.TypeVar("U", bound=team_types.BaseMemberDict)
 
 
 class Competitions:
@@ -140,6 +141,18 @@ class Competition:
         self.official = official
         self.transfermarkt = transfermarkt
 
+    def _most_similar_team(
+        self,
+        query: base_types.StatDict,
+        choices: typing.Sequence[T],
+    ) -> T:
+        team = process.extractOne(
+            query,
+            choices,
+            processor=lambda x: x["name"],
+        )[0]
+        return team
+
     @property
     def info(self) -> competition_types.InfoDict:
         """
@@ -189,16 +202,14 @@ class Competition:
         """
         teams: list[competition_types.TeamDict] = []
         for fotmob_team in self.fotmob["teams"]:
-            fbref_team = process.extractOne(
+            fbref_team = self._most_similar_team(
                 fotmob_team,
                 self.fbref["teams"],
-                processor=lambda x: x["name"],
-            )[0]
-            official_team = process.extractOne(
+            )
+            official_team = self._most_similar_team(
                 fotmob_team,
                 self.official["teams"],
-                processor=lambda x: x["name"],
-            )[0]
+            )
 
             team = competition_types.TeamDict(
                 **fotmob_team,
@@ -299,22 +310,20 @@ class Competition:
             id_ = concatenate_strings(date, fotmob_match["name"])
 
             home = fotmob_match["home"]
-            home_official_team = process.extractOne(
+            home_official_team = self._most_similar_team(
                 fotmob_match["home"],
                 self.official["teams"],
-                processor=lambda x: x["name"],
-            )[0]
+            )
             home["id"] = concatenate_strings(
                 home_official_team["country_code"],
                 home["name"],
             )
 
             away = fotmob_match["away"]
-            away_official_team = process.extractOne(
+            away_official_team = self._most_similar_team(
                 fotmob_match["away"],
                 self.official["teams"],
-                processor=lambda x: x["name"],
-            )[0]
+            )
             away["id"] = concatenate_strings(
                 away_official_team["country_code"],
                 away["name"],
@@ -364,16 +373,14 @@ class Competition:
     def get_teams_params(self) -> list[competition_types.TeamParamsDict]:
         params: list[competition_types.TeamParamsDict] = []
         for fotmob_team in self.fotmob["teams"]:
-            fbref_team = process.extractOne(
+            fbref_team = self._most_similar_team(
                 fotmob_team,
                 self.fbref["teams"],
-                processor=lambda x: x["name"],
-            )[0]
-            transfermarkt_team = process.extractOne(
+            )
+            transfermarkt_team = self._most_similar_team(
                 fotmob_team,
                 self.transfermarkt["teams"],
-                processor=lambda x: x["name"],
-            )[0]
+            )
 
             team_params = competition_types.TeamParamsDict(
                 fotmob_id=fotmob_team["id"],
@@ -397,6 +404,24 @@ class Team:
         self.fotmob = fotmob
         self.fbref = fbref
         self.transfermarkt = transfermarkt
+
+    def _most_similar_member(
+        self,
+        query: team_types.BaseMemberDict,
+        choices: typing.Sequence[U],
+    ) -> U:
+        result = process.extractOne(
+            query,
+            choices,
+            scorer=fuzzy_similarity_mean,
+            processor=lambda x: [
+                x["name"],
+                x["country_code"],
+                x["position"],
+            ],
+            score_cutoff=MEMBERS_SIMILARITY_SCORE,
+        )[0]
+        return result
 
     @property
     def info(self) -> team_types.InfoDict:
@@ -428,28 +453,14 @@ class Team:
         for fotmob_member in self.fotmob["members"]:
             if not fotmob_member["is_staff"]:
                 try:
-                    fbref_member = process.extractOne(
+                    fbref_member = self._most_similar_member(
                         fotmob_member,
                         self.fbref["members"],
-                        scorer=fuzzy_similarity_mean,
-                        processor=lambda x: [
-                            x["name"],
-                            x["country_code"],
-                            x["position"],
-                        ],
-                        score_cutoff=MEMBERS_SIMILARITY_SCORE,
-                    )[0]
-                    transfermarkt_member = process.extractOne(
+                    )
+                    transfermarkt_member = self._most_similar_member(
                         fotmob_member,
                         self.transfermarkt["members"],
-                        scorer=fuzzy_similarity_mean,
-                        processor=lambda x: [
-                            x["name"],
-                            x["country_code"],
-                            x["position"],
-                        ],
-                        score_cutoff=MEMBERS_SIMILARITY_SCORE,
-                    )[0]
+                    )
 
                     name = fotmob_member["name"]
                     id_ = concatenate_strings(
@@ -477,28 +488,14 @@ class Team:
         for fotmob_member in self.fotmob["members"]:
             if not fotmob_member["is_staff"]:
                 try:
-                    fbref_member = process.extractOne(
+                    fbref_member = self._most_similar_member(
                         fotmob_member,
                         self.fbref["members"],
-                        scorer=fuzzy_similarity_mean,
-                        processor=lambda x: [
-                            x["name"],
-                            x["country_code"],
-                            x["position"],
-                        ],
-                        score_cutoff=MEMBERS_SIMILARITY_SCORE,
-                    )[0]
-                    transfermarkt_member = process.extractOne(
+                    )
+                    transfermarkt_member = self._most_similar_member(
                         fotmob_member,
                         self.transfermarkt["members"],
-                        scorer=fuzzy_similarity_mean,
-                        processor=lambda x: [
-                            x["name"],
-                            x["country_code"],
-                            x["position"],
-                        ],
-                        score_cutoff=MEMBERS_SIMILARITY_SCORE,
-                    )[0]
+                    )
                     member_params = team_types.MemberParamsDict(
                         fotmob_id=fotmob_member["id"],
                         fbref_id=fbref_member["id"],
@@ -535,6 +532,18 @@ class Matches:
         self.fotmob = fotmob
         self.fbref = fbref
 
+    def _most_similar_match(
+        self,
+        query: base_types.StatDict,
+        choices: typing.Sequence[T],
+    ) -> T:
+        match = process.extractOne(
+            query,
+            choices,
+            processor=lambda x: x["name"],
+        )[0]
+        return match
+
     @property
     def items(self) -> list[matches_types.MatchDict]:
         """
@@ -570,9 +579,7 @@ class Matches:
         params: list[matches_types.MatchParamsDict] = []
         for fotmob_match in self.fotmob:
             if not fotmob_match["cancelled"]:
-                fbref_match = process.extractOne(
-                    fotmob_match, self.fbref, processor=lambda x: x["name"]
-                )[0]
+                fbref_match = self._most_similar_match(fotmob_match, self.fbref)
 
                 match_params = matches_types.MatchParamsDict(
                     fotmob_id=fotmob_match["id"], fbref_id=fbref_match["id"]

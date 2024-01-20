@@ -1,10 +1,13 @@
 from .base_types import FBrefShootingDict, ParamsDict, StatDict
 
 
-class FotMobMemberDict(StatDict):
-    country: str
+class BaseMemberDict(StatDict):
     country_code: str
     position: str | None
+
+
+class FotMobMemberDict(BaseMemberDict):
+    country: str
     is_staff: bool
 
 
@@ -14,11 +17,9 @@ class FotMobDict(StatDict):
     members: list[FotMobMemberDict]
 
 
-class FBrefMemberDict(StatDict):
+class FBrefMemberDict(BaseMemberDict):
     names: set[str]
     path_name: str
-    country_code: str
-    position: str
     shooting: FBrefShootingDict
 
 
@@ -28,12 +29,10 @@ class FBrefDict(StatDict):
     members: list[FBrefMemberDict]
 
 
-class TransfermarktMemberDict(StatDict):
+class TransfermarktMemberDict(BaseMemberDict):
     date_of_birth: str
     market_values: str
     path_name: str
-    country_code: str
-    position: str
 
 
 class TransfermarktDict(StatDict):
