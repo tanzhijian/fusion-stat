@@ -141,7 +141,7 @@ class Competition:
         self.official = official
         self.transfermarkt = transfermarkt
 
-    def _most_similar_team(
+    def _find_team(
         self,
         query: base_types.StatDict,
         choices: typing.Sequence[T],
@@ -202,11 +202,11 @@ class Competition:
         """
         teams: list[competition_types.TeamDict] = []
         for fotmob_team in self.fotmob["teams"]:
-            fbref_team = self._most_similar_team(
+            fbref_team = self._find_team(
                 fotmob_team,
                 self.fbref["teams"],
             )
-            official_team = self._most_similar_team(
+            official_team = self._find_team(
                 fotmob_team,
                 self.official["teams"],
             )
@@ -310,7 +310,7 @@ class Competition:
             id_ = concatenate_strings(date, fotmob_match["name"])
 
             home = fotmob_match["home"]
-            home_official_team = self._most_similar_team(
+            home_official_team = self._find_team(
                 fotmob_match["home"],
                 self.official["teams"],
             )
@@ -320,7 +320,7 @@ class Competition:
             )
 
             away = fotmob_match["away"]
-            away_official_team = self._most_similar_team(
+            away_official_team = self._find_team(
                 fotmob_match["away"],
                 self.official["teams"],
             )
@@ -373,11 +373,11 @@ class Competition:
     def get_teams_params(self) -> list[competition_types.TeamParamsDict]:
         params: list[competition_types.TeamParamsDict] = []
         for fotmob_team in self.fotmob["teams"]:
-            fbref_team = self._most_similar_team(
+            fbref_team = self._find_team(
                 fotmob_team,
                 self.fbref["teams"],
             )
-            transfermarkt_team = self._most_similar_team(
+            transfermarkt_team = self._find_team(
                 fotmob_team,
                 self.transfermarkt["teams"],
             )
@@ -405,7 +405,7 @@ class Team:
         self.fbref = fbref
         self.transfermarkt = transfermarkt
 
-    def _most_similar_member(
+    def _find_member(
         self,
         query: team_types.BaseMemberDict,
         choices: typing.Sequence[U],
@@ -453,11 +453,11 @@ class Team:
         for fotmob_member in self.fotmob["members"]:
             if not fotmob_member["is_staff"]:
                 try:
-                    fbref_member = self._most_similar_member(
+                    fbref_member = self._find_member(
                         fotmob_member,
                         self.fbref["members"],
                     )
-                    transfermarkt_member = self._most_similar_member(
+                    transfermarkt_member = self._find_member(
                         fotmob_member,
                         self.transfermarkt["members"],
                     )
@@ -488,11 +488,11 @@ class Team:
         for fotmob_member in self.fotmob["members"]:
             if not fotmob_member["is_staff"]:
                 try:
-                    fbref_member = self._most_similar_member(
+                    fbref_member = self._find_member(
                         fotmob_member,
                         self.fbref["members"],
                     )
-                    transfermarkt_member = self._most_similar_member(
+                    transfermarkt_member = self._find_member(
                         fotmob_member,
                         self.transfermarkt["members"],
                     )
@@ -532,7 +532,7 @@ class Matches:
         self.fotmob = fotmob
         self.fbref = fbref
 
-    def _most_similar_match(
+    def _find_match(
         self,
         query: base_types.StatDict,
         choices: typing.Sequence[T],
@@ -583,7 +583,7 @@ class Matches:
         params: list[matches_types.MatchParamsDict] = []
         for fotmob_match in self.fotmob:
             if not fotmob_match["cancelled"]:
-                fbref_match = self._most_similar_match(fotmob_match, self.fbref)
+                fbref_match = self._find_match(fotmob_match, self.fbref)
 
                 match_params = matches_types.MatchParamsDict(
                     fotmob_id=fotmob_match["id"], fbref_id=fbref_match["id"]

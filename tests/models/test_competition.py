@@ -59,13 +59,13 @@ class TestCompetition:
             ),
         )
 
-    def test_most_similar_team(self, competition: Competition) -> None:
+    def test_find_team(self, competition: Competition) -> None:
         query: base_types.StatDict = {"id": "1", "name": "ab"}
         choices: list[base_types.StatDict] = [
             {"id": "2", "name": "abc"},
             {"id": "3", "name": "c"},
         ]
-        result = competition._most_similar_team(query, choices)
+        result = competition._find_team(query, choices)
         assert result["id"] == "2"
 
     def test_info(self, competition: Competition) -> None:

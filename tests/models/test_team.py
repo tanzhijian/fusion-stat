@@ -32,7 +32,7 @@ class TestTeam:
             ),
         )
 
-    def test_most_similar_member(self, team: Team) -> None:
+    def test_find_member(self, team: Team) -> None:
         query = team_types.BaseMemberDict(
             id="1", name="ab", country_code="a", position="ab"
         )
@@ -44,7 +44,7 @@ class TestTeam:
                 id="3", name="c", country_code="c", position="c"
             ),
         ]
-        result = team._most_similar_member(query, choices)
+        result = team._find_member(query, choices)
         assert result["id"] == "2"
 
     def test_info(self, team: Team) -> None:

@@ -21,13 +21,13 @@ class TestMatches:
             fbref=fbref_spider.parse(httpx.Response(200, text=fbref_data)),
         )
 
-    def test_most_similar_team(self, matches: Matches) -> None:
+    def test_find_team(self, matches: Matches) -> None:
         query: base_types.StatDict = {"id": "1", "name": "ab"}
         choices: list[base_types.StatDict] = [
             {"id": "2", "name": "abc"},
             {"id": "3", "name": "c"},
         ]
-        result = matches._most_similar_match(query, choices)
+        result = matches._find_match(query, choices)
         assert result["id"] == "2"
 
     def test_items(self, matches: Matches) -> None:
