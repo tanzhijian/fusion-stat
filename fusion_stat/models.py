@@ -567,15 +567,19 @@ class Matches:
                 * name (str): team name.
                 * score (int | None): match score.
         """
-        return [matches_types.MatchDict(**match) for match in self.fotmob]
+        matches: list[matches_types.MatchDict] = []
+        for fotmob_match in self.fotmob:
+            match = matches_types.MatchDict(**fotmob_match)
+            date = format_date(fotmob_match["utc_time"])
+            match["id"] = concatenate_strings(date, fotmob_match["name"])
+            matches.append(match)
+        return matches
 
     @property
     def info(self) -> matches_types.InfoDict:
         return matches_types.InfoDict(count=len(self.items))
 
     def get_params(self) -> list[matches_types.MatchParamsDict]:
-        if not self.fbref:
-            raise ValueError("No fbref id for the current date")
         params: list[matches_types.MatchParamsDict] = []
         for fotmob_match in self.fotmob:
             if not fotmob_match["cancelled"]:
