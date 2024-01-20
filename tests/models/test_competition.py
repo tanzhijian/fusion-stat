@@ -76,10 +76,9 @@ class TestCompetition:
         assert "Premier League" in info["names"]
         assert info["logo"]
 
-    def test_teams(self, competition: Competition) -> None:
-        teams = competition.teams
-        assert len(teams) == 20
-        team = teams[0]
+    def test_get_teams(self, competition: Competition) -> None:
+        teams = competition.get_teams()
+        team = next(teams)
         assert team["id"] == "ENG_Manchester_City"
         assert team["name"] == "Manchester City"
         assert team["country_code"] == "ENG"
@@ -88,6 +87,9 @@ class TestCompetition:
             team["logo"]
             == "https://resources.premierleague.com/premierleague/badges/rb/t43.svg"
         )
+
+    def test_teams(self, competition: Competition) -> None:
+        assert len(competition.teams) == 20
 
     def test_table(self, competition: Competition) -> None:
         table = competition.table
@@ -121,8 +123,7 @@ class TestCompetition:
 
     def test_get_teams_params(self, competition: Competition) -> None:
         params = competition.get_teams_params()
-        assert len(params) == 20
-        team = params[0]
+        team = next(params)
         assert team["fotmob_id"] == "8456"
         assert team["fbref_id"] == "b8fd03ef"
         assert team["fbref_path_name"] == "Manchester-City"

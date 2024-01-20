@@ -199,10 +199,11 @@ class Competition:
             names=self.fotmob["names"] | {self.fbref["name"]},
         )
 
-    @property
-    def teams(self) -> list[competition_types.TeamDict]:
+    def get_teams(
+        self,
+    ) -> typing.Generator[competition_types.TeamDict, typing.Any, None]:
         """
-        Return a list of dicts that include the following keys:
+        Return a generator of dicts that include the following keys:
 
         * id (str): team id.
         * name (str): team name.
@@ -220,7 +221,6 @@ class Competition:
                 * shots (int): number of shots.
                 * xg (float): expected goals.
         """
-        teams: list[competition_types.TeamDict] = []
         for fotmob_team in self.fotmob["teams"]:
             fbref_team = self._find_team(
                 fotmob_team,
@@ -243,8 +243,30 @@ class Competition:
             )
             team["names"] |= fbref_team["names"]
 
-            teams.append(team)
-        return teams
+            yield team
+
+    @property
+    def teams(self) -> list[competition_types.TeamDict]:
+        """
+        Return a list of dicts that include the following keys:
+
+        * id (str): team id.
+        * name (str): team name.
+        * names (set[str]): All team names.
+        * played (int): number of matches played.
+        * wins (int): number of matches won.
+        * draws (int): number of matches drawn.
+        * losses (int): number of matches lost.
+        * goals_for (int): number of goals scored.
+        * goals_against (int): number of goals conceded.
+        * points (int): number of points.
+        * logo (str): team logo.
+        * country_code (str): country code, three-letter code
+        * shooting (dict): shooting data.
+                * shots (int): number of shots.
+                * xg (float): expected goals.
+        """
+        return list(self.get_teams())
 
     @staticmethod
     def sort_table_key(
@@ -296,7 +318,7 @@ class Competition:
                 xg=team["shooting"]["xg"],
                 logo=team["logo"],
             )
-            for team in self.teams
+            for team in self.get_teams()
         ]
         table = sorted(teams, key=self.sort_table_key)
         return table
@@ -390,8 +412,18 @@ class Competition:
         """
         return list(self.get_matches())
 
-    def get_teams_params(self) -> list[competition_types.TeamParamsDict]:
-        params: list[competition_types.TeamParamsDict] = []
+    def get_teams_params(
+        self,
+    ) -> typing.Generator[competition_types.TeamParamsDict, typing.Any, None]:
+        """
+        Return a generator of dicts that include the following keys:
+
+            * fotmob_id (str): fotmob team id
+            * fbref_id (str): fbref team id
+            * fbref_path_name (str): fbref team path name
+            * transfermarkt_id (str): transfermarkt team id
+            * transfermarkt_path_name (str): transfermarkt team path name
+        """
         for fotmob_team in self.fotmob["teams"]:
             fbref_team = self._find_team(
                 fotmob_team,
@@ -409,9 +441,7 @@ class Competition:
                 transfermarkt_id=transfermarkt_team["id"],
                 transfermarkt_path_name=transfermarkt_team["path_name"],
             )
-
-            params.append(team_params)
-        return params
+            yield team_params
 
 
 class Team:
@@ -467,9 +497,9 @@ class Team:
             if member["is_staff"]
         ]
 
-    @property
-    def players(self) -> list[team_types.PlayerDict]:
-        players: list[team_types.PlayerDict] = []
+    def get_players(
+        self,
+    ) -> typing.Generator[team_types.PlayerDict, typing.Any, None]:
         for fotmob_member in self.fotmob["members"]:
             if not fotmob_member["is_staff"]:
                 try:
@@ -488,23 +518,25 @@ class Team:
                         name,
                     )
                     shooting = fbref_member["shooting"]
-                    players.append(
-                        team_types.PlayerDict(
-                            id=id_,
-                            name=name,
-                            names={name} | fbref_member["names"],
-                            country=fotmob_member["country"],
-                            position=fotmob_member["position"],
-                            shooting=shooting,
-                        )
+                    player = team_types.PlayerDict(
+                        id=id_,
+                        name=name,
+                        names={name} | fbref_member["names"],
+                        country=fotmob_member["country"],
+                        position=fotmob_member["position"],
+                        shooting=shooting,
                     )
+                    yield player
                 except TypeError:
                     pass
 
-        return players
+    @property
+    def players(self) -> list[team_types.PlayerDict]:
+        return list(self.get_players())
 
-    def get_members_params(self) -> list[team_types.MemberParamsDict]:
-        params: list[team_types.MemberParamsDict] = []
+    def get_members_params(
+        self,
+    ) -> typing.Generator[team_types.MemberParamsDict, typing.Any, None]:
         for fotmob_member in self.fotmob["members"]:
             if not fotmob_member["is_staff"]:
                 try:
@@ -525,10 +557,9 @@ class Team:
                             "path_name"
                         ],
                     )
-                    params.append(member_params)
+                    yield member_params
                 except TypeError:
                     pass
-        return params
 
 
 class Member:
@@ -564,6 +595,36 @@ class Matches:
         )[0]
         return match
 
+    def get_items(
+        self,
+    ) -> typing.Generator[matches_types.MatchDict, typing.Any, None]:
+        """
+        Return a generator of dicts that include the following keys:
+
+        * id (str): match id.
+        * name (str): match name.
+        * utc_time (str): match kickoff time.
+        * finished (bool): whether the match is finished or not.
+        * started (bool): whether the match has started or not.
+        * cancelled (bool): whether the match is cancelled or not.
+        * competition (dict): competition data.
+                * id (str): competition id.
+                * name (str): competition name.
+        * home (dict): home team data.
+                * id (str): team id.
+                * name (str): team name.
+                * score (int | None): match score.
+        * away (dict): away team data.
+                * id (str): team id.
+                * name (str): team name.
+                * score (int | None): match score.
+        """
+        for fotmob_match in self.fotmob:
+            match = matches_types.MatchDict(**fotmob_match)
+            date = format_date(fotmob_match["utc_time"])
+            match["id"] = concatenate_strings(date, fotmob_match["name"])
+            yield match
+
     @property
     def items(self) -> list[matches_types.MatchDict]:
         """
@@ -587,20 +648,15 @@ class Matches:
                 * name (str): team name.
                 * score (int | None): match score.
         """
-        matches: list[matches_types.MatchDict] = []
-        for fotmob_match in self.fotmob:
-            match = matches_types.MatchDict(**fotmob_match)
-            date = format_date(fotmob_match["utc_time"])
-            match["id"] = concatenate_strings(date, fotmob_match["name"])
-            matches.append(match)
-        return matches
+        return list(self.get_items())
 
     @property
     def info(self) -> matches_types.InfoDict:
         return matches_types.InfoDict(count=len(self.items))
 
-    def get_params(self) -> list[matches_types.MatchParamsDict]:
-        params: list[matches_types.MatchParamsDict] = []
+    def get_params(
+        self,
+    ) -> typing.Generator[matches_types.MatchParamsDict, typing.Any, None]:
         for fotmob_match in self.fotmob:
             if not fotmob_match["cancelled"]:
                 fbref_match = self._find_match(fotmob_match, self.fbref)
@@ -608,8 +664,7 @@ class Matches:
                 match_params = matches_types.MatchParamsDict(
                     fotmob_id=fotmob_match["id"], fbref_id=fbref_match["id"]
                 )
-                params.append(match_params)
-        return params
+                yield match_params
 
 
 class Match:

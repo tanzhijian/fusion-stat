@@ -30,8 +30,9 @@ class TestMatches:
         result = matches._find_match(query, choices)
         assert result["id"] == "2"
 
-    def test_items(self, matches: Matches) -> None:
-        match = matches.items[0]
+    def test_get_items(self, matches: Matches) -> None:
+        items = matches.get_items()
+        match = next(items)
         assert (
             match["id"]
             == "2023-09-03_Crystal_Palace_vs_Wolverhampton_Wanderers"
@@ -40,11 +41,14 @@ class TestMatches:
         assert match["home"]["score"] == 3
         assert match["away"]["score"] == 2
 
+    def test_items(self, matches: Matches) -> None:
+        assert len(matches.items) == 19
+
     def test_info(self, matches: Matches) -> None:
         assert matches.info["count"] == 19
 
     def test_get_params(self, matches: Matches) -> None:
-        params = matches.get_params()
+        params = list(matches.get_params())
         # 有一场比赛取消了（马竞）导致生成的 params 少一场
         # 还没有踢的比赛 fbref 没有 id
         assert len(params) == 18

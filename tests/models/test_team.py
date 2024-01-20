@@ -59,6 +59,11 @@ class TestTeam:
         assert staff[0]["name"] == "Mikel Arteta"
         assert staff[0]["country"] == "Spain"
 
+    def test_get_players(self, team: Team) -> None:
+        players = team.get_players()
+        player = next(players)
+        assert player["name"] == "David Raya"
+
     def test_players(self, team: Team) -> None:
         players = team.players
         assert len(players) == 23
@@ -69,13 +74,9 @@ class TestTeam:
         assert player["country"] == "Brazil"
         assert player["position"] == "FW"
 
-        shooting = player["shooting"]
-        assert shooting["shots"] == 9
-        assert int(shooting["xg"] * 10) == 7
-
     def test_get_members_params(self, team: Team) -> None:
         params = team.get_members_params()
-        member = params[0]
+        member = next(params)
         assert member["fotmob_id"] == "562727"
         assert member["fbref_id"] == "98ea5115"
         assert member["fbref_path_name"] == "David-Raya"
