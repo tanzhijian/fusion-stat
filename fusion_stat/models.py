@@ -30,6 +30,14 @@ class Competitions:
         self.transfermarkt = transfermarkt
         self.season = season
 
+    def _find_competition(
+        self, competitions: list[T], competition_id: str
+    ) -> T:
+        for competition in competitions:
+            if competition["id"] == competition_id:
+                return competition
+        raise ValueError(f"Competition with id {competition_id} not found")
+
     @property
     def info(self) -> competitions_types.InfoDict:
         """
@@ -42,6 +50,50 @@ class Competitions:
             count=len(COMPETITIONS),
             names=list(COMPETITIONS.keys()),
         )
+
+    def get_items(
+        self,
+    ) -> typing.Generator[competitions_types.CompetitionDict, typing.Any, None]:
+        """
+        Return a generator of dicts that include the following keys:
+
+        * id (str): competition id
+        * name (str): config competition name
+        * fotmob (dict): fotmob competition
+                * id (str): fotmob competition id
+                * name (str): fotmob competition name
+        * fbref (dict): fbref competition
+                * id (str): fbref competition id
+                * name (str): fbref competition name
+                * country_code (str): country code, three-letter code
+        * transfermarkt (dict): transfermarkt competition
+                * id (str): transfermarkt competition id
+                * name (str): transfermarkt competition name
+                * path_name (str): transfermarkt competition path name
+        """
+        for params in COMPETITIONS.values():
+            fotmob_competition = self._find_competition(
+                self.fotmob, params["fotmob_id"]
+            )
+            fbref_competition = self._find_competition(
+                self.fbref, params["fbref_id"]
+            )
+            transfermarkt_competition = self._find_competition(
+                self.transfermarkt, params["transfermarkt_id"]
+            )
+
+            name = fotmob_competition["name"]
+            country_code = fbref_competition["country_code"]
+            id_ = concatenate_strings(country_code, name)
+
+            item = competitions_types.CompetitionDict(
+                id=id_,
+                name=name,
+                fotmob=fotmob_competition,
+                fbref=fbref_competition,
+                transfermarkt=transfermarkt_competition,
+            )
+            yield item
 
     @property
     def items(self) -> list[competitions_types.CompetitionDict]:
@@ -62,43 +114,15 @@ class Competitions:
                 * name (str): transfermarkt competition name
                 * path_name (str): transfermarkt competition path name
         """
-        items: list[competitions_types.CompetitionDict] = []
-        for params in COMPETITIONS.values():
-            fotmob_competition = self._find_competition_by_id(
-                self.fotmob, params["fotmob_id"]
-            )
-            fbref_competition = self._find_competition_by_id(
-                self.fbref, params["fbref_id"]
-            )
-            transfermarkt_competition = self._find_competition_by_id(
-                self.transfermarkt, params["transfermarkt_id"]
-            )
+        return list(self.get_items())
 
-            name = fotmob_competition["name"]
-            country_code = fbref_competition["country_code"]
-            id_ = concatenate_strings(country_code, name)
-
-            item = competitions_types.CompetitionDict(
-                id=id_,
-                name=name,
-                fotmob=fotmob_competition,
-                fbref=fbref_competition,
-                transfermarkt=transfermarkt_competition,
-            )
-            items.append(item)
-        return items
-
-    def _find_competition_by_id(
-        self, competitions: list[T], competition_id: str
-    ) -> T:
-        for competition in competitions:
-            if competition["id"] == competition_id:
-                return competition
-        raise ValueError(f"Competition with id {competition_id} not found")
-
-    def get_params(self) -> list[competitions_types.CompetitionParamsDict]:
+    def get_params(
+        self,
+    ) -> typing.Generator[
+        competitions_types.CompetitionParamsDict, typing.Any, None
+    ]:
         """
-        Return a list of dicts that include the following keys:
+        Return a generator of dicts that include the following keys:
 
             * fotmob_id (str): fotmob competition id
             * fbref_id (str): fbref competition id
@@ -108,9 +132,7 @@ class Competitions:
             * transfermarkt_path_name (str): transfermarkt competition path name
             * season (int, optional): fotmob competition season
         """
-        params: list[competitions_types.CompetitionParamsDict] = []
-
-        for item in self.items:
+        for item in self.get_items():
             competition_params = competitions_types.CompetitionParamsDict(
                 fotmob_id=item["fotmob"]["id"],
                 fbref_id=item["fbref"]["id"],
@@ -123,9 +145,7 @@ class Competitions:
             if self.season is not None:
                 competition_params["season"] = self.season
 
-            params.append(competition_params)
-
-        return params
+            yield competition_params
 
 
 class Competition:

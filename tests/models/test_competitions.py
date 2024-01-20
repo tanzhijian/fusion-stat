@@ -33,18 +33,17 @@ class TestCompetitions:
         assert info["count"] == 5
         assert info["names"][0] == "Premier League"
 
-    def test_find_competition_by_id(self, competitions: Competitions) -> None:
+    def test_find_competition(self, competitions: Competitions) -> None:
         stats_dict = [StatDict(id="1", name="a")]
-        result = competitions._find_competition_by_id(stats_dict, "1")
+        result = competitions._find_competition(stats_dict, "1")
         assert result["name"] == "a"
 
         with pytest.raises(ValueError):
-            competitions._find_competition_by_id(stats_dict, "a")
+            competitions._find_competition(stats_dict, "a")
 
-    def test_items(self, competitions: Competitions) -> None:
-        items = competitions.items
-        assert len(items) == 5
-        competition = items[0]
+    def test_get_items(self, competitions: Competitions) -> None:
+        items = competitions.get_items()
+        competition = next(items)
         assert competition["id"] == "ENG_Premier_League"
         assert competition["fotmob"]["id"] == "47"
         assert competition["fbref"]["id"] == "9"
@@ -56,10 +55,13 @@ class TestCompetitions:
             == "Premier League"
         )
 
+    def test_items(self, competitions: Competitions) -> None:
+        items = competitions.items
+        assert len(items) == 5
+
     def test_get_params(self, competitions: Competitions) -> None:
         params = competitions.get_params()
-        assert len(params) == 5
-        competition = params[0]
+        competition = next(params)
         assert competition["fbref_path_name"] == "Premier-League"
         assert competition["official_name"] == "Premier League"
         assert competition["transfermarkt_path_name"] == "premier-league"
