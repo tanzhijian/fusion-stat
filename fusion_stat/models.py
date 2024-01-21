@@ -11,7 +11,7 @@ from .types import (
     member_types,
     team_types,
 )
-from .utils import concatenate_strings, format_date, fuzzy_similarity_mean
+from .utils import fuzzy_similarity_mean
 
 T = typing.TypeVar("T", bound=base_types.StatDict)
 U = typing.TypeVar("U", bound=team_types.BaseMemberDict)
@@ -31,12 +31,14 @@ class Competitions:
         self.season = season
 
     def _find_competition(
-        self, competitions: list[T], competition_id: str
+        self,
+        query_id: str,
+        choices: typing.Sequence[T],
     ) -> T:
-        for competition in competitions:
-            if competition["id"] == competition_id:
+        for competition in choices:
+            if competition["id"] == query_id:
                 return competition
-        raise ValueError(f"Competition with id {competition_id} not found")
+        raise ValueError(f"Competition with id {query_id} not found")
 
     @property
     def info(self) -> competitions_types.InfoDict:
@@ -73,22 +75,18 @@ class Competitions:
         """
         for params in COMPETITIONS.values():
             fotmob_competition = self._find_competition(
-                self.fotmob, params["fotmob_id"]
+                params["fotmob_id"], self.fotmob
             )
             fbref_competition = self._find_competition(
-                self.fbref, params["fbref_id"]
+                params["fbref_id"], self.fbref
             )
             transfermarkt_competition = self._find_competition(
-                self.transfermarkt, params["transfermarkt_id"]
+                params["transfermarkt_id"], self.transfermarkt
             )
 
-            name = fotmob_competition["name"]
-            country_code = fbref_competition["country_code"]
-            id_ = concatenate_strings(country_code, name)
-
             item = competitions_types.CompetitionDict(
-                id=id_,
-                name=name,
+                id=fotmob_competition["id"],
+                name=fotmob_competition["name"],
                 fotmob=fotmob_competition,
                 fbref=fbref_competition,
                 transfermarkt=transfermarkt_competition,
@@ -186,11 +184,8 @@ class Competition:
         * country_code (str): country code, three-letter code
         * names (set[str]): All competition names.
         """
-        country_code = self.fotmob["country_code"]
-        name = self.fotmob["name"]
-        id_ = concatenate_strings(country_code, name)
         return competition_types.InfoDict(
-            id=id_,
+            id=self.fotmob["id"],
             name=self.fotmob["name"],
             logo=self.official["logo"],
             type=self.fotmob["type"],
@@ -236,10 +231,6 @@ class Competition:
                 country_code=official_team["country_code"],
                 logo=official_team["logo"],
                 shooting=fbref_team["shooting"],
-            )
-
-            team["id"] = concatenate_strings(
-                official_team["country_code"], fotmob_team["name"]
             )
             team["names"] |= fbref_team["names"]
 
@@ -348,34 +339,13 @@ class Competition:
                 * score (int | None): match score.
         """
         for fotmob_match in self.fotmob["matches"]:
-            date = format_date(fotmob_match["utc_time"])
-            id_ = concatenate_strings(date, fotmob_match["name"])
-
             home = fotmob_match["home"]
-            home_official_team = self._find_team(
-                fotmob_match["home"],
-                self.official["teams"],
-            )
-            home["id"] = concatenate_strings(
-                home_official_team["country_code"],
-                home["name"],
-            )
-
             away = fotmob_match["away"]
-            away_official_team = self._find_team(
-                fotmob_match["away"],
-                self.official["teams"],
-            )
-            away["id"] = concatenate_strings(
-                away_official_team["country_code"],
-                away["name"],
-            )
-
             competition = fotmob_match["competition"]
             competition["id"] = self.info["id"]
 
             match = competition_types.MatchDict(
-                id=id_,
+                id=fotmob_match["id"],
                 name=fotmob_match["name"],
                 utc_time=fotmob_match["utc_time"],
                 finished=fotmob_match["finished"],
@@ -475,14 +445,11 @@ class Team:
 
     @property
     def info(self) -> team_types.InfoDict:
-        country_code = self.fotmob["country_code"]
-        name = self.fotmob["name"]
-        id_ = concatenate_strings(country_code, name)
         return {
-            "id": id_,
-            "name": name,
+            "id": self.fotmob["id"],
+            "name": self.fotmob["name"],
             "names": self.fotmob["names"] | self.fbref["names"],
-            "country_code": country_code,
+            "country_code": self.fotmob["country_code"],
         }
 
     @property
@@ -513,13 +480,9 @@ class Team:
                     )
 
                     name = fotmob_member["name"]
-                    id_ = concatenate_strings(
-                        transfermarkt_member["date_of_birth"],
-                        name,
-                    )
                     shooting = fbref_member["shooting"]
                     player = team_types.PlayerDict(
-                        id=id_,
+                        id=fotmob_member["id"],
                         name=name,
                         names={name} | fbref_member["names"],
                         country=fotmob_member["country"],
@@ -621,8 +584,6 @@ class Matches:
         """
         for fotmob_match in self.fotmob:
             match = matches_types.MatchDict(**fotmob_match)
-            date = format_date(fotmob_match["utc_time"])
-            match["id"] = concatenate_strings(date, fotmob_match["name"])
             yield match
 
     @property

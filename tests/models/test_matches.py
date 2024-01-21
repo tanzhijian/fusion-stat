@@ -33,10 +33,7 @@ class TestMatches:
     def test_get_items(self, matches: Matches) -> None:
         items = matches.get_items()
         match = next(items)
-        assert (
-            match["id"]
-            == "2023-09-03_Crystal_Palace_vs_Wolverhampton_Wanderers"
-        )
+        assert match["id"] == "4193495"
         assert match["name"] == "Crystal Palace vs Wolverhampton Wanderers"
         assert match["home"]["score"] == 3
         assert match["away"]["score"] == 2

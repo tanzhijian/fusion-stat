@@ -70,7 +70,7 @@ class TestCompetition:
 
     def test_info(self, competition: Competition) -> None:
         info = competition.info
-        assert info["id"] == "ENG_Premier_League"
+        assert info["id"] == "47"
         assert info["name"] == "Premier League"
         assert info["country_code"] == "ENG"
         assert "Premier League" in info["names"]
@@ -79,7 +79,7 @@ class TestCompetition:
     def test_get_teams(self, competition: Competition) -> None:
         teams = competition.get_teams()
         team = next(teams)
-        assert team["id"] == "ENG_Manchester_City"
+        assert team["id"] == "8456"
         assert team["name"] == "Manchester City"
         assert team["country_code"] == "ENG"
         assert int(team["shooting"]["xg"]) == int(8.6)
@@ -111,11 +111,11 @@ class TestCompetition:
     def test_get_matches(self, competition: Competition) -> None:
         matches = competition.get_matches()
         match = next(matches)
-        assert match["id"] == "2023-08-11_Burnley_vs_Manchester_City"
-        assert match["competition"]["id"] == "ENG_Premier_League"
-        assert match["home"]["id"] == "ENG_Burnley"
+        assert match["id"] == "4193450"
+        assert match["competition"]["id"] == "47"
+        assert match["home"]["id"] == "8191"
         assert match["home"]["score"] == 0
-        assert match["away"]["id"] == "ENG_Manchester_City"
+        assert match["away"]["id"] == "8456"
         assert match["away"]["score"] == 3
 
     def test_matches(self, competition: Competition) -> None:

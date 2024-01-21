@@ -35,16 +35,16 @@ class TestCompetitions:
 
     def test_find_competition(self, competitions: Competitions) -> None:
         stats_dict = [StatDict(id="1", name="a")]
-        result = competitions._find_competition(stats_dict, "1")
+        result = competitions._find_competition("1", stats_dict)
         assert result["name"] == "a"
 
         with pytest.raises(ValueError):
-            competitions._find_competition(stats_dict, "a")
+            competitions._find_competition("a", stats_dict)
 
     def test_get_items(self, competitions: Competitions) -> None:
         items = competitions.get_items()
         competition = next(items)
-        assert competition["id"] == "ENG_Premier_League"
+        assert competition["id"] == "47"
         assert competition["fotmob"]["id"] == "47"
         assert competition["fbref"]["id"] == "9"
         assert competition["transfermarkt"]["id"] == "GB1"

@@ -49,7 +49,7 @@ class TestTeam:
 
     def test_info(self, team: Team) -> None:
         info = team.info
-        assert info["id"] == "ENG_Arsenal"
+        assert info["id"] == "9825"
         assert info["name"] == "Arsenal"
         assert "Arsenal" in info["names"]
         assert info["country_code"] == "ENG"
@@ -68,7 +68,7 @@ class TestTeam:
         players = team.players
         assert len(players) == 23
         player = players[-1]
-        assert player["id"] == "2001-06-18_Gabriel_Martinelli"
+        assert player["id"] == "1021586"
         assert player["name"] == "Gabriel Martinelli"
         assert "Gabriel Martinelli" in player["names"]
         assert player["country"] == "Brazil"
