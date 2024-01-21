@@ -36,12 +36,14 @@ class TransfermarktMemberDict(BaseMemberDict):
 
 
 class TransfermarktDict(StatDict):
+    market_values: str
     members: list[TransfermarktMemberDict]
 
 
 class InfoDict(StatDict):
     names: set[str]
     country_code: str
+    market_values: str
 
 
 class StaffDict(StatDict):
@@ -52,6 +54,8 @@ class PlayerDict(StatDict):
     names: set[str]
     country: str
     position: str | None
+    date_of_birth: str
+    market_values: str
     shooting: FBrefShootingDict
 
 

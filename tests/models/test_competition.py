@@ -75,6 +75,8 @@ class TestCompetition:
         assert info["country_code"] == "ENG"
         assert "Premier League" in info["names"]
         assert info["logo"]
+        assert info["market_values"] == "€10.99bn"
+        assert info["player_average_market_value"] == "€19.27m"
 
     def test_get_teams(self, competition: Competition) -> None:
         teams = competition.get_teams()
@@ -82,6 +84,7 @@ class TestCompetition:
         assert team["id"] == "8456"
         assert team["name"] == "Manchester City"
         assert team["country_code"] == "ENG"
+        assert team["market_values"] == "€1.29bn"
         assert int(team["shooting"]["xg"]) == int(8.6)
         assert (
             team["logo"]

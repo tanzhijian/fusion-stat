@@ -183,6 +183,8 @@ class Competition:
         * season (str): Competition season.
         * country_code (str): country code, three-letter code
         * names (set[str]): All competition names.
+        * market_values (str): Competition market values.
+        * player_average_market_value (str): Competition player average market value.
         """
         return competition_types.InfoDict(
             id=self.fotmob["id"],
@@ -192,6 +194,10 @@ class Competition:
             season=self.fotmob["season"],
             country_code=self.fotmob["country_code"],
             names=self.fotmob["names"] | {self.fbref["name"]},
+            market_values=self.transfermarkt["market_values"],
+            player_average_market_value=self.transfermarkt[
+                "player_average_market_value"
+            ],
         )
 
     def get_teams(
@@ -212,23 +218,22 @@ class Competition:
         * points (int): number of points.
         * logo (str): team logo.
         * country_code (str): country code, three-letter code
+        * market_values (str): team market values.
         * shooting (dict): shooting data.
                 * shots (int): number of shots.
                 * xg (float): expected goals.
         """
         for fotmob_team in self.fotmob["teams"]:
-            fbref_team = self._find_team(
-                fotmob_team,
-                self.fbref["teams"],
-            )
-            official_team = self._find_team(
-                fotmob_team,
-                self.official["teams"],
+            fbref_team = self._find_team(fotmob_team, self.fbref["teams"])
+            official_team = self._find_team(fotmob_team, self.official["teams"])
+            transfermarkt_team = self._find_team(
+                fotmob_team, self.transfermarkt["teams"]
             )
 
             team = competition_types.TeamDict(
                 **fotmob_team,
                 country_code=official_team["country_code"],
+                market_values=transfermarkt_team["market_values"],
                 logo=official_team["logo"],
                 shooting=fbref_team["shooting"],
             )
@@ -253,6 +258,7 @@ class Competition:
         * points (int): number of points.
         * logo (str): team logo.
         * country_code (str): country code, three-letter code
+        * market_values (str): team market values.
         * shooting (dict): shooting data.
                 * shots (int): number of shots.
                 * xg (float): expected goals.
@@ -450,6 +456,7 @@ class Team:
             "name": self.fotmob["name"],
             "names": self.fotmob["names"] | self.fbref["names"],
             "country_code": self.fotmob["country_code"],
+            "market_values": self.transfermarkt["market_values"],
         }
 
     @property
@@ -487,6 +494,8 @@ class Team:
                         names={name} | fbref_member["names"],
                         country=fotmob_member["country"],
                         position=fotmob_member["position"],
+                        date_of_birth=transfermarkt_member["date_of_birth"],
+                        market_values=transfermarkt_member["market_values"],
                         shooting=shooting,
                     )
                     yield player

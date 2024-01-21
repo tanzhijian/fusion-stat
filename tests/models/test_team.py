@@ -53,6 +53,7 @@ class TestTeam:
         assert info["name"] == "Arsenal"
         assert "Arsenal" in info["names"]
         assert info["country_code"] == "ENG"
+        assert info["market_values"] == "€1.12bn"
 
     def test_staff(self, team: Team) -> None:
         staff = team.staff
@@ -73,6 +74,8 @@ class TestTeam:
         assert "Gabriel Martinelli" in player["names"]
         assert player["country"] == "Brazil"
         assert player["position"] == "FW"
+        assert player["date_of_birth"] == "2001-06-18"
+        assert player["market_values"] == "€85.00m"
 
     def test_get_members_params(self, team: Team) -> None:
         params = team.get_members_params()

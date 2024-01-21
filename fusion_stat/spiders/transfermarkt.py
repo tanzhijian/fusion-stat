@@ -36,7 +36,6 @@ class Competitions(Spider):
             params["transfermarkt_id"] for params in COMPETITIONS.values()
         }
         trs = selector.xpath('//*[@id="yw1"]/table/tbody/tr')
-        # 还没有添加 config 的赛事限制
         for tr in trs[1:]:
             a = tr.xpath("./td[1]/table/tr/td[2]/a")
             href_strs = get_element_text(a.xpath("./@href")).split("/")
@@ -85,7 +84,13 @@ class Competition(Spider):
         self, response: httpx.Response
     ) -> competition_types.TransfermarktDict:
         selector = Selector(response.text)
-        name = get_element_text(selector.xpath("//h1/text()")).strip()
+        name = get_element_text(selector.xpath("//h1/text()"))
+        player_average_market_value = get_element_text(
+            selector.xpath(
+                '//div[@class="data-header__details"]/ul[2]/li[1]/span/text()'
+            )
+        )
+        market_values = _get_market_value(selector)
 
         teams: list[competition_types.TransfermarktTeamDict] = []
         trs = selector.xpath('//*[@id="yw1"]/table/tbody/tr')
@@ -95,11 +100,11 @@ class Competition(Spider):
             team_id = href_strs[-3]
             team_path_name = href_strs[-6]
             team_name = get_element_text(a.xpath("./@title"))
-            total_market_value = get_element_text(a.xpath("./text()"))
+            team_market_values = get_element_text(a.xpath("./text()"))
             team = competition_types.TransfermarktTeamDict(
                 id=team_id,
                 name=team_name,
-                total_market_value=total_market_value,
+                market_values=team_market_values,
                 path_name=team_path_name,
             )
             teams.append(team)
@@ -107,6 +112,8 @@ class Competition(Spider):
         return competition_types.TransfermarktDict(
             id=self.id,
             name=name,
+            market_values=market_values,
+            player_average_market_value=player_average_market_value,
             teams=teams,
         )
 
@@ -134,7 +141,8 @@ class Team(Spider):
 
     def parse(self, response: httpx.Response) -> team_types.TransfermarktDict:
         selector = Selector(response.text)
-        name = get_element_text(selector.xpath("//h1/text()")).strip()
+        name = get_element_text(selector.xpath("//h1/text()"))
+        market_values = _get_market_value(selector)
 
         members: list[team_types.TransfermarktMemberDict] = []
         trs = selector.xpath('//*[@id="yw1"]/table/tbody/tr')
@@ -145,17 +153,15 @@ class Team(Spider):
             href_strs = get_element_text(a.xpath("./@href")).split("/")
             member_id = href_strs[-1]
             member_path_name = href_strs[-4]
-            member_name = get_element_text(a.xpath("./text()")).strip()
+            member_name = get_element_text(a.xpath("./text()"))
 
-            position = get_element_text(
-                tds[1].xpath("./table/tr[2]/td/text()")
-            ).strip()
+            position = get_element_text(tds[1].xpath("./table/tr[2]/td/text()"))
             position = POSITIONS[position]
 
             date_of_birth = get_element_text(tds[2].xpath("./text()"))
             date_of_birth = _convert_date_format(date_of_birth)
 
-            market_values = get_element_text(tds[-1].xpath("./a/text()"))
+            member_market_values = get_element_text(tds[-1].xpath("./a/text()"))
 
             country = get_element_text(tds[-2].xpath("./img[1]/@title"))
             country_code = fifa_members[(country)].code
@@ -165,7 +171,7 @@ class Team(Spider):
                     id=member_id,
                     name=member_name,
                     date_of_birth=date_of_birth,
-                    market_values=market_values,
+                    market_values=member_market_values,
                     path_name=member_path_name,
                     country_code=country_code,
                     position=position,
@@ -175,6 +181,7 @@ class Team(Spider):
         return team_types.TransfermarktDict(
             id=self.id,
             name=name,
+            market_values=market_values,
             members=members,
         )
 
@@ -198,12 +205,7 @@ class Member(Spider):
 
     def parse(self, response: httpx.Response) -> member_types.TransfermarktDict:
         selector = Selector(response.text)
-
-        a = selector.xpath('//a[@class="data-header__market-value-wrapper"]')
-        currency = get_element_text(a.xpath("./span[1]/text()"))
-        number = get_element_text(a.xpath("./text()"))
-        scale = get_element_text(a.xpath("./span[2]/text()"))
-        market_values = f"{currency}{number}{scale}"
+        market_values = _get_market_value(selector)
 
         name = get_element_text(
             selector.xpath(
@@ -223,3 +225,12 @@ def _convert_date_format(s: str) -> str:
     date_object = datetime.strptime(date_string, "%b %d, %Y")
     formatted_date = date_object.strftime("%Y-%m-%d")
     return formatted_date
+
+
+def _get_market_value(selector: Selector) -> str:
+    a = selector.xpath('//a[@class="data-header__market-value-wrapper"]')
+    currency = get_element_text(a.xpath("./span[1]/text()"))
+    number = get_element_text(a.xpath("./text()"))
+    scale = get_element_text(a.xpath("./span[2]/text()"))
+    market_values = f"{currency}{number}{scale}"
+    return market_values

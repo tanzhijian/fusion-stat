@@ -149,7 +149,7 @@ class Team(Spider):
 
     def parse(self, response: httpx.Response) -> team_types.FBrefDict:
         selector = Selector(response.text)
-        h1 = get_element_text(selector.xpath("//h1/span/text()"))
+        h1 = get_element_text(selector.xpath("//h1/span[1]/text()"))
         name = " ".join(h1.split(" ")[1:-1])
 
         standard_stats_table = selector.xpath(

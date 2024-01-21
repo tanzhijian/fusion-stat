@@ -59,20 +59,24 @@ class OfficialDict(StatDict):
 
 
 class TransfermarktTeamDict(StatDict):
-    total_market_value: str
+    market_values: str
     path_name: str
 
 
 class TransfermarktDict(StatDict):
+    market_values: str
+    player_average_market_value: str
     teams: list[TransfermarktTeamDict]
 
 
 class InfoDict(StatDict):
+    names: set[str]
     logo: str
     type: str
     season: str
     country_code: str
-    names: set[str]
+    market_values: str
+    player_average_market_value: str
 
 
 class _BaseTeamDict(StatDict):
@@ -88,6 +92,7 @@ class _BaseTeamDict(StatDict):
 
 class TeamDict(_BaseTeamDict):
     country_code: str
+    market_values: str
     names: set[str]
     shooting: FBrefShootingDict
 

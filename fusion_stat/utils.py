@@ -5,10 +5,10 @@ from parsel import Selector, SelectorList
 from rapidfuzz import fuzz
 
 
-def get_element_text(selector_list: SelectorList[Selector]) -> str:
-    if (text := selector_list.get()) is None:
+def get_element_text(selector_list: Selector | SelectorList[Selector]) -> str:
+    if not (text := "".join(selector_list.getall())):
         raise ValueError("tag not found")
-    return text
+    return text.strip()
 
 
 def fuzzy_similarity_mean(

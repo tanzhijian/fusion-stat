@@ -66,12 +66,14 @@ class TestCompetition:
         com = spider.parse(response)
         assert com["id"] == "GB1"
         assert com["name"] == "Premier League"
+        assert com["market_values"] == "€10.99bn"
+        assert com["player_average_market_value"] == "€19.27m"
         assert len(com["teams"]) == 20
 
         team = com["teams"][0]
         assert team["id"] == "281"
         assert team["name"] == "Manchester City"
-        assert team["total_market_value"] == "€1.29bn"
+        assert team["market_values"] == "€1.29bn"
         assert team["path_name"] == "manchester-city"
 
         assert com["teams"][1]["name"] == "Arsenal FC"

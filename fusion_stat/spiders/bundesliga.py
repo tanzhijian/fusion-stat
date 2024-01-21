@@ -60,7 +60,7 @@ class Competition(Spider):
 
             img = card.xpath(".//img")
             name = get_element_text(img.xpath("./@alt"))
-            logo = BASE_URL + get_element_text(img.xpath("./@src"))
+            logo = BASE_URL + get_element_text(img.xpath("./@src")[0])
 
             teams.append(
                 OfficialTeamDict(
