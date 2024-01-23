@@ -19,10 +19,8 @@ read_test_data = partial(read_data, "fbref")
 
 class TestCompetitions:
     @pytest.fixture(scope="class")
-    def spider(
-        self, client: httpx.AsyncClient
-    ) -> typing.Generator[Competitions, typing.Any, None]:
-        yield Competitions(client=client)
+    def spider(self) -> typing.Generator[Competitions, typing.Any, None]:
+        yield Competitions()
 
     def test_request(self, spider: Competitions) -> None:
         url = spider.request.url
@@ -43,18 +41,14 @@ class TestCompetitions:
 
 class TestCompetition:
     @pytest.fixture(scope="class")
-    def spider(
-        self, client: httpx.AsyncClient
-    ) -> typing.Generator[Competition, typing.Any, None]:
-        yield Competition(id="9", path_name="Premier-League", client=client)
+    def spider(self) -> typing.Generator[Competition, typing.Any, None]:
+        yield Competition(id="9", path_name="Premier-League")
 
     def test_request(self, spider: Competition) -> None:
         url = spider.request.url
         assert url == "https://fbref.com/en/comps/9/Premier-League-Stats"
 
-    def test_request_path_name_and_season(
-        self, client: httpx.AsyncClient
-    ) -> None:
+    def test_request_path_name_and_season(self) -> None:
         for url, spider in zip(
             (
                 "https://fbref.com/en/comps/9",
@@ -65,14 +59,9 @@ class TestCompetition:
                 ),
             ),
             (
-                Competition(id="9", client=client),
-                Competition(id="9", season=2022, client=client),
-                Competition(
-                    id="9",
-                    season=2022,
-                    path_name="Premier-League",
-                    client=client,
-                ),
+                Competition(id="9"),
+                Competition(id="9", season=2022),
+                Competition(id="9", season=2022, path_name="Premier-League"),
             ),
         ):
             assert url == spider.request.url
@@ -97,18 +86,14 @@ class TestCompetition:
 
 class TestTeam:
     @pytest.fixture(scope="class")
-    def spider(
-        self, client: httpx.AsyncClient
-    ) -> typing.Generator[Team, typing.Any, None]:
-        yield Team(id="18bb7c10", path_name="Arsenal", client=client)
+    def spider(self) -> typing.Generator[Team, typing.Any, None]:
+        yield Team(id="18bb7c10", path_name="Arsenal")
 
     def test_request(self, spider: Team) -> None:
         url = spider.request.url
         assert url == "https://fbref.com/en/squads/18bb7c10/Arsenal-Stats"
 
-    def test_request_path_name_and_season(
-        self, client: httpx.AsyncClient
-    ) -> None:
+    def test_request_path_name_and_season(self) -> None:
         for url, spider in zip(
             (
                 "https://fbref.com/en/squads/18bb7c10",
@@ -116,14 +101,9 @@ class TestTeam:
                 "https://fbref.com/en/squads/18bb7c10/2022-2023/Arsenal-Stats",
             ),
             (
-                Team(id="18bb7c10", client=client),
-                Team(id="18bb7c10", season=2022, client=client),
-                Team(
-                    id="18bb7c10",
-                    path_name="Arsenal",
-                    season=2022,
-                    client=client,
-                ),
+                Team(id="18bb7c10"),
+                Team(id="18bb7c10", season=2022),
+                Team(id="18bb7c10", path_name="Arsenal", season=2022),
             ),
         ):
             assert url == spider.request.url
@@ -155,17 +135,15 @@ class TestTeam:
 
 class TestMember:
     @pytest.fixture(scope="class")
-    def spider(
-        self, client: httpx.AsyncClient
-    ) -> typing.Generator[Member, typing.Any, None]:
-        yield Member(id="bc7dc64d", path_name="Bukayo-Saka", client=client)
+    def spider(self) -> typing.Generator[Member, typing.Any, None]:
+        yield Member(id="bc7dc64d", path_name="Bukayo-Saka")
 
     def test_request(self, spider: Member) -> None:
         url = spider.request.url
         assert url == "https://fbref.com/en/players/bc7dc64d/Bukayo-Saka"
 
-    def test_request_exclude_path_name(self, client: httpx.AsyncClient) -> None:
-        spider = Member(id="bc7dc64d", client=client)
+    def test_request_exclude_path_name(self) -> None:
+        spider = Member(id="bc7dc64d")
         assert spider.request.url == "https://fbref.com/en/players/bc7dc64d/"
 
     def test_parse(self, spider: Member) -> None:
@@ -181,10 +159,8 @@ class TestMember:
 
 class TestMatches:
     @pytest.fixture(scope="class")
-    def spider(
-        self, client: httpx.AsyncClient
-    ) -> typing.Generator[Matches, typing.Any, None]:
-        yield Matches(date="2023-09-03", client=client)
+    def spider(self) -> typing.Generator[Matches, typing.Any, None]:
+        yield Matches(date="2023-09-03")
 
     def test_request(self, spider: Matches) -> None:
         url = spider.request.url
@@ -202,10 +178,8 @@ class TestMatches:
 
 class TestMatch:
     @pytest.fixture(scope="class")
-    def spider(
-        self, client: httpx.AsyncClient
-    ) -> typing.Generator[Match, typing.Any, None]:
-        yield Match(id="74125d47", client=client)
+    def spider(self) -> typing.Generator[Match, typing.Any, None]:
+        yield Match(id="74125d47")
 
     def test_request(self, spider: Match) -> None:
         url = spider.request.url

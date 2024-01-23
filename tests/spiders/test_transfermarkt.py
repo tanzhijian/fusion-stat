@@ -16,10 +16,8 @@ from ..utils import read_data
 
 class TestCompetitions:
     @pytest.fixture(scope="class")
-    def spider(
-        self, client: httpx.AsyncClient
-    ) -> typing.Generator[Competitions, typing.Any, None]:
-        yield Competitions(client=client)
+    def spider(self) -> typing.Generator[Competitions, typing.Any, None]:
+        yield Competitions()
 
     def test_request(self, spider: Competitions) -> None:
         url = spider.request.url
@@ -38,10 +36,8 @@ class TestCompetitions:
 
 class TestCompetition:
     @pytest.fixture(scope="class")
-    def spider(
-        self, client: httpx.AsyncClient
-    ) -> typing.Generator[Competition, typing.Any, None]:
-        yield Competition(id="GB1", path_name="premier-league", client=client)
+    def spider(self) -> typing.Generator[Competition, typing.Any, None]:
+        yield Competition(id="GB1", path_name="premier-league")
 
     def test_request(self, spider: Competition) -> None:
         url = spider.request.url
@@ -81,10 +77,8 @@ class TestCompetition:
 
 class TestTeam:
     @pytest.fixture(scope="class")
-    def spider(
-        self, client: httpx.AsyncClient
-    ) -> typing.Generator[Team, typing.Any, None]:
-        yield Team(id="11", path_name="arsenal-fc", client=client)
+    def spider(self) -> typing.Generator[Team, typing.Any, None]:
+        yield Team(id="11", path_name="arsenal-fc")
 
     def test_request(self, spider: Team) -> None:
         url = spider.request.url
@@ -123,10 +117,8 @@ class TestTeam:
 
 class TestMember:
     @pytest.fixture(scope="class")
-    def spider(
-        self, client: httpx.AsyncClient
-    ) -> typing.Generator[Member, typing.Any, None]:
-        yield Member(id="433177", path_name="bukayo-saka", client=client)
+    def spider(self) -> typing.Generator[Member, typing.Any, None]:
+        yield Member(id="433177", path_name="bukayo-saka")
 
     def test_request(self, spider: Member) -> None:
         url = spider.request.url

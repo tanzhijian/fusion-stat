@@ -12,6 +12,22 @@ from .utils import (
 )
 
 
+@pytest.mark.anyio
+async def test_fusion_close_include_client() -> None:
+    fusion = Fusion(client=httpx.AsyncClient(params={"a": "b"}))
+    assert fusion.engine.downloader.client.params["a"] == "b"
+    assert not fusion.engine.downloader.client.is_closed
+    await fusion.close()
+    assert fusion.engine.downloader.client.is_closed
+
+
+@pytest.mark.anyio
+async def test_fusion_close_context() -> None:
+    async with Fusion() as fusion:
+        assert not fusion.engine.downloader.client.is_closed
+    assert fusion.engine.downloader.client.is_closed
+
+
 class TestFusion:
     @pytest.fixture(scope="class")
     def fusion(self, client: httpx.AsyncClient) -> Fusion:

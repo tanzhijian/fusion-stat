@@ -8,17 +8,17 @@ from tests.utils import read_data
 
 class TestMember:
     @pytest.fixture(scope="class")
-    def member(self, client: httpx.AsyncClient) -> Member:
+    def member(self) -> Member:
         fotmob_data = read_data("fotmob", "playerData?id=961995.json")
         fbref_data = read_data("fbref", "players_bc7dc64d_Bukayo-Saka.html")
         transfermarkt_data = read_data(
             "transfermarkt", "bukayo-saka_profil_spieler_433177.html"
         )
 
-        fotmob_spider = fotmob.Member(id="961995", client=client)
-        fbref_spider = fbref.Member(id="bc7dc64d", client=client)
+        fotmob_spider = fotmob.Member(id="961995")
+        fbref_spider = fbref.Member(id="bc7dc64d")
         transfermarkt_spider = transfermarkt.Member(
-            id="433177", path_name="bukayo-saka", client=client
+            id="433177", path_name="bukayo-saka"
         )
 
         return Member(

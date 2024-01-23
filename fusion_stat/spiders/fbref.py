@@ -1,8 +1,8 @@
 import httpx
 from parsel import Selector, SelectorList
 
-from ..base import Spider
 from ..config import COMPETITIONS
+from ..scraper import Spider
 from ..types import (
     base_types,
     competition_types,
@@ -62,9 +62,7 @@ class Competition(Spider):
         id: str,
         path_name: str | None = None,
         season: int | None = None,
-        client: httpx.AsyncClient,
     ) -> None:
-        super().__init__(client=client)
         self.id = id
         self.path_name = path_name
         if season is None:
@@ -124,9 +122,7 @@ class Team(Spider):
         id: str,
         path_name: str | None = None,
         season: int | None = None,
-        client: httpx.AsyncClient,
     ) -> None:
-        super().__init__(client=client)
         self.id = id
         self.path_name = path_name
         if season is None:
@@ -211,9 +207,7 @@ class Member(Spider):
         *,
         id: str,
         path_name: str | None = None,
-        client: httpx.AsyncClient,
     ) -> None:
-        super().__init__(client=client)
         self.id = id
         self.path_name = path_name
 
@@ -243,8 +237,7 @@ class Matches(Spider):
     * date: "%Y-%m-%d", such as "2023-09-03"
     """
 
-    def __init__(self, *, date: str, client: httpx.AsyncClient) -> None:
-        super().__init__(client=client)
+    def __init__(self, *, date: str) -> None:
         self.date = date
 
     @property
@@ -292,8 +285,7 @@ class Matches(Spider):
 
 
 class Match(Spider):
-    def __init__(self, *, id: str, client: httpx.AsyncClient) -> None:
-        super().__init__(client=client)
+    def __init__(self, *, id: str) -> None:
         self.id = id
 
     @property

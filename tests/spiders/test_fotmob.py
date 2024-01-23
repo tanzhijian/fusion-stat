@@ -21,10 +21,8 @@ read_test_data = partial(read_data, "fotmob")
 
 class TestCompetitions:
     @pytest.fixture(scope="class")
-    def spider(
-        self, client: httpx.AsyncClient
-    ) -> typing.Generator[Competitions, typing.Any, None]:
-        yield Competitions(client=client)
+    def spider(self) -> typing.Generator[Competitions, typing.Any, None]:
+        yield Competitions()
 
     def test_request(self, spider: Competitions) -> None:
         url = spider.request.url
@@ -43,18 +41,14 @@ class TestCompetitions:
 
 class TestCompetition:
     @pytest.fixture(scope="class")
-    def spider(
-        self, client: httpx.AsyncClient
-    ) -> typing.Generator[Competition, typing.Any, None]:
-        yield Competition(id="47", client=client)
+    def spider(self) -> typing.Generator[Competition, typing.Any, None]:
+        yield Competition(id="47")
 
     def test_request(self, spider: Competition) -> None:
         assert spider.request.url == "https://www.fotmob.com/api/leagues?id=47"
 
-    def test_request_include_season(
-        self, spider: Competition, client: httpx.AsyncClient
-    ) -> None:
-        spider = Competition(id="47", season=2022, client=client)
+    def test_request_include_season(self, spider: Competition) -> None:
+        spider = Competition(id="47", season=2022)
         assert (
             spider.request.url
             == "https://www.fotmob.com/api/leagues?id=47&season=2022%2F2023"
@@ -107,10 +101,8 @@ class TestCompetition:
 
 class TestTeam:
     @pytest.fixture(scope="class")
-    def spider(
-        self, client: httpx.AsyncClient
-    ) -> typing.Generator[Team, typing.Any, None]:
-        yield Team(id="9825", client=client)
+    def spider(self) -> typing.Generator[Team, typing.Any, None]:
+        yield Team(id="9825")
 
     def test_request(self, spider: Team) -> None:
         url = spider.request.url
@@ -139,10 +131,8 @@ class TestTeam:
 
 class TestMember:
     @pytest.fixture(scope="class")
-    def spider(
-        self, client: httpx.AsyncClient
-    ) -> typing.Generator[Member, typing.Any, None]:
-        yield Member(id="961995", client=client)
+    def spider(self) -> typing.Generator[Member, typing.Any, None]:
+        yield Member(id="961995")
 
     def test_request(self, spider: Member) -> None:
         url = spider.request.url
@@ -161,10 +151,8 @@ class TestMember:
 
 class TestMatches:
     @pytest.fixture(scope="class")
-    def spider(
-        self, client: httpx.AsyncClient
-    ) -> typing.Generator[Matches, typing.Any, None]:
-        yield Matches(date="2023-09-03", client=client)
+    def spider(self) -> typing.Generator[Matches, typing.Any, None]:
+        yield Matches(date="2023-09-03")
 
     def test_request(self, spider: Matches) -> None:
         url = spider.request.url
@@ -194,10 +182,8 @@ class TestMatches:
 
 class TestMatch:
     @pytest.fixture(scope="class")
-    def spider(
-        self, client: httpx.AsyncClient
-    ) -> typing.Generator[Match, typing.Any, None]:
-        yield Match(id="4193490", client=client)
+    def spider(self) -> typing.Generator[Match, typing.Any, None]:
+        yield Match(id="4193490")
 
     def test_request(self, spider: Match) -> None:
         url = spider.request.url

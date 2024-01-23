@@ -9,20 +9,16 @@ from tests.utils import read_data
 
 class TestCompetition:
     @pytest.fixture(scope="class")
-    def spider(
-        self, client: httpx.AsyncClient
-    ) -> typing.Generator[Competition, typing.Any, None]:
-        yield Competition(name="La Liga", season=2023, client=client)
+    def spider(self) -> typing.Generator[Competition, typing.Any, None]:
+        yield Competition(name="La Liga", season=2023)
 
-    def test_request(
-        self, spider: Competition, client: httpx.AsyncClient
-    ) -> None:
+    def test_request(self, spider: Competition) -> None:
         assert (
             spider.request.url
             == "https://apim.laliga.com/public-service/api/v1/teams?subscriptionSlug=laliga-easports-2023&limit=99&offset=0&orderField=nickname&orderType=ASC"
         )
 
-        com_2013 = Competition(name="La Liga", season=2013, client=client)
+        com_2013 = Competition(name="La Liga", season=2013)
         assert (
             com_2013.request.url
             == "https://apim.laliga.com/public-service/api/v1/teams?subscriptionSlug=laliga-santander-2013&limit=99&offset=0&orderField=nickname&orderType=ASC"

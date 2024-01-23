@@ -1,7 +1,7 @@
 import httpx
 from parsel import Selector
 
-from ..base import Spider
+from ..scraper import Spider
 from ..types import competition_types
 from ..utils import current_season, get_element_text
 
@@ -14,9 +14,7 @@ class Competition(Spider):
         *,
         name: str,
         season: int | None = None,
-        client: httpx.AsyncClient,
     ) -> None:
-        super().__init__(client=client)
         self.name = name
         if season:
             self.season = f"{season}-{season + 1}"

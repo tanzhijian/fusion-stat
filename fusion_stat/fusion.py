@@ -1,32 +1,44 @@
-import asyncio
 import typing
+from types import TracebackType
 
-from .base import Downloader
+import httpx
+
 from .models import Competition, Competitions, Match, Matches, Member, Team
+from .scraper import Engine
 from .spiders import fbref, fotmob, official, transfermarkt
 
+U = typing.TypeVar("U")
 
-class Fusion(Downloader):
-    async def gather(
+
+class Fusion:
+    def __init__(self, client: httpx.AsyncClient | None = None) -> None:
+        self.engine = Engine(client)
+
+    async def close(self) -> None:
+        await self.engine.close()
+
+    async def __aenter__(self: U) -> U:
+        return self
+
+    async def __aexit__(
         self,
-        tasks: typing.Iterable[
-            typing.Coroutine[typing.Any, typing.Any, typing.Any]
-        ],
-    ) -> list[typing.Any]:
-        result = await asyncio.gather(*tasks)
-        return result
+        exc_type: type[BaseException] | None = None,
+        exc_value: BaseException | None = None,
+        traceback: TracebackType | None = None,
+    ) -> None:
+        await self.close()
 
     async def get_competitions(self, season: int | None = None) -> Competitions:
-        tasks = (
-            fotmob.Competitions(client=self.client).process(),
-            fbref.Competitions(client=self.client).process(),
-            transfermarkt.Competitions(client=self.client).process(),
+        spiders = (
+            fotmob.Competitions(),
+            fbref.Competitions(),
+            transfermarkt.Competitions(),
         )
         (
             fotmob_competitions,
             fbref_competitions,
             transfermarkt_competitions,
-        ) = await self.gather(tasks)
+        ) = await self.engine.process(*spiders)
         return Competitions(
             fotmob=fotmob_competitions,
             fbref=fbref_competitions,
@@ -45,35 +57,22 @@ class Fusion(Downloader):
         transfermarkt_path_name: str,
         season: int | None = None,
     ) -> Competition:
-        tasks = (
-            fotmob.Competition(
-                id=fotmob_id,
-                season=season,
-                client=self.client,
-            ).process(),
+        spiders = (
+            fotmob.Competition(id=fotmob_id, season=season),
             fbref.Competition(
-                id=fbref_id,
-                path_name=fbref_path_name,
-                season=season,
-                client=self.client,
-            ).process(),
-            official.Competition(
-                name=official_name,
-                season=season,
-                client=self.client,
-            ).process(),
+                id=fbref_id, path_name=fbref_path_name, season=season
+            ),
+            official.Competition(name=official_name, season=season),
             transfermarkt.Competition(
-                id=transfermarkt_id,
-                path_name=transfermarkt_path_name,
-                client=self.client,
-            ).process(),
+                id=transfermarkt_id, path_name=transfermarkt_path_name
+            ),
         )
         (
             fotmob_competition,
             fbref_competition,
             official_competition,
             transfermarkt_competition,
-        ) = await self.gather(tasks)
+        ) = await self.engine.process(*spiders)
         return Competition(
             fotmob=fotmob_competition,
             fbref=fbref_competition,
@@ -90,23 +89,16 @@ class Fusion(Downloader):
         transfermarkt_id: str,
         transfermarkt_path_name: str,
     ) -> Team:
-        tasks = (
-            fotmob.Team(
-                id=fotmob_id,
-                client=self.client,
-            ).process(),
-            fbref.Team(
-                id=fbref_id,
-                path_name=fbref_path_name,
-                client=self.client,
-            ).process(),
+        spiders = (
+            fotmob.Team(id=fotmob_id),
+            fbref.Team(id=fbref_id, path_name=fbref_path_name),
             transfermarkt.Team(
-                id=transfermarkt_id,
-                path_name=transfermarkt_path_name,
-                client=self.client,
-            ).process(),
+                id=transfermarkt_id, path_name=transfermarkt_path_name
+            ),
         )
-        fotmob_team, fbref_team, transfermarkt_team = await self.gather(tasks)
+        fotmob_team, fbref_team, transfermarkt_team = await self.engine.process(
+            *spiders
+        )
         return Team(
             fotmob=fotmob_team,
             fbref=fbref_team,
@@ -122,24 +114,18 @@ class Fusion(Downloader):
         transfermarkt_id: str,
         transfermarkt_path_name: str,
     ) -> Member:
-        tasks = (
-            fotmob.Member(id=fotmob_id, client=self.client).process(),
-            fbref.Member(
-                id=fbref_id,
-                path_name=fbref_path_name,
-                client=self.client,
-            ).process(),
+        spiders = (
+            fotmob.Member(id=fotmob_id),
+            fbref.Member(id=fbref_id, path_name=fbref_path_name),
             transfermarkt.Member(
-                id=transfermarkt_id,
-                path_name=transfermarkt_path_name,
-                client=self.client,
-            ).process(),
+                id=transfermarkt_id, path_name=transfermarkt_path_name
+            ),
         )
         (
             fotmob_member,
             fbref_member,
             transfermarkt_member,
-        ) = await self.gather(tasks)
+        ) = await self.engine.process(*spiders)
         return Member(
             fotmob=fotmob_member,
             fbref=fbref_member,
@@ -151,17 +137,17 @@ class Fusion(Downloader):
 
         * date: "%Y-%m-%d", such as "2023-09-03"
         """
-        tasks = (
-            fotmob.Matches(date=date, client=self.client).process(),
-            fbref.Matches(date=date, client=self.client).process(),
+        spiders = (
+            fotmob.Matches(date=date),
+            fbref.Matches(date=date),
         )
-        fotmob_matches, fbref_matches = await self.gather(tasks)
+        fotmob_matches, fbref_matches = await self.engine.process(*spiders)
         return Matches(fotmob=fotmob_matches, fbref=fbref_matches)
 
     async def get_match(self, *, fotmob_id: str, fbref_id: str) -> Match:
-        tasks = (
-            fotmob.Match(id=fotmob_id, client=self.client).process(),
-            fbref.Match(id=fbref_id, client=self.client).process(),
+        spiders = (
+            fotmob.Match(id=fotmob_id),
+            fbref.Match(id=fbref_id),
         )
-        fotmob_match, fbref_match = await self.gather(tasks)
+        fotmob_match, fbref_match = await self.engine.process(*spiders)
         return Match(fotmob=fotmob_match, fbref=fbref_match)

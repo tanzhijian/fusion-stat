@@ -8,12 +8,12 @@ from tests.utils import read_data
 
 class TestMatch:
     @pytest.fixture(scope="class")
-    def match(self, client: httpx.AsyncClient) -> Match:
+    def match(self) -> Match:
         fotmob_data = read_data("fotmob", "matchDetails?matchId=4193490.json")
         fbref_data = read_data("fbref", "matches_74125d47.html")
 
-        fotmob_spider = fotmob.Match(id="4193490", client=client)
-        fbref_spider = fbref.Match(id="74125d47", client=client)
+        fotmob_spider = fotmob.Match(id="4193490")
+        fbref_spider = fbref.Match(id="74125d47")
 
         return Match(
             fotmob=fotmob_spider.parse(httpx.Response(200, json=fotmob_data)),

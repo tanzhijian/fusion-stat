@@ -2,15 +2,14 @@ import typing
 
 import httpx
 
-from ..base import Spider
+from ..scraper import Spider
 from ..utils import current_season
 
 BASE_URL = "https://en.wikipedia.org/api/rest_v1/page"
 
 
 class Image(Spider):
-    def __init__(self, *, id: str, client: httpx.AsyncClient) -> None:
-        super().__init__(client=client)
+    def __init__(self, *, id: str) -> None:
         self.id = id
 
     @property
@@ -25,8 +24,7 @@ class Image(Spider):
 
 
 class Competition(Spider):
-    def __init__(self, *, id: str, client: httpx.AsyncClient) -> None:
-        super().__init__(client=client)
+    def __init__(self, *, id: str) -> None:
         self.id = id
 
     @property

@@ -10,10 +10,8 @@ from tests.utils import read_data
 
 class TestCompetition:
     @pytest.fixture(scope="class")
-    def spider(
-        self, client: httpx.AsyncClient
-    ) -> typing.Generator[Competition, typing.Any, None]:
-        yield Competition(name="Premier League", client=client)
+    def spider(self) -> typing.Generator[Competition, typing.Any, None]:
+        yield Competition(name="Premier League")
 
     def test_request(self, spider: Competition) -> None:
         assert (
@@ -40,11 +38,11 @@ class TestCompetition:
         )
 
 
-def test_select_competition(client: httpx.AsyncClient) -> None:
+def test_select_competition() -> None:
     for name in COMPETITIONS:
-        spider = Competition(name=name, season=2023, client=client)
+        spider = Competition(name=name, season=2023)
         assert spider.name == name
 
     with pytest.raises(KeyError):
-        spider = Competition(name="Foo", season=2023, client=client)
+        spider = Competition(name="Foo", season=2023)
         assert spider.name == "Foo"

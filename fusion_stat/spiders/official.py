@@ -2,7 +2,7 @@ import typing
 
 import httpx
 
-from ..base import Spider
+from ..scraper import Spider
 from .bundesliga import Competition as BundesligaCompetition
 from .la_liga import Competition as LaLigaCompetition
 from .ligue_1 import Competition as Ligue1Competition
@@ -24,13 +24,11 @@ class Competition(Spider):
         *,
         name: str,
         season: int | None = None,
-        client: httpx.AsyncClient,
     ) -> None:
-        super().__init__(client=client)
         self.name = name
         self.season = season
         self.spider = spiders_cls[self.name](
-            **{"name": self.name, "season": self.season}, client=self.client
+            **{"name": self.name, "season": self.season}
         )
 
     @property

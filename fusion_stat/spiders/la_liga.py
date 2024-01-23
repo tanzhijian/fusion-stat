@@ -1,6 +1,6 @@
 import httpx
 
-from ..base import Spider
+from ..scraper import Spider
 from ..types import competition_types
 from ..utils import current_season
 
@@ -15,9 +15,7 @@ class Competition(Spider):
         *,
         name: str,
         season: int | None = None,
-        client: httpx.AsyncClient,
     ) -> None:
-        super().__init__(client=client)
         self.name = name
         if season:
             self.season = season

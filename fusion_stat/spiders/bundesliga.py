@@ -1,10 +1,9 @@
 # competition historic api 没有当前赛季
 # 而且在 22 赛季以前使用的 id 与之后是不一样的
-
 import httpx
 from parsel import Selector
 
-from ..base import Spider
+from ..scraper import Spider
 from ..types.competition_types import OfficialDict, OfficialTeamDict
 from ..utils import current_season, get_element_text
 
@@ -17,9 +16,7 @@ class Competition(Spider):
         *,
         name: str,
         season: int | None = None,
-        client: httpx.AsyncClient,
     ) -> None:
-        super().__init__(client=client)
         self.name = name
         _current_season = current_season()
         if season:

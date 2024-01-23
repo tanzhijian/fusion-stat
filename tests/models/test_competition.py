@@ -28,7 +28,7 @@ def test_sort_table_key() -> None:
 
 class TestCompetition:
     @pytest.fixture(scope="class")
-    def competition(self, client: httpx.AsyncClient) -> Competition:
+    def competition(self) -> Competition:
         fotmob_data = read_data("fotmob", "leagues?id=47.json")
         fbref_data = read_data("fbref", "comps_9_Premier-League-Stats.html")
         official_data = read_data(
@@ -38,15 +38,11 @@ class TestCompetition:
         transfermarkt_data = read_data(
             "transfermarkt", "premier-league_startseite_wettbewerb_GB1.html"
         )
-        fotmob_spider = fotmob.Competition(id="47", client=client)
-        fbref_spider = fbref.Competition(
-            id="9", path_name="Premier-League", client=client
-        )
-        official_spider = official.Competition(
-            name="Premier League", client=client
-        )
+        fotmob_spider = fotmob.Competition(id="47")
+        fbref_spider = fbref.Competition(id="9", path_name="Premier-League")
+        official_spider = official.Competition(name="Premier League")
         transfermarkt_spider = transfermarkt.Competition(
-            id="GB1", path_name="premier-league", client=client
+            id="GB1", path_name="premier-league"
         )
         return Competition(
             fotmob=fotmob_spider.parse(httpx.Response(200, json=fotmob_data)),

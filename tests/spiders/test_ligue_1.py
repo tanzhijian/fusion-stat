@@ -9,10 +9,8 @@ from tests.utils import read_data
 
 class TestCompetition:
     @pytest.fixture(scope="class")
-    def spider(
-        self, client: httpx.AsyncClient
-    ) -> typing.Generator[Competition, typing.Any, None]:
-        yield Competition(name="Ligue 1", season=2023, client=client)
+    def spider(self) -> typing.Generator[Competition, typing.Any, None]:
+        yield Competition(name="Ligue 1", season=2023)
 
     def test_request(self, spider: Competition) -> None:
         assert (

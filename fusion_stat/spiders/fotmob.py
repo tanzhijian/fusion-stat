@@ -1,7 +1,7 @@
 import httpx
 
-from ..base import Spider
 from ..config import COMPETITIONS, POSITIONS
+from ..scraper import Spider
 from ..types import (
     base_types,
     competition_types,
@@ -42,9 +42,7 @@ class Competition(Spider):
         *,
         id: str,
         season: int | None = None,
-        client: httpx.AsyncClient,
     ) -> None:
-        super().__init__(client=client)
         self.id = id
         if season is None:
             self.season = season
@@ -130,8 +128,7 @@ class Competition(Spider):
 
 
 class Team(Spider):
-    def __init__(self, *, id: str, client: httpx.AsyncClient) -> None:
-        super().__init__(client=client)
+    def __init__(self, *, id: str) -> None:
         self.id = id
 
     @property
@@ -176,8 +173,7 @@ class Team(Spider):
 
 
 class Member(Spider):
-    def __init__(self, *, id: str, client: httpx.AsyncClient) -> None:
-        super().__init__(client=client)
+    def __init__(self, *, id: str) -> None:
         self.id = id
 
     @property
@@ -209,8 +205,7 @@ class Matches(Spider):
     * date: "%Y-%m-%d", such as "2023-09-03"
     """
 
-    def __init__(self, *, date: str, client: httpx.AsyncClient) -> None:
-        super().__init__(client=client)
+    def __init__(self, *, date: str) -> None:
         self.date = date.replace("-", "")
 
     @property
@@ -262,8 +257,7 @@ class Matches(Spider):
 
 
 class Match(Spider):
-    def __init__(self, *, id: str, client: httpx.AsyncClient) -> None:
-        super().__init__(client=client)
+    def __init__(self, *, id: str) -> None:
         self.id = id
 
     @property

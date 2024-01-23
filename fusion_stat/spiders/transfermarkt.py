@@ -3,8 +3,8 @@ from datetime import datetime
 import httpx
 from parsel import Selector
 
-from ..base import Spider
 from ..config import COMPETITIONS, POSITIONS, fifa_members
+from ..scraper import Spider
 from ..types import (
     competition_types,
     competitions_types,
@@ -60,9 +60,7 @@ class Competition(Spider):
         id: str,
         path_name: str,
         season: int | None = None,
-        client: httpx.AsyncClient,
     ) -> None:
-        super().__init__(client=client)
         self.id = id
         self.path_name = path_name
         self.season = season
@@ -125,9 +123,7 @@ class Team(Spider):
         id: str,
         path_name: str,
         season: int | None = None,
-        client: httpx.AsyncClient,
     ) -> None:
-        super().__init__(client=client)
         self.id = id
         self.path_name = path_name
         self.season = season
@@ -192,9 +188,7 @@ class Member(Spider):
         *,
         id: str,
         path_name: str,
-        client: httpx.AsyncClient,
     ) -> None:
-        super().__init__(client=client)
         self.id = id
         self.path_name = path_name
 

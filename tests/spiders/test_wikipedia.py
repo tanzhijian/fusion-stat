@@ -9,10 +9,8 @@ from tests.utils import read_data
 
 class TestImage:
     @pytest.fixture(scope="class")
-    def spider(
-        self, client: httpx.AsyncClient
-    ) -> typing.Generator[Image, typing.Any, None]:
-        yield Image(id="Arsenal_F.C.", client=client)
+    def spider(self) -> typing.Generator[Image, typing.Any, None]:
+        yield Image(id="Arsenal_F.C.")
 
     def test_request(self, spider: Image) -> None:
         url = spider.request.url
@@ -33,10 +31,8 @@ class TestImage:
 
 class TestCompetition:
     @pytest.fixture(scope="class")
-    def spider(
-        self, client: httpx.AsyncClient
-    ) -> typing.Generator[Competition, typing.Any, None]:
-        yield Competition(id="Premier_League", client=client)
+    def spider(self) -> typing.Generator[Competition, typing.Any, None]:
+        yield Competition(id="Premier_League")
 
     def test_request(self, spider: Competition) -> None:
         url = spider.request.url

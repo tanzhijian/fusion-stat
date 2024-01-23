@@ -9,16 +9,16 @@ from tests.utils import read_data
 
 class TestCompetitions:
     @pytest.fixture(scope="class")
-    def competitions(self, client: httpx.AsyncClient) -> Competitions:
+    def competitions(self) -> Competitions:
         fotmob_data = read_data("fotmob", "allLeagues.json")
         fbref_data = read_data("fbref", "comps_.html")
         transfermarkt_data = read_data(
             "transfermarkt", "wettbewerbe_europa.html"
         )
 
-        fotmob_spider = fotmob.Competitions(client=client)
-        fbref_spider = fbref.Competitions(client=client)
-        transfermarkt_spider = transfermarkt.Competitions(client=client)
+        fotmob_spider = fotmob.Competitions()
+        fbref_spider = fbref.Competitions()
+        transfermarkt_spider = transfermarkt.Competitions()
 
         return Competitions(
             fotmob=fotmob_spider.parse(httpx.Response(200, json=fotmob_data)),

@@ -9,10 +9,8 @@ from tests.utils import read_data
 
 class testCompetitions:
     @pytest.fixture(scope="class")
-    def spider(
-        self, client: httpx.AsyncClient
-    ) -> typing.Generator[Competitions, typing.Any, None]:
-        yield Competitions(client=client)
+    def spider(self) -> typing.Generator[Competitions, typing.Any, None]:
+        yield Competitions()
 
     def test_request(self, spider: Competitions) -> None:
         assert (
@@ -34,10 +32,8 @@ class testCompetitions:
 
 class TestCompetition:
     @pytest.fixture(scope="class")
-    def spider(
-        self, client: httpx.AsyncClient
-    ) -> typing.Generator[Competition, typing.Any, None]:
-        yield Competition(name="Premier League", season=2023, client=client)
+    def spider(self) -> typing.Generator[Competition, typing.Any, None]:
+        yield Competition(name="Premier League", season=2023)
 
     def test_request(self, spider: Competition) -> None:
         assert (

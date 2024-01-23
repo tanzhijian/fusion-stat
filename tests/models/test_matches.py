@@ -9,12 +9,12 @@ from tests.utils import read_data
 
 class TestMatches:
     @pytest.fixture(scope="class")
-    def matches(self, client: httpx.AsyncClient) -> Matches:
+    def matches(self) -> Matches:
         fotmob_data = read_data("fotmob", "matches?date=20230903.json")
         fbref_data = read_data("fbref", "matches_2023-09-03.html")
 
-        fotmob_spider = fotmob.Matches(date="2023-09-03", client=client)
-        fbref_spider = fbref.Matches(date="2023-09-03", client=client)
+        fotmob_spider = fotmob.Matches(date="2023-09-03")
+        fbref_spider = fbref.Matches(date="2023-09-03")
 
         return Matches(
             fotmob=fotmob_spider.parse(httpx.Response(200, json=fotmob_data)),
