@@ -73,7 +73,7 @@ class Competitions:
                 * name (str): transfermarkt competition name
                 * path_name (str): transfermarkt competition path name
         """
-        for params in COMPETITIONS.values():
+        for name, params in COMPETITIONS.items():
             fotmob_competition = self._find_competition(
                 params["fotmob_id"], self.fotmob
             )
@@ -86,7 +86,7 @@ class Competitions:
 
             item = competitions_types.CompetitionDict(
                 id=fotmob_competition["id"],
-                name=fotmob_competition["name"],
+                name=name,
                 fotmob=fotmob_competition,
                 fbref=fbref_competition,
                 transfermarkt=transfermarkt_competition,

@@ -2,6 +2,7 @@ import httpx
 import pytest
 
 from fusion_stat import Competitions
+from fusion_stat.config import COMPETITIONS
 from fusion_stat.spiders import fbref, fotmob, transfermarkt
 from fusion_stat.types.base_types import StatDict
 from tests.utils import read_data
@@ -58,6 +59,9 @@ class TestCompetitions:
     def test_items(self, competitions: Competitions) -> None:
         items = competitions.items
         assert len(items) == 5
+
+        for item in items:
+            assert item["name"] in COMPETITIONS
 
     def test_get_params(self, competitions: Competitions) -> None:
         params = competitions.get_params()
