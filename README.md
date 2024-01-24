@@ -26,43 +26,30 @@ or
 ```python
 fusion = Fusion()
 competitions = await fusion.get_competitions()
-await fusion.aclose()
+await fusion.close()
 ```
 
 ```python
 params = competitions.get_params()
-params
+pl_params = next(params)
+pl_params
 ```
 
-    [{'fotmob_id': '47',
-      'fbref_id': '9',
-      'fbref_path_name': 'Premier-League',
-      'official_name': 'Premier League'},
-     {'fotmob_id': '87',
-      'fbref_id': '12',
-      'fbref_path_name': 'La-Liga',
-      'official_name': 'La Liga'},
-     {'fotmob_id': '54',
-      'fbref_id': '20',
-      'fbref_path_name': 'Bundesliga',
-      'official_name': 'Bundesliga'},
-     {'fotmob_id': '55',
-      'fbref_id': '11',
-      'fbref_path_name': 'Serie-A',
-      'official_name': 'Serie A'},
-     {'fotmob_id': '53',
-      'fbref_id': '13',
-      'fbref_path_name': 'Ligue-1',
-      'official_name': 'Ligue 1'}]
+    {'fotmob_id': '47',
+     'fbref_id': '9',
+     'fbref_path_name': 'Premier-League',
+     'official_name': 'Premier League',
+     'transfermarkt_id': 'GB1',
+     'transfermarkt_path_name': 'premier-league'}
 
-You can also use it like this
+The client uses httpx.AsyncClient, you can also customize parameters.
 
 ```python
 import httpx
 
-async with httpx.AsyncClient() as client:
-    fusion = Fusion(client=client)
-    competition = await fusion.get_competition(**params[0])
+client = httpx.AsyncClient()
+async with Fusion(client=client) as fusion:
+    competition = await fusion.get_competition(**pl_params)
 ```
 
 ```python
@@ -74,21 +61,26 @@ competition.info
      'logo': 'https://www.premierleague.com/resources/rebrand/v7.129.2/i/elements/pl-main-logo.png',
      'type': 'league',
      'season': '2023/2024',
-     'names': {'Premier League'}}
+     'country_code': 'ENG',
+     'names': {'Premier League'},
+     'market_values': '€10.96bn',
+     'player_average_market_value': '€19.54m'}
 
 ```python
 competition.teams[1]
 ```
 
-    {'id': '10252',
-     'name': 'Aston Villa',
-     'names': {'Aston Villa'},
+    {'id': '8456',
+     'name': 'Manchester City',
+     'names': {'Man City', 'Manchester City'},
      'played': 20,
      'wins': 13,
-     'draws': 3,
-     'losses': 4,
-     'goals_for': 43,
-     'goals_against': 27,
-     'points': 42,
-     'logo': 'https://resources.premierleague.com/premierleague/badges/rb/t7.svg',
-     'shooting': {'shots': 289, 'xg': 36.0}}
+     'draws': 4,
+     'losses': 3,
+     'goals_for': 48,
+     'goals_against': 23,
+     'points': 43,
+     'country_code': 'ENG',
+     'market_values': '€1.29bn',
+     'logo': 'https://resources.premierleague.com/premierleague/badges/rb/t43.svg',
+     'shooting': {'shots': 333, 'xg': 39.7}}

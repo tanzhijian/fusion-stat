@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fusion-stat"
-version = "0.0.5"
+version = "0.0.6"
 description = "Scrape football data from multiple sources simultaneously."
 authors = ["tanzhijian <tanzhijianorg@outlook.com>"]
 license = "MIT"

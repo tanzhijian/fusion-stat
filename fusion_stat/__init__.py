@@ -1,7 +1,7 @@
 from .fusion import Fusion
 from .models import Competition, Competitions, Match, Matches, Member, Team
 
-__version__ = "0.0.5"
+__version__ = "0.0.6"
 
 __all__ = (
     "__version__",
