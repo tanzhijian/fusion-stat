@@ -14,16 +14,14 @@ from ..types import (
 from ..utils import get_element_text
 
 BASE_URL = "https://www.transfermarkt.com"
-HEADERS = {"User-Agent": "googlebot"}
+HEADERS = {"User-Agent": "firefox"}
 
 
 class Competitions(Spider):
     @property
     def request(self) -> httpx.Request:
         return httpx.Request(
-            "GET",
-            url=f"{BASE_URL}/wettbewerbe/europa",
-            headers=HEADERS,
+            "GET", url=f"{BASE_URL}/wettbewerbe/europa", headers=HEADERS
         )
 
     def parse(
@@ -73,9 +71,7 @@ class Competition(Spider):
             path = f"{path}/plus/"
             params["saison_id"] = self.season
         return httpx.Request(
-            "GET",
-            url=f"{BASE_URL}{path}",
-            params=params,
+            "GET", url=f"{BASE_URL}{path}", params=params, headers=HEADERS
         )
 
     def parse(
@@ -133,7 +129,7 @@ class Team(Spider):
         path = f"/{self.path_name}/startseite/verein/{self.id}"
         if self.season is not None:
             path = f"{path}/saison_id/{self.season}"
-        return httpx.Request("GET", url=f"{BASE_URL}{path}")
+        return httpx.Request("GET", url=f"{BASE_URL}{path}", headers=HEADERS)
 
     def parse(self, response: httpx.Response) -> team_types.TransfermarktDict:
         selector = Selector(response.text)
@@ -195,7 +191,7 @@ class Member(Spider):
     @property
     def request(self) -> httpx.Request:
         path = f"/{self.path_name}/profil/spieler/{self.id}"
-        return httpx.Request("GET", url=f"{BASE_URL}{path}")
+        return httpx.Request("GET", url=f"{BASE_URL}{path}", headers=HEADERS)
 
     def parse(self, response: httpx.Response) -> member_types.TransfermarktDict:
         selector = Selector(response.text)
