@@ -7,6 +7,7 @@ from fusion_stat.spiders.transfermarkt import (
     Competition,
     Competitions,
     Player,
+    Staff,
     Team,
     _convert_date_format,
 )
@@ -140,3 +141,25 @@ class TestPlayer:
 
 def test_convert_date_format() -> None:
     assert _convert_date_format("Aug 17, 1993 (30)") == "1993-08-17"
+
+
+class TestStaff:
+    @pytest.fixture(scope="class")
+    def spider(self) -> typing.Generator[Staff, typing.Any, None]:
+        yield Staff(id="47620", path_name="mikel-arteta")
+
+    def test_request(self, spider: Staff) -> None:
+        url = spider.request.url
+        assert (
+            url
+            == "https://www.transfermarkt.com/mikel-arteta/profil/trainer/47620"
+        )
+
+    def test_parse(self, spider: Staff) -> None:
+        text = read_data(
+            "transfermarkt", "mikel-arteta_profil_trainer_47620.html"
+        )
+        response = httpx.Response(200, text=text)
+        staff = spider.parse(response)
+        assert staff["id"] == "47620"
+        assert staff["name"] == "Mikel Arteta"

@@ -9,6 +9,7 @@ from ..types import (
     competition_types,
     competitions_types,
     player_types,
+    staff_types,
     team_types,
 )
 from ..utils import get_element_text
@@ -205,6 +206,31 @@ class Player(Spider):
         return player_types.TransfermarktDict(
             id=self.id, name=name, market_values=market_values
         )
+
+
+class Staff(Spider):
+    def __init__(
+        self,
+        *,
+        id: str,
+        path_name: str,
+    ) -> None:
+        self.id = id
+        self.path_name = path_name
+
+    @property
+    def request(self) -> httpx.Request:
+        path = f"/{self.path_name}/profil/trainer/{self.id}"
+        return httpx.Request("GET", url=f"{BASE_URL}{path}", headers=HEADERS)
+
+    def parse(self, response: httpx.Response) -> staff_types.TransfermarktDict:
+        selector = Selector(response.text)
+        name = get_element_text(
+            selector.xpath(
+                '//div[@class="data-header__profile-container"]//img/@title'
+            )
+        )
+        return staff_types.TransfermarktDict(id=self.id, name=name)
 
 
 def _convert_date_format(s: str) -> str:
