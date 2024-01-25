@@ -14,7 +14,7 @@ from .types import (
 from .utils import fuzzy_similarity_mean
 
 T = typing.TypeVar("T", bound=base_types.StatDict)
-U = typing.TypeVar("U", bound=team_types.BaseMemberDict)
+U = typing.TypeVar("U", bound=team_types.BasePlayerDict)
 
 
 class Competitions:
@@ -431,9 +431,9 @@ class Team:
         self.fbref = fbref
         self.transfermarkt = transfermarkt
 
-    def _find_member(
+    def _find_player(
         self,
-        query: team_types.BaseMemberDict,
+        query: team_types.BasePlayerDict,
         choices: typing.Sequence[U],
     ) -> U:
         result = process.extractOne(
@@ -460,78 +460,66 @@ class Team:
         }
 
     @property
-    def staff(self) -> list[team_types.StaffDict]:
-        return [
-            {
-                "id": member["id"],
-                "name": member["name"],
-                "country": member["country"],
-            }
-            for member in self.fotmob["members"]
-            if member["is_staff"]
-        ]
+    def staff(self) -> team_types.StaffDict:
+        return self.fotmob["staff"]
 
     def get_players(
         self,
     ) -> typing.Generator[team_types.PlayerDict, typing.Any, None]:
-        for fotmob_member in self.fotmob["members"]:
-            if not fotmob_member["is_staff"]:
-                try:
-                    fbref_member = self._find_member(
-                        fotmob_member,
-                        self.fbref["members"],
-                    )
-                    transfermarkt_member = self._find_member(
-                        fotmob_member,
-                        self.transfermarkt["members"],
-                    )
+        for fotmob_player in self.fotmob["players"]:
+            try:
+                fbref_player = self._find_player(
+                    fotmob_player,
+                    self.fbref["players"],
+                )
+                transfermarkt_player = self._find_player(
+                    fotmob_player,
+                    self.transfermarkt["players"],
+                )
 
-                    name = fotmob_member["name"]
-                    shooting = fbref_member["shooting"]
-                    player = team_types.PlayerDict(
-                        id=fotmob_member["id"],
-                        name=name,
-                        names={name} | fbref_member["names"],
-                        country=fotmob_member["country"],
-                        position=fotmob_member["position"],
-                        date_of_birth=transfermarkt_member["date_of_birth"],
-                        market_values=transfermarkt_member["market_values"],
-                        shooting=shooting,
-                    )
-                    yield player
-                except TypeError:
-                    pass
+                name = fotmob_player["name"]
+                shooting = fbref_player["shooting"]
+                player = team_types.PlayerDict(
+                    id=fotmob_player["id"],
+                    name=name,
+                    names={name} | fbref_player["names"],
+                    country=fotmob_player["country"],
+                    position=fotmob_player["position"],
+                    date_of_birth=transfermarkt_player["date_of_birth"],
+                    market_values=transfermarkt_player["market_values"],
+                    shooting=shooting,
+                )
+                yield player
+            except TypeError:
+                pass
 
     @property
     def players(self) -> list[team_types.PlayerDict]:
         return list(self.get_players())
 
-    def get_members_params(
+    def get_players_params(
         self,
-    ) -> typing.Generator[team_types.MemberParamsDict, typing.Any, None]:
-        for fotmob_member in self.fotmob["members"]:
-            if not fotmob_member["is_staff"]:
-                try:
-                    fbref_member = self._find_member(
-                        fotmob_member,
-                        self.fbref["members"],
-                    )
-                    transfermarkt_member = self._find_member(
-                        fotmob_member,
-                        self.transfermarkt["members"],
-                    )
-                    member_params = team_types.MemberParamsDict(
-                        fotmob_id=fotmob_member["id"],
-                        fbref_id=fbref_member["id"],
-                        fbref_path_name=fbref_member["path_name"],
-                        transfermarkt_id=transfermarkt_member["id"],
-                        transfermarkt_path_name=transfermarkt_member[
-                            "path_name"
-                        ],
-                    )
-                    yield member_params
-                except TypeError:
-                    pass
+    ) -> typing.Generator[team_types.PlayerParamsDict, typing.Any, None]:
+        for fotmob_player in self.fotmob["players"]:
+            try:
+                fbref_player = self._find_player(
+                    fotmob_player,
+                    self.fbref["players"],
+                )
+                transfermarkt_player = self._find_player(
+                    fotmob_player,
+                    self.transfermarkt["players"],
+                )
+                player_params = team_types.PlayerParamsDict(
+                    fotmob_id=fotmob_player["id"],
+                    fbref_id=fbref_player["id"],
+                    fbref_path_name=fbref_player["path_name"],
+                    transfermarkt_id=transfermarkt_player["id"],
+                    transfermarkt_path_name=transfermarkt_player["path_name"],
+                )
+                yield player_params
+            except TypeError:
+                pass
 
 
 class Member:

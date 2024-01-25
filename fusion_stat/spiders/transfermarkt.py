@@ -136,7 +136,7 @@ class Team(Spider):
         name = get_element_text(selector.xpath("//h1/text()"))
         market_values = _get_market_value(selector)
 
-        members: list[team_types.TransfermarktMemberDict] = []
+        players: list[team_types.TransfermarktPlayerDict] = []
         trs = selector.xpath('//*[@id="yw1"]/table/tbody/tr')
         for tr in trs:
             tds = tr.xpath("./td")
@@ -158,8 +158,8 @@ class Team(Spider):
             country = get_element_text(tds[-2].xpath("./img[1]/@title"))
             country_code = fifa_members[(country)].code
 
-            members.append(
-                team_types.TransfermarktMemberDict(
+            players.append(
+                team_types.TransfermarktPlayerDict(
                     id=member_id,
                     name=member_name,
                     date_of_birth=date_of_birth,
@@ -174,7 +174,7 @@ class Team(Spider):
             id=self.id,
             name=name,
             market_values=market_values,
-            members=members,
+            players=players,
         )
 
 

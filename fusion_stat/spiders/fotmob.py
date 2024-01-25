@@ -146,20 +146,29 @@ class Team(Spider):
         names = {name, json["details"]["shortName"]}
         country_code = json["details"]["country"]
 
-        members = []
-        for role in json["squad"]:
-            for member in role[1]:
-                position = member.get("role")
-                if position:
-                    position = POSITIONS[position]
-                members.append(
-                    team_types.FotMobMemberDict(
-                        id=str(member["id"]),
-                        name=member["name"],
-                        country=member["cname"],
-                        country_code=member["ccode"],
+        players = []
+        squad = json["squad"]
+
+        coach = squad[0][1][0]
+        staff = team_types.FotMobStaffDict(
+            id=str(coach["id"]),
+            name=coach["name"],
+            country=coach["cname"],
+            country_code=coach["ccode"],
+        )
+
+        for role in squad[1:]:
+            for player in role[1]:
+                position = player.get("role")
+                # 这里稍候移到 models 验证
+                position = POSITIONS[position]
+                players.append(
+                    team_types.FotMobPlayerDict(
+                        id=str(player["id"]),
+                        name=player["name"],
+                        country=player["cname"],
+                        country_code=player["ccode"],
                         position=position,
-                        is_staff=position is None,
                     )
                 )
 
@@ -168,7 +177,8 @@ class Team(Spider):
             name=name,
             names=names,
             country_code=country_code,
-            members=members,
+            staff=staff,
+            players=players,
         )
 
 

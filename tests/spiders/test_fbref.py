@@ -120,15 +120,15 @@ class TestTeam:
         assert shooting["shots"] == 63
         assert int(shooting["xg"] * 10) == int(8.3 * 10)
 
-        assert len(team["members"]) == 23
-        member = team["members"][4]
-        assert member["id"] == "bc7dc64d"
-        assert member["name"] == "Bukayo Saka"
-        assert "Bukayo Saka" in member["names"]
-        assert member["path_name"] == "Bukayo-Saka"
-        assert member["position"] == "FW"
-        assert member["country_code"] == "ENG"
-        member_shooting = member["shooting"]
+        assert len(team["players"]) == 23
+        player = team["players"][4]
+        assert player["id"] == "bc7dc64d"
+        assert player["name"] == "Bukayo Saka"
+        assert "Bukayo Saka" in player["names"]
+        assert player["path_name"] == "Bukayo-Saka"
+        assert player["position"] == "FW"
+        assert player["country_code"] == "ENG"
+        member_shooting = player["shooting"]
         assert member_shooting["shots"] == 11
         assert int(member_shooting["xg"] * 10) == int(2.2 * 10)
 

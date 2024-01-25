@@ -117,11 +117,14 @@ class TestTeam:
         assert "Arsenal" in team["names"]
         assert team["country_code"] == "ENG"
 
-        assert len(team["members"]) == 26
-        coach = team["members"][0]
-        assert coach["is_staff"]
-        player = team["members"][1]
-        assert not player["is_staff"]
+        staff = team["staff"]
+        assert staff["id"] == "24011"
+        assert staff["name"] == "Mikel Arteta"
+        assert staff["country"] == "Spain"
+        assert staff["country_code"] == "ESP"
+
+        assert len(team["players"]) == 25
+        player = team["players"][0]
         assert player["id"] == "562727"
         assert player["name"] == "David Raya"
         assert player["position"] == "GK"

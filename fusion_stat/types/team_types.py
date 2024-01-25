@@ -1,23 +1,28 @@
 from .base_types import FBrefShootingDict, ParamsDict, StatDict
 
 
-class BaseMemberDict(StatDict):
+class BasePlayerDict(StatDict):
     country_code: str
     position: str | None
 
 
-class FotMobMemberDict(BaseMemberDict):
+class FotMobPlayerDict(BasePlayerDict):
     country: str
-    is_staff: bool
+
+
+class FotMobStaffDict(StatDict):
+    country: str
+    country_code: str
 
 
 class FotMobDict(StatDict):
     names: set[str]
     country_code: str
-    members: list[FotMobMemberDict]
+    staff: FotMobStaffDict
+    players: list[FotMobPlayerDict]
 
 
-class FBrefMemberDict(BaseMemberDict):
+class FBrefPlayerDict(BasePlayerDict):
     names: set[str]
     path_name: str
     shooting: FBrefShootingDict
@@ -26,10 +31,10 @@ class FBrefMemberDict(BaseMemberDict):
 class FBrefDict(StatDict):
     names: set[str]
     shooting: FBrefShootingDict
-    members: list[FBrefMemberDict]
+    players: list[FBrefPlayerDict]
 
 
-class TransfermarktMemberDict(BaseMemberDict):
+class TransfermarktPlayerDict(BasePlayerDict):
     date_of_birth: str
     market_values: str
     path_name: str
@@ -37,7 +42,7 @@ class TransfermarktMemberDict(BaseMemberDict):
 
 class TransfermarktDict(StatDict):
     market_values: str
-    members: list[TransfermarktMemberDict]
+    players: list[TransfermarktPlayerDict]
 
 
 class InfoDict(StatDict):
@@ -46,8 +51,8 @@ class InfoDict(StatDict):
     market_values: str
 
 
-class StaffDict(StatDict):
-    country: str
+class StaffDict(FotMobStaffDict):
+    ...
 
 
 class PlayerDict(StatDict):
@@ -59,7 +64,7 @@ class PlayerDict(StatDict):
     shooting: FBrefShootingDict
 
 
-class MemberParamsDict(ParamsDict):
+class PlayerParamsDict(ParamsDict):
     fbref_path_name: str
     transfermarkt_id: str
     transfermarkt_path_name: str

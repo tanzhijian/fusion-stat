@@ -103,16 +103,16 @@ class TestTeam:
         team = spider.parse(response)
         assert team["id"] == "11"
         assert team["name"] == "Arsenal FC"
-        assert len(team["members"]) == 26
+        assert len(team["players"]) == 26
 
-        member = team["members"][0]
-        assert member["id"] == "262749"
-        assert member["name"] == "David Raya"
-        assert member["date_of_birth"] == "1995-09-15"
-        assert member["market_values"] == "€35.00m"
-        assert member["path_name"] == "david-raya"
-        assert member["position"] == "GK"
-        assert member["country_code"] == "ESP"
+        player = team["players"][0]
+        assert player["id"] == "262749"
+        assert player["name"] == "David Raya"
+        assert player["date_of_birth"] == "1995-09-15"
+        assert player["market_values"] == "€35.00m"
+        assert player["path_name"] == "david-raya"
+        assert player["position"] == "GK"
+        assert player["country_code"] == "ESP"
 
 
 class TestMember:

@@ -30,19 +30,19 @@ class TestTeam:
             ),
         )
 
-    def test_find_member(self, team: Team) -> None:
-        query = team_types.BaseMemberDict(
+    def test_find_player(self, team: Team) -> None:
+        query = team_types.BasePlayerDict(
             id="1", name="ab", country_code="a", position="ab"
         )
         choices = [
-            team_types.BaseMemberDict(
+            team_types.BasePlayerDict(
                 id="2", name="abc", country_code="a", position="abc"
             ),
-            team_types.BaseMemberDict(
+            team_types.BasePlayerDict(
                 id="3", name="c", country_code="c", position="c"
             ),
         ]
-        result = team._find_member(query, choices)
+        result = team._find_player(query, choices)
         assert result["id"] == "2"
 
     def test_info(self, team: Team) -> None:
@@ -55,8 +55,8 @@ class TestTeam:
 
     def test_staff(self, team: Team) -> None:
         staff = team.staff
-        assert staff[0]["name"] == "Mikel Arteta"
-        assert staff[0]["country"] == "Spain"
+        assert staff["name"] == "Mikel Arteta"
+        assert staff["country"] == "Spain"
 
     def test_get_players(self, team: Team) -> None:
         players = team.get_players()
@@ -75,11 +75,11 @@ class TestTeam:
         assert player["date_of_birth"] == "2001-06-18"
         assert player["market_values"] == "€85.00m"
 
-    def test_get_members_params(self, team: Team) -> None:
-        params = team.get_members_params()
-        member = next(params)
-        assert member["fotmob_id"] == "562727"
-        assert member["fbref_id"] == "98ea5115"
-        assert member["fbref_path_name"] == "David-Raya"
-        assert member["transfermarkt_id"] == "262749"
-        assert member["transfermarkt_path_name"] == "david-raya"
+    def test_get_players_params(self, team: Team) -> None:
+        params = team.get_players_params()
+        player = next(params)
+        assert player["fotmob_id"] == "562727"
+        assert player["fbref_id"] == "98ea5115"
+        assert player["fbref_path_name"] == "David-Raya"
+        assert player["transfermarkt_id"] == "262749"
+        assert player["transfermarkt_path_name"] == "david-raya"

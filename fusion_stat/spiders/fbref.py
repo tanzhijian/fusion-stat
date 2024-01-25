@@ -163,7 +163,7 @@ class Team(Spider):
             player_shooting = parse_shooting(tr)
             players_shooting_index[player_id] = player_shooting
 
-        players: list[team_types.FBrefMemberDict] = []
+        players: list[team_types.FBrefPlayerDict] = []
         for tr in standard_stats_table.xpath("./tbody/tr"):
             href_strs = get_element_text(tr.xpath("./th/a/@href")).split("/")
             player_path_name = href_strs[-1]
@@ -181,7 +181,7 @@ class Team(Spider):
             except KeyError:
                 player_shooting = base_types.FBrefShootingDict(shots=0, xg=0)
             players.append(
-                team_types.FBrefMemberDict(
+                team_types.FBrefPlayerDict(
                     id=player_id,
                     name=player_name,
                     names={player_name, " ".join(player_path_name.split("-"))},
@@ -197,7 +197,7 @@ class Team(Spider):
             name=name,
             names={name},
             shooting=shooting,
-            members=players,
+            players=players,
         )
 
 
