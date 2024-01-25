@@ -1,5 +1,13 @@
 from .fusion import Fusion
-from .models import Competition, Competitions, Match, Matches, Member, Team
+from .models import (
+    Competition,
+    Competitions,
+    Match,
+    Matches,
+    Player,
+    Staff,
+    Team,
+)
 
 __version__ = "0.0.7"
 
@@ -9,7 +17,8 @@ __all__ = (
     "Competitions",
     "Competition",
     "Team",
-    "Member",
+    "Player",
+    "Staff",
     "Matches",
     "Match",
 )

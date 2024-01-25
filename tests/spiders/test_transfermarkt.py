@@ -6,7 +6,7 @@ import pytest
 from fusion_stat.spiders.transfermarkt import (
     Competition,
     Competitions,
-    Member,
+    Player,
     Team,
     _convert_date_format,
 )
@@ -115,27 +115,27 @@ class TestTeam:
         assert player["country_code"] == "ESP"
 
 
-class TestMember:
+class TestPlayer:
     @pytest.fixture(scope="class")
-    def spider(self) -> typing.Generator[Member, typing.Any, None]:
-        yield Member(id="433177", path_name="bukayo-saka")
+    def spider(self) -> typing.Generator[Player, typing.Any, None]:
+        yield Player(id="433177", path_name="bukayo-saka")
 
-    def test_request(self, spider: Member) -> None:
+    def test_request(self, spider: Player) -> None:
         url = spider.request.url
         assert (
             url
             == "https://www.transfermarkt.com/bukayo-saka/profil/spieler/433177"
         )
 
-    def test_parse(self, spider: Member) -> None:
+    def test_parse(self, spider: Player) -> None:
         text = read_data(
             "transfermarkt", "bukayo-saka_profil_spieler_433177.html"
         )
         response = httpx.Response(200, text=text)
-        member = spider.parse(response)
-        assert member["id"] == "433177"
-        assert member["name"] == "Bukayo Saka"
-        assert member["market_values"] == "€120.00m"
+        player = spider.parse(response)
+        assert player["id"] == "433177"
+        assert player["name"] == "Bukayo Saka"
+        assert player["market_values"] == "€120.00m"
 
 
 def test_convert_date_format() -> None:

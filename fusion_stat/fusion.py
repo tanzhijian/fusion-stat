@@ -3,7 +3,15 @@ from types import TracebackType
 
 import httpx
 
-from .models import Competition, Competitions, Match, Matches, Member, Team
+from .models import (
+    Competition,
+    Competitions,
+    Match,
+    Matches,
+    Player,
+    Staff,
+    Team,
+)
 from .scraper import Engine
 from .spiders import fbref, fotmob, official, transfermarkt
 
@@ -105,7 +113,7 @@ class Fusion:
             transfermarkt=transfermarkt_team,
         )
 
-    async def get_member(
+    async def get_player(
         self,
         *,
         fotmob_id: str,
@@ -113,11 +121,11 @@ class Fusion:
         fbref_path_name: str | None = None,
         transfermarkt_id: str,
         transfermarkt_path_name: str,
-    ) -> Member:
+    ) -> Player:
         spiders = (
-            fotmob.Member(id=fotmob_id),
-            fbref.Member(id=fbref_id, path_name=fbref_path_name),
-            transfermarkt.Member(
+            fotmob.Player(id=fotmob_id),
+            fbref.Player(id=fbref_id, path_name=fbref_path_name),
+            transfermarkt.Player(
                 id=transfermarkt_id, path_name=transfermarkt_path_name
             ),
         )
@@ -126,11 +134,14 @@ class Fusion:
             fbref_member,
             transfermarkt_member,
         ) = await self.engine.process(*spiders)
-        return Member(
+        return Player(
             fotmob=fotmob_member,
             fbref=fbref_member,
             transfermarkt=transfermarkt_member,
         )
+
+    async def get_staff(self) -> Staff:
+        return Staff()
 
     async def get_matches(self, *, date: str) -> Matches:
         """Parameters:

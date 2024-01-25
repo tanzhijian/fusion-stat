@@ -102,7 +102,7 @@ class TestFusion:
         assert team.transfermarkt["name"]
 
     @pytest.mark.anyio
-    async def test_member(self, fusion: Fusion) -> None:
+    async def test_get_player(self, fusion: Fusion) -> None:
         fotmob_route = fotmob_mock("playerData?id=961995.json")
         fbref_route = fbref_mock("players_bc7dc64d_Bukayo-Saka.html")
         transfermarkt_route = transfermarkt_mock(
@@ -110,7 +110,7 @@ class TestFusion:
         )
 
         with respx.mock:
-            member = await fusion.get_member(
+            player = await fusion.get_player(
                 fotmob_id="961995",
                 fbref_id="bc7dc64d",
                 fbref_path_name="Bukayo-Saka",
@@ -120,12 +120,16 @@ class TestFusion:
             assert fotmob_route.called
             assert fbref_route.called
             assert transfermarkt_route.called
-        assert member.fotmob["name"]
-        assert member.fbref["name"]
-        assert member.transfermarkt["name"]
+        assert player.fotmob["name"]
+        assert player.fbref["name"]
+        assert player.transfermarkt["name"]
 
     @pytest.mark.anyio
-    async def test_matches(self, fusion: Fusion) -> None:
+    async def test_get_staff(self, fusion: Fusion) -> None:
+        ...
+
+    @pytest.mark.anyio
+    async def test_get_matches(self, fusion: Fusion) -> None:
         fotmob_route = fotmob_mock("matches?date=20230903.json")
         fbref_route = fbref_mock("matches_2023-09-03.html")
 
@@ -137,7 +141,7 @@ class TestFusion:
         assert len(matches.fbref) > 0
 
     @pytest.mark.anyio
-    async def test_match(self, fusion: Fusion) -> None:
+    async def test_get_match(self, fusion: Fusion) -> None:
         fotmob_route = fotmob_mock("matchDetails?matchId=4193490.json")
         fbref_route = fbref_mock("matches_74125d47.html")
 

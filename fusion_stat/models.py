@@ -8,7 +8,7 @@ from .types import (
     competition_types,
     competitions_types,
     matches_types,
-    member_types,
+    player_types,
     team_types,
 )
 from .utils import fuzzy_similarity_mean
@@ -522,16 +522,20 @@ class Team:
                 pass
 
 
-class Member:
+class Player:
     def __init__(
         self,
-        fotmob: member_types.FotMobDict,
-        fbref: member_types.FBrefDict,
-        transfermarkt: member_types.TransfermarktDict,
+        fotmob: player_types.FotMobDict,
+        fbref: player_types.FBrefDict,
+        transfermarkt: player_types.TransfermarktDict,
     ) -> None:
         self.fotmob = fotmob
         self.fbref = fbref
         self.transfermarkt = transfermarkt
+
+
+class Staff:
+    ...
 
 
 class Matches:

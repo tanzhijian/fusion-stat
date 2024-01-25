@@ -10,7 +10,8 @@ from fusion_stat.spiders.fotmob import (
     Competitions,
     Match,
     Matches,
-    Member,
+    Player,
+    Staff,
     Team,
     _parse_score,
 )
@@ -132,24 +133,33 @@ class TestTeam:
         assert player["country_code"] == "ESP"
 
 
-class TestMember:
+class TestPlayer:
     @pytest.fixture(scope="class")
-    def spider(self) -> typing.Generator[Member, typing.Any, None]:
-        yield Member(id="961995")
+    def spider(self) -> typing.Generator[Player, typing.Any, None]:
+        yield Player(id="961995")
 
-    def test_request(self, spider: Member) -> None:
+    def test_request(self, spider: Player) -> None:
         url = spider.request.url
         assert url == "https://www.fotmob.com/api/playerData?id=961995"
 
-    def test_parse(self, spider: Member) -> None:
+    def test_parse(self, spider: Player) -> None:
         data = read_test_data("playerData?id=961995.json")
         response = httpx.Response(200, json=data)
-        member = spider.parse(response)
-        assert member["id"] == "961995"
-        assert member["name"] == "Bukayo Saka"
-        assert member["country"] == "England"
-        assert member["position"] == "Right Winger"
-        assert not member["is_staff"]
+        player = spider.parse(response)
+        assert player["id"] == "961995"
+        assert player["name"] == "Bukayo Saka"
+        assert player["country"] == "England"
+        assert player["position"] == "Right Winger"
+
+
+class TestStaff:
+    @pytest.fixture(scope="class")
+    def spider(self) -> typing.Generator[Staff, typing.Any, None]:
+        yield Staff(id="961995")
+
+    def test_request(self, spider: Staff) -> None:
+        url = spider.request.url
+        assert url == "https://www.fotmob.com/api/playerData?id=961995"
 
 
 class TestMatches:

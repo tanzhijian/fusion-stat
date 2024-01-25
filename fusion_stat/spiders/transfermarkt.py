@@ -8,7 +8,7 @@ from ..scraper import Spider
 from ..types import (
     competition_types,
     competitions_types,
-    member_types,
+    player_types,
     team_types,
 )
 from ..utils import get_element_text
@@ -178,7 +178,7 @@ class Team(Spider):
         )
 
 
-class Member(Spider):
+class Player(Spider):
     def __init__(
         self,
         *,
@@ -193,7 +193,7 @@ class Member(Spider):
         path = f"/{self.path_name}/profil/spieler/{self.id}"
         return httpx.Request("GET", url=f"{BASE_URL}{path}", headers=HEADERS)
 
-    def parse(self, response: httpx.Response) -> member_types.TransfermarktDict:
+    def parse(self, response: httpx.Response) -> player_types.TransfermarktDict:
         selector = Selector(response.text)
         market_values = _get_market_value(selector)
 
@@ -202,7 +202,7 @@ class Member(Spider):
                 '//div[@class="data-header__profile-container"]//img/@title'
             )
         )
-        return member_types.TransfermarktDict(
+        return player_types.TransfermarktDict(
             id=self.id, name=name, market_values=market_values
         )
 

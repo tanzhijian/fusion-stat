@@ -1,27 +1,27 @@
 import httpx
 import pytest
 
-from fusion_stat import Member
+from fusion_stat import Player
 from fusion_stat.spiders import fbref, fotmob, transfermarkt
 from tests.utils import read_data
 
 
-class TestMember:
+class TestPlayer:
     @pytest.fixture(scope="class")
-    def member(self) -> Member:
+    def player(self) -> Player:
         fotmob_data = read_data("fotmob", "playerData?id=961995.json")
         fbref_data = read_data("fbref", "players_bc7dc64d_Bukayo-Saka.html")
         transfermarkt_data = read_data(
             "transfermarkt", "bukayo-saka_profil_spieler_433177.html"
         )
 
-        fotmob_spider = fotmob.Member(id="961995")
-        fbref_spider = fbref.Member(id="bc7dc64d")
-        transfermarkt_spider = transfermarkt.Member(
+        fotmob_spider = fotmob.Player(id="961995")
+        fbref_spider = fbref.Player(id="bc7dc64d")
+        transfermarkt_spider = transfermarkt.Player(
             id="433177", path_name="bukayo-saka"
         )
 
-        return Member(
+        return Player(
             fotmob=fotmob_spider.parse(httpx.Response(200, json=fotmob_data)),
             fbref=fbref_spider.parse(httpx.Response(200, text=fbref_data)),
             transfermarkt=transfermarkt_spider.parse(
@@ -29,5 +29,5 @@ class TestMember:
             ),
         )
 
-    def test_info(self, member: Member) -> None:
-        assert member.fotmob["name"] == "Bukayo Saka"
+    def test_info(self, player: Player) -> None:
+        assert player.fotmob["name"] == "Bukayo Saka"

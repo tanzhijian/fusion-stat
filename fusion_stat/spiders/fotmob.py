@@ -6,7 +6,8 @@ from ..types import (
     base_types,
     competition_types,
     matches_types,
-    member_types,
+    player_types,
+    staff_types,
     team_types,
 )
 
@@ -182,7 +183,7 @@ class Team(Spider):
         )
 
 
-class Member(Spider):
+class _Member(Spider):
     def __init__(self, *, id: str) -> None:
         self.id = id
 
@@ -194,19 +195,32 @@ class Member(Spider):
             params={"id": self.id},
         )
 
-    def parse(self, response: httpx.Response) -> member_types.FotMobDict:
+
+class Player(_Member):
+    def __init__(self, *, id: str) -> None:
+        super().__init__(id=id)
+
+    def parse(self, response: httpx.Response) -> player_types.FotMobDict:
         json = response.json()
         name = json["name"]
         country = json["meta"]["personJSONLD"]["nationality"]["name"]
         position = json["origin"]["positionDesc"]["primaryPosition"]["label"]
-        is_staff = position == "Coach"
-        return member_types.FotMobDict(
+        return player_types.FotMobDict(
             id=self.id,
             name=name,
             country=country,
             position=position,
-            is_staff=is_staff,
         )
+
+
+class Staff(_Member):
+    def __init__(self, *, id: str) -> None:
+        super().__init__(id=id)
+
+    def parse(self, response: httpx.Response) -> staff_types.FotMobDict:
+        json = response.json()
+        name = json["name"]
+        return staff_types.FotMobDict(id=self.id, name=name)
 
 
 class Matches(Spider):

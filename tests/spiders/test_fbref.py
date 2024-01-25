@@ -9,7 +9,7 @@ from fusion_stat.spiders.fbref import (
     Competitions,
     Match,
     Matches,
-    Member,
+    Player,
     Team,
 )
 from tests.utils import read_data
@@ -128,33 +128,33 @@ class TestTeam:
         assert player["path_name"] == "Bukayo-Saka"
         assert player["position"] == "FW"
         assert player["country_code"] == "ENG"
-        member_shooting = player["shooting"]
-        assert member_shooting["shots"] == 11
-        assert int(member_shooting["xg"] * 10) == int(2.2 * 10)
+        player_shooting = player["shooting"]
+        assert player_shooting["shots"] == 11
+        assert int(player_shooting["xg"] * 10) == int(2.2 * 10)
 
 
-class TestMember:
+class TestPlayer:
     @pytest.fixture(scope="class")
-    def spider(self) -> typing.Generator[Member, typing.Any, None]:
-        yield Member(id="bc7dc64d", path_name="Bukayo-Saka")
+    def spider(self) -> typing.Generator[Player, typing.Any, None]:
+        yield Player(id="bc7dc64d", path_name="Bukayo-Saka")
 
-    def test_request(self, spider: Member) -> None:
+    def test_request(self, spider: Player) -> None:
         url = spider.request.url
         assert url == "https://fbref.com/en/players/bc7dc64d/Bukayo-Saka"
 
     def test_request_exclude_path_name(self) -> None:
-        spider = Member(id="bc7dc64d")
+        spider = Player(id="bc7dc64d")
         assert spider.request.url == "https://fbref.com/en/players/bc7dc64d/"
 
-    def test_parse(self, spider: Member) -> None:
+    def test_parse(self, spider: Player) -> None:
         text = read_test_data("players_bc7dc64d_Bukayo-Saka.html")
         response = httpx.Response(200, text=text)
-        member = spider.parse(response)
-        assert member["id"] == "bc7dc64d"
-        assert member["name"] == "Bukayo Saka"
-        member_shooting = member["shooting"]
-        assert member_shooting["shots"] == 266
-        assert int(member_shooting["xg"] * 10) == int(31.6 * 10)
+        player = spider.parse(response)
+        assert player["id"] == "bc7dc64d"
+        assert player["name"] == "Bukayo Saka"
+        player_shooting = player["shooting"]
+        assert player_shooting["shots"] == 266
+        assert int(player_shooting["xg"] * 10) == int(31.6 * 10)
 
 
 class TestMatches:

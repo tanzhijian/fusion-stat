@@ -7,7 +7,7 @@ from ..types import (
     base_types,
     competition_types,
     competitions_types,
-    member_types,
+    player_types,
     team_types,
 )
 from ..utils import get_element_text
@@ -201,7 +201,7 @@ class Team(Spider):
         )
 
 
-class Member(Spider):
+class Player(Spider):
     def __init__(
         self,
         *,
@@ -219,7 +219,7 @@ class Member(Spider):
 
         return httpx.Request("GET", url=f"{BASE_URL}{path}")
 
-    def parse(self, response: httpx.Response) -> member_types.FBrefDict:
+    def parse(self, response: httpx.Response) -> player_types.FBrefDict:
         selector = Selector(response.text)
         name = get_element_text(selector.xpath("//h1/span/text()"))
 
@@ -228,7 +228,7 @@ class Member(Spider):
         )
         shooting = parse_shooting(tr)
 
-        return member_types.FBrefDict(id=self.id, name=name, shooting=shooting)
+        return player_types.FBrefDict(id=self.id, name=name, shooting=shooting)
 
 
 class Matches(Spider):
