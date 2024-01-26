@@ -204,7 +204,7 @@ class Player(_Member):
         json = response.json()
         name = json["name"]
         country = json["meta"]["personJSONLD"]["nationality"]["name"]
-        position = json["origin"]["positionDesc"]["primaryPosition"]["label"]
+        position = json["positionDescription"]["primaryPosition"]["label"]
         return player_types.FotMobDict(
             id=self.id,
             name=name,
