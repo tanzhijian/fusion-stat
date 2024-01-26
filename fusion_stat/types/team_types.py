@@ -40,6 +40,11 @@ class TransfermarktPlayerDict(BasePlayerDict):
     path_name: str
 
 
+class TransfermarktStaffDict(StatDict):
+    country: str
+    position: str
+
+
 class TransfermarktDict(StatDict):
     market_values: str
     players: list[TransfermarktPlayerDict]

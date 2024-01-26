@@ -138,15 +138,15 @@ class Team(Spider):
         market_values = _get_market_value(selector)
 
         players: list[team_types.TransfermarktPlayerDict] = []
-        trs = selector.xpath('//*[@id="yw1"]/table/tbody/tr')
-        for tr in trs:
+        player_trs = selector.xpath('//*[@id="yw1"]/table/tbody/tr')
+        for tr in player_trs:
             tds = tr.xpath("./td")
 
             a = tds[1].xpath("./table/tr[1]/td[2]/a")
             href_strs = get_element_text(a.xpath("./@href")).split("/")
-            member_id = href_strs[-1]
-            member_path_name = href_strs[-4]
-            member_name = get_element_text(a.xpath("./text()"))
+            player_id = href_strs[-1]
+            player_path_name = href_strs[-4]
+            player_name = get_element_text(a.xpath("./text()"))
 
             position = get_element_text(tds[1].xpath("./table/tr[2]/td/text()"))
             position = POSITIONS[position]
@@ -154,18 +154,18 @@ class Team(Spider):
             date_of_birth = get_element_text(tds[2].xpath("./text()"))
             date_of_birth = _convert_date_format(date_of_birth)
 
-            member_market_values = get_element_text(tds[-1].xpath("./a/text()"))
+            player_market_values = get_element_text(tds[-1].xpath("./a/text()"))
 
             country = get_element_text(tds[-2].xpath("./img[1]/@title"))
             country_code = fifa_members[(country)].code
 
             players.append(
                 team_types.TransfermarktPlayerDict(
-                    id=member_id,
-                    name=member_name,
+                    id=player_id,
+                    name=player_name,
                     date_of_birth=date_of_birth,
-                    market_values=member_market_values,
-                    path_name=member_path_name,
+                    market_values=player_market_values,
+                    path_name=player_path_name,
                     country_code=country_code,
                     position=position,
                 )

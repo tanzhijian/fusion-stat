@@ -130,18 +130,30 @@ class Fusion:
             ),
         )
         (
-            fotmob_member,
-            fbref_member,
-            transfermarkt_member,
+            fotmob_player,
+            fbref_player,
+            transfermarkt_player,
         ) = await self.engine.process(*spiders)
         return Player(
-            fotmob=fotmob_member,
-            fbref=fbref_member,
-            transfermarkt=transfermarkt_member,
+            fotmob=fotmob_player,
+            fbref=fbref_player,
+            transfermarkt=transfermarkt_player,
         )
 
-    async def get_staff(self) -> Staff:
-        return Staff()
+    async def get_staff(
+        self,
+        *,
+        transfermarkt_id: str,
+        transfermarkt_path_name: str,
+    ) -> Staff:
+        spiders = (
+            transfermarkt.Staff(
+                id=transfermarkt_id,
+                path_name=transfermarkt_path_name,
+            ),
+        )
+        (transfermarkt_staff,) = await self.engine.process(*spiders)
+        return Staff(transfermarkt=transfermarkt_staff)
 
     async def get_matches(self, *, date: str) -> Matches:
         """Parameters:

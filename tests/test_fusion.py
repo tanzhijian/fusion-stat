@@ -126,7 +126,17 @@ class TestFusion:
 
     @pytest.mark.anyio
     async def test_get_staff(self, fusion: Fusion) -> None:
-        ...
+        transfermarkt_route = transfermarkt_mock(
+            "mikel-arteta_profil_trainer_47620.html"
+        )
+
+        with respx.mock:
+            staff = await fusion.get_staff(
+                transfermarkt_id="47620",
+                transfermarkt_path_name="mikel-arteta",
+            )
+            assert transfermarkt_route.called
+        assert staff.transfermarkt["name"]
 
     @pytest.mark.anyio
     async def test_get_matches(self, fusion: Fusion) -> None:

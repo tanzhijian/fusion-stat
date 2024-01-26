@@ -2,6 +2,8 @@ import typing
 
 from rapidfuzz import process
 
+from fusion_stat.types import staff_types
+
 from .config import COMPETITIONS, MEMBERS_SIMILARITY_SCORE
 from .types import (
     base_types,
@@ -535,7 +537,8 @@ class Player:
 
 
 class Staff:
-    ...
+    def __init__(self, transfermarkt: staff_types.TransfermarktDict) -> None:
+        self.transfermarkt = transfermarkt
 
 
 class Matches:
