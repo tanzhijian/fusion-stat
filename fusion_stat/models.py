@@ -428,10 +428,12 @@ class Team:
         fotmob: team_types.FotMobDict,
         fbref: team_types.FBrefDict,
         transfermarkt: team_types.TransfermarktDict,
+        transfermarkt_staffs: list[team_types.TransfermarktStaffDict],
     ) -> None:
         self.fotmob = fotmob
         self.fbref = fbref
         self.transfermarkt = transfermarkt
+        self.transfermarkt_staffs = transfermarkt_staffs
 
     def _find_player(
         self,
@@ -461,9 +463,19 @@ class Team:
             "market_values": self.transfermarkt["market_values"],
         }
 
+    def get_staffs(
+        self,
+    ) -> typing.Generator[team_types.StaffDict, typing.Any, None]:
+        for transfermarkt_staff in self.transfermarkt_staffs:
+            yield team_types.StaffDict(
+                id=transfermarkt_staff["id"],
+                name=transfermarkt_staff["name"],
+                position=transfermarkt_staff["position"],
+            )
+
     @property
-    def staff(self) -> team_types.StaffDict:
-        return self.fotmob["staff"]
+    def staffs(self) -> list[team_types.StaffDict]:
+        return list(self.get_staffs())
 
     def get_players(
         self,
@@ -522,6 +534,15 @@ class Team:
                 yield player_params
             except TypeError:
                 pass
+
+    def get_staffs_params(
+        self,
+    ) -> typing.Generator[team_types.StaffParamsDict, typing.Any, None]:
+        for transfermarkt_staff in self.transfermarkt_staffs:
+            yield team_types.StaffParamsDict(
+                transfermarkt_id=transfermarkt_staff["id"],
+                transfermarkt_path_name=transfermarkt_staff["path_name"],
+            )
 
 
 class Player:

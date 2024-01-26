@@ -39,8 +39,12 @@ def premier_league_mock(file: str) -> respx.Route:
 
 
 def transfermarkt_mock(file: str) -> respx.Route:
-    text = read_data("transfermarkt", file)
+    data = read_data("transfermarkt", file)
+    if file.split(".")[-1] == "json":
+        params = {"json": data}
+    else:
+        params = {"text": data}
     route = respx.get(
         f"https://www.transfermarkt.com/{file.replace('_', '/').split('.')[0]}"
-    ).mock(httpx.Response(200, text=text))
+    ).mock(httpx.Response(200, **params))
     return route

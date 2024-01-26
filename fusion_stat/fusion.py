@@ -103,14 +103,19 @@ class Fusion:
             transfermarkt.Team(
                 id=transfermarkt_id, path_name=transfermarkt_path_name
             ),
+            transfermarkt.Staffs(id=transfermarkt_id),
         )
-        fotmob_team, fbref_team, transfermarkt_team = await self.engine.process(
-            *spiders
-        )
+        (
+            fotmob_team,
+            fbref_team,
+            transfermarkt_team,
+            transfermarkt_staffs,
+        ) = await self.engine.process(*spiders)
         return Team(
             fotmob=fotmob_team,
             fbref=fbref_team,
             transfermarkt=transfermarkt_team,
+            transfermarkt_staffs=transfermarkt_staffs,
         )
 
     async def get_player(

@@ -15,18 +15,25 @@ class TestTeam:
         transfermarkt_data = read_data(
             "transfermarkt", "arsenal-fc_startseite_verein_11.html"
         )
+        transfermarkt_staffs_data = read_data(
+            "transfermarkt", "ceapi_staff_team_11_.json"
+        )
 
         fotmob_spider = fotmob.Team(id="9825")
         fbref_spider = fbref.Team(id="18bb7c10", path_name="Arsenal")
         transfermarkt_spider = transfermarkt.Team(
             id="11", path_name="arsenal-fc"
         )
+        transfermarkt_staffs_spider = transfermarkt.Staffs(id="11")
 
         return Team(
             fotmob=fotmob_spider.parse(httpx.Response(200, json=fotmob_data)),
             fbref=fbref_spider.parse(httpx.Response(200, text=fbref_data)),
             transfermarkt=transfermarkt_spider.parse(
                 httpx.Response(200, text=transfermarkt_data)
+            ),
+            transfermarkt_staffs=transfermarkt_staffs_spider.parse(
+                httpx.Response(200, json=transfermarkt_staffs_data)
             ),
         )
 
@@ -53,10 +60,14 @@ class TestTeam:
         assert info["country_code"] == "ENG"
         assert info["market_values"] == "€1.12bn"
 
-    def test_staff(self, team: Team) -> None:
-        staff = team.staff
+    def test_get_staffs(self, team: Team) -> None:
+        staff = next(team.get_staffs())
+        assert staff["id"] == "47620"
         assert staff["name"] == "Mikel Arteta"
-        assert staff["country"] == "Spain"
+        assert staff["position"] == "Manager"
+
+    def test_staffs(self, team: Team) -> None:
+        assert len(team.staffs) == 54
 
     def test_get_players(self, team: Team) -> None:
         players = team.get_players()
@@ -83,3 +94,9 @@ class TestTeam:
         assert player["fbref_path_name"] == "David-Raya"
         assert player["transfermarkt_id"] == "262749"
         assert player["transfermarkt_path_name"] == "david-raya"
+
+    def test_get_staffs_params(self, team: Team) -> None:
+        params = team.get_staffs_params()
+        staff = next(params)
+        assert staff["transfermarkt_id"] == "47620"
+        assert staff["transfermarkt_path_name"] == "mikel-arteta"

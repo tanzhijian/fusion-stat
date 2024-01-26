@@ -84,6 +84,9 @@ class TestFusion:
         transfermarkt_route = transfermarkt_mock(
             "arsenal-fc_startseite_verein_11.html"
         )
+        transfermarkt_staffs_route = transfermarkt_mock(
+            "ceapi_staff_team_11_.json"
+        )
 
         params = {
             "fotmob_id": "9825",
@@ -97,8 +100,10 @@ class TestFusion:
             assert fotmob_route.called
             assert fbref_route.called
             assert transfermarkt_route.called
+            assert transfermarkt_staffs_route.called
         assert team.fotmob["name"]
         assert team.fbref["name"]
+        assert team.transfermarkt["name"]
         assert team.transfermarkt["name"]
 
     @pytest.mark.anyio

@@ -1,3 +1,5 @@
+import typing
+
 from .base_types import FBrefShootingDict, ParamsDict, StatDict
 
 
@@ -56,8 +58,8 @@ class InfoDict(StatDict):
     market_values: str
 
 
-class StaffDict(FotMobStaffDict):
-    ...
+class StaffDict(StatDict):
+    position: str
 
 
 class PlayerDict(StatDict):
@@ -71,5 +73,10 @@ class PlayerDict(StatDict):
 
 class PlayerParamsDict(ParamsDict):
     fbref_path_name: str
+    transfermarkt_id: str
+    transfermarkt_path_name: str
+
+
+class StaffParamsDict(typing.TypedDict):
     transfermarkt_id: str
     transfermarkt_path_name: str
