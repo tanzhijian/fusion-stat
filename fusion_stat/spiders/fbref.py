@@ -226,7 +226,10 @@ class Player(Spider):
         tr = selector.xpath(
             '//table[starts-with(@id,"stats_shooting_")]/tfoot/tr[1]'
         )
-        shooting = parse_shooting(tr)
+        try:
+            shooting = parse_shooting(tr)
+        except ValueError:
+            shooting = base_types.FBrefShootingDict(shots=0, xg=0)
 
         return player_types.FBrefDict(id=self.id, name=name, shooting=shooting)
 
