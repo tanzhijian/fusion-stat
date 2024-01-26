@@ -41,8 +41,8 @@ class TransfermarktPlayerDict(BasePlayerDict):
 
 
 class TransfermarktStaffDict(StatDict):
-    country: str
     position: str
+    path_name: str
 
 
 class TransfermarktDict(StatDict):

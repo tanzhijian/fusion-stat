@@ -179,6 +179,41 @@ class Team(Spider):
         )
 
 
+class Staffs(Spider):
+    def __init__(
+        self,
+        *,
+        id: str,
+        season: int | None = None,
+    ) -> None:
+        self.id = id
+        self.season = season
+
+    @property
+    def request(self) -> httpx.Request:
+        params = {}
+        path = f"/ceapi/staff/team/{self.id}/"
+        if self.season:
+            params["saison_id"] = self.season
+        return httpx.Request(
+            "GET", url=f"{BASE_URL}{path}", params=params, headers=HEADERS
+        )
+
+    def parse(
+        self, response: httpx.Response
+    ) -> list[team_types.TransfermarktStaffDict]:
+        json = response.json()
+        return [
+            team_types.TransfermarktStaffDict(
+                id=staff["id"],
+                name=staff["name"],
+                position=staff["position"],
+                path_name=staff["profileUrl"].split("/")[1],
+            )
+            for staff in json["staff"]
+        ]
+
+
 class Player(Spider):
     def __init__(
         self,

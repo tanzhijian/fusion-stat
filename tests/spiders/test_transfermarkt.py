@@ -8,6 +8,7 @@ from fusion_stat.spiders.transfermarkt import (
     Competitions,
     Player,
     Staff,
+    Staffs,
     Team,
     _convert_date_format,
 )
@@ -114,6 +115,35 @@ class TestTeam:
         assert player["path_name"] == "david-raya"
         assert player["position"] == "GK"
         assert player["country_code"] == "ESP"
+
+
+class TestStaffs:
+    @pytest.fixture(scope="class")
+    def spider(self) -> typing.Generator[Staffs, typing.Any, None]:
+        yield Staffs(id="11")
+
+    def test_request(self, spider: Staffs) -> None:
+        url = spider.request.url
+        assert url == "https://www.transfermarkt.com/ceapi/staff/team/11/"
+
+    def test_request_include_season(self, spider: Staffs) -> None:
+        spider.season = 2023
+        url = spider.request.url
+        assert (
+            url
+            == "https://www.transfermarkt.com/ceapi/staff/team/11/?saison_id=2023"
+        )
+
+    def test_parse(self, spider: Staffs) -> None:
+        json = read_data("transfermarkt", "ceapi_staff_team_11_.json")
+        response = httpx.Response(200, json=json)
+        staffs = spider.parse(response)
+        assert len(staffs) == 54
+        staff = staffs[0]
+        assert staff["id"] == "47620"
+        assert staff["name"] == "Mikel Arteta"
+        assert staff["position"] == "Manager"
+        assert staff["path_name"] == "mikel-arteta"
 
 
 class TestPlayer:
