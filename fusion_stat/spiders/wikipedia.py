@@ -15,7 +15,7 @@ class Image(Spider):
     @property
     def request(self) -> httpx.Request:
         path = f"/summary/{self.id}"
-        return httpx.Request("GET", url=BASE_URL + path)
+        return httpx.Request("GET", url=f"{BASE_URL}{path}")
 
     def parse(self, response: httpx.Response) -> str:
         json = response.json()
@@ -32,7 +32,7 @@ class Competition(Spider):
         start, end = current_season()
         path = f"/mobile-html/{start}-{str(end)[2:]}_{self.id}"
 
-        return httpx.Request("GET", url=BASE_URL + path)
+        return httpx.Request("GET", url=f"{BASE_URL}{path}")
 
     def parse(self, response: httpx.Response) -> typing.Any:
         return "competition"

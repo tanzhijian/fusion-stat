@@ -25,24 +25,24 @@ class Competition(Spider):
     @property
     def request(self) -> httpx.Request:
         path = f"/clubs/List?seasonId={self.season}"
-        return httpx.Request("GET", url=BASE_URL + path)
+        return httpx.Request("GET", url=f"{BASE_URL}{path}")
 
     def parse(self, response: httpx.Response) -> competition_types.OfficialDict:
         selector = Selector(response.text)
         club_list = selector.xpath('//div[@class="ClubListPage-list"]/a')
         teams = []
         for team in club_list:
-            id = get_element_text(team.xpath("./@href")).split("=")[-1]
+            id_ = get_element_text(team.xpath("./@href")).split("=")[-1]
 
             img = team.xpath(".//img")
-            logo = BASE_URL + get_element_text(img.xpath("./@data-src"))
+            logo = f"{BASE_URL}{get_element_text(img.xpath("./@data-src"))}"
 
             name = get_element_text(img.xpath("./@alt"))
             name = self._fix_name(name)
 
             teams.append(
                 competition_types.OfficialTeamDict(
-                    id=id,
+                    id=id_,
                     name=name,
                     country_code="FRA",
                     logo=logo,

@@ -115,7 +115,7 @@ class Competition(Spider):
         )
         return httpx.Request(
             "GET",
-            url=BASE_URL + path,
+            url=f"{BASE_URL}{path}",
             headers=HEADERS,
         )
 
@@ -123,7 +123,7 @@ class Competition(Spider):
         json = response.json()
         teams = []
         for team in json["content"]:
-            id = str(int(team["club"]["id"]))
+            id_ = str(int(team["club"]["id"]))
             name = team["name"]
             image_id = team["altIds"]["opta"]
             logo = (
@@ -132,7 +132,7 @@ class Competition(Spider):
             )
             teams.append(
                 competition_types.OfficialTeamDict(
-                    id=id,
+                    id=id_,
                     name=name,
                     country_code="ENG",
                     logo=logo,

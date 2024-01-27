@@ -17,7 +17,7 @@ BASE_URL = "https://www.fotmob.com/api"
 class Competitions(Spider):
     @property
     def request(self) -> httpx.Request:
-        return httpx.Request("GET", url=BASE_URL + "/allLeagues")
+        return httpx.Request("GET", url=f"{BASE_URL}/allLeagues")
 
     def parse(self, response: httpx.Response) -> list[base_types.StatDict]:
         json = response.json()
@@ -27,10 +27,10 @@ class Competitions(Spider):
         }
         selection = json["popular"]
         for competition in selection:
-            if (id := str(competition["id"])) in competitions_id:
+            if (id_ := str(competition["id"])) in competitions_id:
                 competitions.append(
                     base_types.StatDict(
-                        id=id,
+                        id=id_,
                         name=competition["name"],
                     )
                 )
@@ -57,7 +57,7 @@ class Competition(Spider):
             params["season"] = self.season
         return httpx.Request(
             "GET",
-            url=BASE_URL + "/leagues",
+            url=f"{BASE_URL}/leagues",
             params=params,
         )
 
@@ -136,13 +136,13 @@ class Team(Spider):
     def request(self) -> httpx.Request:
         return httpx.Request(
             "GET",
-            url=BASE_URL + "/teams",
+            url=f"{BASE_URL}/teams",
             params={"id": self.id},
         )
 
     def parse(self, response: httpx.Response) -> team_types.FotMobDict:
         json = response.json()
-        id = str(json["details"]["id"])
+        id_ = str(json["details"]["id"])
         name = json["details"]["name"]
         names = {name, json["details"]["shortName"]}
         country_code = json["details"]["country"]
@@ -174,7 +174,7 @@ class Team(Spider):
                 )
 
         return team_types.FotMobDict(
-            id=id,
+            id=id_,
             name=name,
             names=names,
             country_code=country_code,
@@ -191,7 +191,7 @@ class _Member(Spider):
     def request(self) -> httpx.Request:
         return httpx.Request(
             "GET",
-            url=BASE_URL + "/playerData",
+            url=f"{BASE_URL}/playerData",
             params={"id": self.id},
         )
 
@@ -236,7 +236,7 @@ class Matches(Spider):
     def request(self) -> httpx.Request:
         return httpx.Request(
             "GET",
-            url=BASE_URL + "/matches",
+            url=f"{BASE_URL}/matches",
             params={"date": self.date},
         )
 
@@ -288,7 +288,7 @@ class Match(Spider):
     def request(self) -> httpx.Request:
         return httpx.Request(
             "GET",
-            url=BASE_URL + "/matchDetails",
+            url=f"{BASE_URL}/matchDetails",
             params={"matchId": self.id},
         )
 
