@@ -1,4 +1,3 @@
-import typing
 from functools import partial
 
 import httpx
@@ -19,8 +18,8 @@ read_test_data = partial(read_data, "fbref")
 
 class TestCompetitions:
     @pytest.fixture(scope="class")
-    def spider(self) -> typing.Generator[Competitions, typing.Any, None]:
-        yield Competitions()
+    def spider(self) -> Competitions:
+        return Competitions()
 
     def test_request(self, spider: Competitions) -> None:
         url = spider.request.url
@@ -41,8 +40,8 @@ class TestCompetitions:
 
 class TestCompetition:
     @pytest.fixture(scope="class")
-    def spider(self) -> typing.Generator[Competition, typing.Any, None]:
-        yield Competition(id="9", path_name="Premier-League")
+    def spider(self) -> Competition:
+        return Competition(id="9", path_name="Premier-League")
 
     def test_request(self, spider: Competition) -> None:
         url = spider.request.url
@@ -86,8 +85,8 @@ class TestCompetition:
 
 class TestTeam:
     @pytest.fixture(scope="class")
-    def spider(self) -> typing.Generator[Team, typing.Any, None]:
-        yield Team(id="18bb7c10", path_name="Arsenal")
+    def spider(self) -> Team:
+        return Team(id="18bb7c10", path_name="Arsenal")
 
     def test_request(self, spider: Team) -> None:
         url = spider.request.url
@@ -135,8 +134,8 @@ class TestTeam:
 
 class TestPlayer:
     @pytest.fixture(scope="class")
-    def spider(self) -> typing.Generator[Player, typing.Any, None]:
-        yield Player(id="bc7dc64d", path_name="Bukayo-Saka")
+    def spider(self) -> Player:
+        return Player(id="bc7dc64d", path_name="Bukayo-Saka")
 
     def test_request(self, spider: Player) -> None:
         url = spider.request.url
@@ -159,8 +158,8 @@ class TestPlayer:
 
 class TestMatches:
     @pytest.fixture(scope="class")
-    def spider(self) -> typing.Generator[Matches, typing.Any, None]:
-        yield Matches(date="2023-09-03")
+    def spider(self) -> Matches:
+        return Matches(date="2023-09-03")
 
     def test_request(self, spider: Matches) -> None:
         url = spider.request.url
@@ -178,8 +177,8 @@ class TestMatches:
 
 class TestMatch:
     @pytest.fixture(scope="class")
-    def spider(self) -> typing.Generator[Match, typing.Any, None]:
-        yield Match(id="74125d47")
+    def spider(self) -> Match:
+        return Match(id="74125d47")
 
     def test_request(self, spider: Match) -> None:
         url = spider.request.url

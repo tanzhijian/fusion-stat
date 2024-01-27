@@ -1,5 +1,3 @@
-import typing
-
 import httpx
 import pytest
 
@@ -10,8 +8,8 @@ from tests.utils import read_data
 
 class TestCompetition:
     @pytest.fixture(scope="class")
-    def spider(self) -> typing.Generator[Competition, typing.Any, None]:
-        yield Competition(name="Premier League")
+    def spider(self) -> Competition:
+        return Competition(name="Premier League")
 
     def test_request(self, spider: Competition) -> None:
         assert (

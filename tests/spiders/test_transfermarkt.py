@@ -1,5 +1,3 @@
-import typing
-
 import httpx
 import pytest
 
@@ -18,8 +16,8 @@ from ..utils import read_data
 
 class TestCompetitions:
     @pytest.fixture(scope="class")
-    def spider(self) -> typing.Generator[Competitions, typing.Any, None]:
-        yield Competitions()
+    def spider(self) -> Competitions:
+        return Competitions()
 
     def test_request(self, spider: Competitions) -> None:
         url = spider.request.url
@@ -38,8 +36,8 @@ class TestCompetitions:
 
 class TestCompetition:
     @pytest.fixture(scope="class")
-    def spider(self) -> typing.Generator[Competition, typing.Any, None]:
-        yield Competition(id="GB1", path_name="premier-league")
+    def spider(self) -> Competition:
+        return Competition(id="GB1", path_name="premier-league")
 
     def test_request(self, spider: Competition) -> None:
         url = spider.request.url
@@ -79,8 +77,8 @@ class TestCompetition:
 
 class TestTeam:
     @pytest.fixture(scope="class")
-    def spider(self) -> typing.Generator[Team, typing.Any, None]:
-        yield Team(id="11", path_name="arsenal-fc")
+    def spider(self) -> Team:
+        return Team(id="11", path_name="arsenal-fc")
 
     def test_request(self, spider: Team) -> None:
         url = spider.request.url
@@ -119,8 +117,8 @@ class TestTeam:
 
 class TestStaffs:
     @pytest.fixture(scope="class")
-    def spider(self) -> typing.Generator[Staffs, typing.Any, None]:
-        yield Staffs(id="11")
+    def spider(self) -> Staffs:
+        return Staffs(id="11")
 
     def test_request(self, spider: Staffs) -> None:
         url = spider.request.url
@@ -148,8 +146,8 @@ class TestStaffs:
 
 class TestPlayer:
     @pytest.fixture(scope="class")
-    def spider(self) -> typing.Generator[Player, typing.Any, None]:
-        yield Player(id="433177", path_name="bukayo-saka")
+    def spider(self) -> Player:
+        return Player(id="433177", path_name="bukayo-saka")
 
     def test_request(self, spider: Player) -> None:
         url = spider.request.url
@@ -175,8 +173,8 @@ def test_convert_date_format() -> None:
 
 class TestStaff:
     @pytest.fixture(scope="class")
-    def spider(self) -> typing.Generator[Staff, typing.Any, None]:
-        yield Staff(id="47620", path_name="mikel-arteta")
+    def spider(self) -> Staff:
+        return Staff(id="47620", path_name="mikel-arteta")
 
     def test_request(self, spider: Staff) -> None:
         url = spider.request.url
