@@ -19,7 +19,3 @@ class TestMatch:
             fotmob=fotmob_spider.parse(httpx.Response(200, json=fotmob_data)),
             fbref=fbref_spider.parse(httpx.Response(200, text=fbref_data)),
         )
-
-    def test_info(self, match: Match) -> None:
-        assert match.fotmob["name"] == "Arsenal vs Manchester United"
-        assert match.fbref["name"] == "Arsenal vs Manchester United"

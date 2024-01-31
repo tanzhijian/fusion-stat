@@ -27,10 +27,10 @@ class Competitions:
         transfermarkt: list[competitions_types.TransfermarktCompetitionDict],
         season: int | None = None,
     ) -> None:
-        self.fotmob = fotmob
-        self.fbref = fbref
-        self.transfermarkt = transfermarkt
-        self.season = season
+        self._fotmob = fotmob
+        self._fbref = fbref
+        self._transfermarkt = transfermarkt
+        self._season = season
 
     def _find_competition(
         self,
@@ -77,13 +77,13 @@ class Competitions:
         """
         for name, params in COMPETITIONS.items():
             fotmob_competition = self._find_competition(
-                params["fotmob_id"], self.fotmob
+                params["fotmob_id"], self._fotmob
             )
             fbref_competition = self._find_competition(
-                params["fbref_id"], self.fbref
+                params["fbref_id"], self._fbref
             )
             transfermarkt_competition = self._find_competition(
-                params["transfermarkt_id"], self.transfermarkt
+                params["transfermarkt_id"], self._transfermarkt
             )
 
             item = competitions_types.CompetitionDict(
@@ -142,8 +142,8 @@ class Competitions:
                 transfermarkt_path_name=item["transfermarkt"]["path_name"],
             )
 
-            if self.season is not None:
-                competition_params["season"] = self.season
+            if self._season is not None:
+                competition_params["season"] = self._season
 
             yield competition_params
 
@@ -156,10 +156,10 @@ class Competition:
         official: competition_types.OfficialDict,
         transfermarkt: competition_types.TransfermarktDict,
     ) -> None:
-        self.fotmob = fotmob
-        self.fbref = fbref
-        self.official = official
-        self.transfermarkt = transfermarkt
+        self._fotmob = fotmob
+        self._fbref = fbref
+        self._official = official
+        self._transfermarkt = transfermarkt
 
     def _find_team(
         self,
@@ -189,15 +189,15 @@ class Competition:
         * player_average_market_value (str): Competition player average market value.
         """
         return competition_types.InfoDict(
-            id=self.fotmob["id"],
-            name=self.fotmob["name"],
-            logo=self.official["logo"],
-            type=self.fotmob["type"],
-            season=self.fotmob["season"],
-            country_code=self.fotmob["country_code"],
-            names=self.fotmob["names"] | {self.fbref["name"]},
-            market_values=self.transfermarkt["market_values"],
-            player_average_market_value=self.transfermarkt[
+            id=self._fotmob["id"],
+            name=self._fotmob["name"],
+            logo=self._official["logo"],
+            type=self._fotmob["type"],
+            season=self._fotmob["season"],
+            country_code=self._fotmob["country_code"],
+            names=self._fotmob["names"] | {self._fbref["name"]},
+            market_values=self._transfermarkt["market_values"],
+            player_average_market_value=self._transfermarkt[
                 "player_average_market_value"
             ],
         )
@@ -225,11 +225,13 @@ class Competition:
                 * shots (int): number of shots.
                 * xg (float): expected goals.
         """
-        for fotmob_team in self.fotmob["teams"]:
-            fbref_team = self._find_team(fotmob_team, self.fbref["teams"])
-            official_team = self._find_team(fotmob_team, self.official["teams"])
+        for fotmob_team in self._fotmob["teams"]:
+            fbref_team = self._find_team(fotmob_team, self._fbref["teams"])
+            official_team = self._find_team(
+                fotmob_team, self._official["teams"]
+            )
             transfermarkt_team = self._find_team(
-                fotmob_team, self.transfermarkt["teams"]
+                fotmob_team, self._transfermarkt["teams"]
             )
 
             team = competition_types.TeamDict(
@@ -346,7 +348,7 @@ class Competition:
                 * name (str): team name.
                 * score (int | None): match score.
         """
-        for fotmob_match in self.fotmob["matches"]:
+        for fotmob_match in self._fotmob["matches"]:
             home = fotmob_match["home"]
             away = fotmob_match["away"]
             competition = fotmob_match["competition"]
@@ -402,14 +404,14 @@ class Competition:
             * transfermarkt_id (str): transfermarkt team id
             * transfermarkt_path_name (str): transfermarkt team path name
         """
-        for fotmob_team in self.fotmob["teams"]:
+        for fotmob_team in self._fotmob["teams"]:
             fbref_team = self._find_team(
                 fotmob_team,
-                self.fbref["teams"],
+                self._fbref["teams"],
             )
             transfermarkt_team = self._find_team(
                 fotmob_team,
-                self.transfermarkt["teams"],
+                self._transfermarkt["teams"],
             )
 
             team_params = competition_types.TeamParamsDict(
@@ -430,10 +432,10 @@ class Team:
         transfermarkt: team_types.TransfermarktDict,
         transfermarkt_staffs: list[team_types.TransfermarktStaffDict],
     ) -> None:
-        self.fotmob = fotmob
-        self.fbref = fbref
-        self.transfermarkt = transfermarkt
-        self.transfermarkt_staffs = transfermarkt_staffs
+        self._fotmob = fotmob
+        self._fbref = fbref
+        self._transfermarkt = transfermarkt
+        self._transfermarkt_staffs = transfermarkt_staffs
 
     def _find_player(
         self,
@@ -456,17 +458,17 @@ class Team:
     @property
     def info(self) -> team_types.InfoDict:
         return {
-            "id": self.fotmob["id"],
-            "name": self.fotmob["name"],
-            "names": self.fotmob["names"] | self.fbref["names"],
-            "country_code": self.fotmob["country_code"],
-            "market_values": self.transfermarkt["market_values"],
+            "id": self._fotmob["id"],
+            "name": self._fotmob["name"],
+            "names": self._fotmob["names"] | self._fbref["names"],
+            "country_code": self._fotmob["country_code"],
+            "market_values": self._transfermarkt["market_values"],
         }
 
     def get_staffs(
         self,
     ) -> typing.Generator[team_types.StaffDict, typing.Any, None]:
-        for transfermarkt_staff in self.transfermarkt_staffs:
+        for transfermarkt_staff in self._transfermarkt_staffs:
             yield team_types.StaffDict(
                 id=transfermarkt_staff["id"],
                 name=transfermarkt_staff["name"],
@@ -480,15 +482,15 @@ class Team:
     def get_players(
         self,
     ) -> typing.Generator[team_types.PlayerDict, typing.Any, None]:
-        for fotmob_player in self.fotmob["players"]:
+        for fotmob_player in self._fotmob["players"]:
             try:
                 fbref_player = self._find_player(
                     fotmob_player,
-                    self.fbref["players"],
+                    self._fbref["players"],
                 )
                 transfermarkt_player = self._find_player(
                     fotmob_player,
-                    self.transfermarkt["players"],
+                    self._transfermarkt["players"],
                 )
 
                 name = fotmob_player["name"]
@@ -514,15 +516,15 @@ class Team:
     def get_players_params(
         self,
     ) -> typing.Generator[team_types.PlayerParamsDict, typing.Any, None]:
-        for fotmob_player in self.fotmob["players"]:
+        for fotmob_player in self._fotmob["players"]:
             try:
                 fbref_player = self._find_player(
                     fotmob_player,
-                    self.fbref["players"],
+                    self._fbref["players"],
                 )
                 transfermarkt_player = self._find_player(
                     fotmob_player,
-                    self.transfermarkt["players"],
+                    self._transfermarkt["players"],
                 )
                 player_params = team_types.PlayerParamsDict(
                     fotmob_id=fotmob_player["id"],
@@ -538,7 +540,7 @@ class Team:
     def get_staffs_params(
         self,
     ) -> typing.Generator[team_types.StaffParamsDict, typing.Any, None]:
-        for transfermarkt_staff in self.transfermarkt_staffs:
+        for transfermarkt_staff in self._transfermarkt_staffs:
             yield team_types.StaffParamsDict(
                 transfermarkt_id=transfermarkt_staff["id"],
                 transfermarkt_path_name=transfermarkt_staff["path_name"],
@@ -552,14 +554,14 @@ class Player:
         fbref: player_types.FBrefDict,
         transfermarkt: player_types.TransfermarktDict,
     ) -> None:
-        self.fotmob = fotmob
-        self.fbref = fbref
-        self.transfermarkt = transfermarkt
+        self._fotmob = fotmob
+        self._fbref = fbref
+        self._transfermarkt = transfermarkt
 
 
 class Staff:
     def __init__(self, transfermarkt: staff_types.TransfermarktDict) -> None:
-        self.transfermarkt = transfermarkt
+        self._transfermarkt = transfermarkt
 
 
 class Matches:
@@ -568,8 +570,8 @@ class Matches:
         fotmob: list[matches_types.FotMobMatchDict],
         fbref: list[base_types.StatDict],
     ) -> None:
-        self.fotmob = fotmob
-        self.fbref = fbref
+        self._fotmob = fotmob
+        self._fbref = fbref
 
     def _find_match(
         self,
@@ -607,7 +609,7 @@ class Matches:
                 * name (str): team name.
                 * score (int | None): match score.
         """
-        for fotmob_match in self.fotmob:
+        for fotmob_match in self._fotmob:
             match = matches_types.MatchDict(**fotmob_match)
             yield match
 
@@ -643,9 +645,9 @@ class Matches:
     def get_params(
         self,
     ) -> typing.Generator[matches_types.MatchParamsDict, typing.Any, None]:
-        for fotmob_match in self.fotmob:
+        for fotmob_match in self._fotmob:
             if not fotmob_match["cancelled"]:
-                fbref_match = self._find_match(fotmob_match, self.fbref)
+                fbref_match = self._find_match(fotmob_match, self._fbref)
 
                 match_params = matches_types.MatchParamsDict(
                     fotmob_id=fotmob_match["id"], fbref_id=fbref_match["id"]
@@ -659,5 +661,5 @@ class Match:
         fotmob: base_types.StatDict,
         fbref: base_types.StatDict,
     ) -> None:
-        self.fotmob = fotmob
-        self.fbref = fbref
+        self._fotmob = fotmob
+        self._fbref = fbref

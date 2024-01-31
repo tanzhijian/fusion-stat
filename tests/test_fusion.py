@@ -44,9 +44,9 @@ class TestFusion:
             assert fotmob_route.called
             assert fbref_route.called
             assert transfermarkt_route.called
-        assert len(coms.fotmob) > 0
-        assert len(coms.fbref) > 0
-        assert len(coms.transfermarkt) > 0
+        assert len(coms._fotmob) > 0
+        assert len(coms._fbref) > 0
+        assert len(coms._transfermarkt) > 0
 
     @pytest.mark.anyio
     async def test_get_competition(self, fusion: Fusion) -> None:
@@ -72,10 +72,10 @@ class TestFusion:
             assert fbref_route.called
             assert pl_route.called
             assert transfermarkt_route.called
-        assert com.fotmob["name"]
-        assert com.fbref["name"]
-        assert com.official["name"]
-        assert com.transfermarkt["name"]
+        assert com._fotmob["name"]
+        assert com._fbref["name"]
+        assert com._official["name"]
+        assert com._transfermarkt["name"]
 
     @pytest.mark.anyio
     async def test_get_team(self, fusion: Fusion) -> None:
@@ -101,10 +101,10 @@ class TestFusion:
             assert fbref_route.called
             assert transfermarkt_route.called
             assert transfermarkt_staffs_route.called
-        assert team.fotmob["name"]
-        assert team.fbref["name"]
-        assert team.transfermarkt["name"]
-        assert team.transfermarkt["name"]
+        assert team._fotmob["name"]
+        assert team._fbref["name"]
+        assert team._transfermarkt["name"]
+        assert team._transfermarkt_staffs
 
     @pytest.mark.anyio
     async def test_get_player(self, fusion: Fusion) -> None:
@@ -125,9 +125,9 @@ class TestFusion:
             assert fotmob_route.called
             assert fbref_route.called
             assert transfermarkt_route.called
-        assert player.fotmob["name"]
-        assert player.fbref["name"]
-        assert player.transfermarkt["name"]
+        assert player._fotmob["name"]
+        assert player._fbref["name"]
+        assert player._transfermarkt["name"]
 
     @pytest.mark.anyio
     async def test_get_staff(self, fusion: Fusion) -> None:
@@ -141,7 +141,7 @@ class TestFusion:
                 transfermarkt_path_name="mikel-arteta",
             )
             assert transfermarkt_route.called
-        assert staff.transfermarkt["name"]
+        assert staff._transfermarkt["name"]
 
     @pytest.mark.anyio
     async def test_get_matches(self, fusion: Fusion) -> None:
@@ -152,8 +152,8 @@ class TestFusion:
             matches = await fusion.get_matches(date="2023-09-03")
             assert fotmob_route.called
             assert fbref_route.called
-        assert len(matches.fotmob) > 0
-        assert len(matches.fbref) > 0
+        assert len(matches._fotmob) > 0
+        assert len(matches._fbref) > 0
 
     @pytest.mark.anyio
     async def test_get_match(self, fusion: Fusion) -> None:
@@ -166,5 +166,5 @@ class TestFusion:
             )
             assert fotmob_route.called
             assert fbref_route.called
-        assert match.fotmob["name"]
-        assert match.fbref["name"]
+        assert match._fotmob["name"]
+        assert match._fbref["name"]

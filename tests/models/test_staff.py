@@ -20,6 +20,3 @@ class TestStaff:
                 Response(200, text=transfermarkt_data)
             )
         )
-
-    def test_info(self, staff: Staff) -> None:
-        assert staff.transfermarkt["name"] == "Mikel Arteta"

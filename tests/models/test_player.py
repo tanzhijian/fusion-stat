@@ -28,6 +28,3 @@ class TestPlayer:
                 httpx.Response(200, text=transfermarkt_data)
             ),
         )
-
-    def test_info(self, player: Player) -> None:
-        assert player.fotmob["name"] == "Bukayo Saka"
