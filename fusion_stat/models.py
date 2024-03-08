@@ -13,7 +13,7 @@ from .types import (
     player_types,
     team_types,
 )
-from .utils import fuzzy_similarity_mean
+from .utils import mean_scorer
 
 T = typing.TypeVar("T", bound=base_types.StatDict)
 U = typing.TypeVar("U", bound=team_types.BasePlayerDict)
@@ -445,7 +445,7 @@ class Team:
         result = process.extractOne(
             query,
             choices,
-            scorer=fuzzy_similarity_mean,
+            scorer=mean_scorer,
             processor=lambda x: [
                 x["name"],
                 x["country_code"],

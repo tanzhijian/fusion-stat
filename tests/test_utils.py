@@ -4,8 +4,8 @@ from parsel import Selector
 from fusion_stat.utils import (
     concatenate_strings,
     current_season,
-    fuzzy_similarity_mean,
     get_element_text,
+    mean_scorer,
 )
 
 
@@ -26,7 +26,7 @@ def test_get_element_text_empty() -> None:
 def test_fuzzy_similarity_mean() -> None:
     l1 = ["Gabriel", "BRA", "DF"]
     l2 = ["Gabriel Dos Santos", "BRA", "DF"]
-    score = fuzzy_similarity_mean(l1, l2)
+    score = mean_scorer(l1, l2)
     assert score > 80
 
 
