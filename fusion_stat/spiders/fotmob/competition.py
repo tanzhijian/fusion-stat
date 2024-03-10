@@ -73,13 +73,13 @@ class Spider(BaseSpider):
         names = {name, json["details"]["shortName"]}
 
         teams = [
-            self._parse_team(team)
-            for team in json["table"][0]["data"]["table"]["all"]
+            self._parse_team(node)
+            for node in json["table"][0]["data"]["table"]["all"]
         ]
 
         matches = [
-            self._parse_match(match, name)
-            for match in json["matches"]["allMatches"]
+            self._parse_match(node, name)
+            for node in json["matches"]["allMatches"]
         ]
 
         return Item(
@@ -93,42 +93,42 @@ class Spider(BaseSpider):
             matches=matches,
         )
 
-    def _parse_team(self, team: typing.Any) -> TeamItem:
-        goals_for, goals_against = team["scoresStr"].split("-")
+    def _parse_team(self, node: typing.Any) -> TeamItem:
+        goals_for, goals_against = node["scoresStr"].split("-")
         return TeamItem(
-            id=str(team["id"]),
-            name=team["name"],
-            names={team["name"], team["shortName"]},
-            played=team["played"],
-            wins=team["wins"],
-            draws=team["draws"],
-            losses=team["losses"],
+            id=str(node["id"]),
+            name=node["name"],
+            names={node["name"], node["shortName"]},
+            played=node["played"],
+            wins=node["wins"],
+            draws=node["draws"],
+            losses=node["losses"],
             goals_for=int(goals_for),
             goals_against=int(goals_against),
-            points=int(team["pts"]),
+            points=int(node["pts"]),
         )
 
     def _parse_match(
-        self, match: typing.Any, competition_name: str
+        self, node: typing.Any, competition_name: str
     ) -> MatchItem:
-        home_name = match["home"]["name"]
-        away_name = match["away"]["name"]
-        home_score, away_score = parse_score(match["status"].get("scoreStr"))
+        home_name = node["home"]["name"]
+        away_name = node["away"]["name"]
+        home_score, away_score = parse_score(node["status"].get("scoreStr"))
         return MatchItem(
-            id=str(match["id"]),
+            id=str(node["id"]),
             name=f"{home_name} vs {away_name}",
-            utc_time=match["status"]["utcTime"],
-            finished=match["status"]["finished"],
-            started=match["status"]["started"],
-            cancelled=match["status"]["cancelled"],
+            utc_time=node["status"]["utcTime"],
+            finished=node["status"]["finished"],
+            started=node["status"]["started"],
+            cancelled=node["status"]["cancelled"],
             competition=BaseItem(id=self.id, name=competition_name),
             home=MatchTeamItem(
-                id=str(match["home"]["id"]),
+                id=str(node["home"]["id"]),
                 name=home_name,
                 score=home_score,
             ),
             away=MatchTeamItem(
-                id=str(match["away"]["id"]),
+                id=str(node["away"]["id"]),
                 name=away_name,
                 score=away_score,
             ),

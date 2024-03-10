@@ -19,7 +19,7 @@ class Item(BaseItem):
     away: TeamItem
 
 
-class Matches(BaseSpider):
+class Spider(BaseSpider):
     """Parameters:
 
     * date: "%Y-%m-%d", such as "2023-09-03"
