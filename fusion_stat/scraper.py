@@ -3,9 +3,10 @@ import typing
 from abc import ABC, abstractmethod
 
 import httpx
+from pydantic import BaseModel
 
 
-class Spider(ABC):
+class BaseSpider(ABC):
     @property
     @abstractmethod
     def request(self) -> httpx.Request:
@@ -14,6 +15,11 @@ class Spider(ABC):
     @abstractmethod
     def parse(self, response: httpx.Response) -> typing.Any:
         ...
+
+
+class BaseItem(BaseModel):
+    id: str
+    name: str
 
 
 class Downloader:
@@ -45,7 +51,7 @@ class Engine:
     ) -> None:
         self.downloader = Downloader(client=client)
 
-    async def process(self, *spiders: Spider) -> list[typing.Any]:
+    async def process(self, *spiders: BaseSpider) -> list[typing.Any]:
         items = []
         requests = (spider.request for spider in spiders)
         responses = await self.downloader.download(*requests)
