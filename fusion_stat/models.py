@@ -2,29 +2,32 @@ import typing
 
 from rapidfuzz import process
 
-from fusion_stat.types import staff_types
-
+from . import spiders
 from .config import COMPETITIONS, MEMBERS_SIMILARITY_SCORE
-from .types import (
-    base_types,
-    competition_types,
-    competitions_types,
-    matches_types,
-    player_types,
-    team_types,
-)
+from .scraper import BaseItem
 from .utils import mean_scorer
 
-T = typing.TypeVar("T", bound=base_types.StatDict)
-U = typing.TypeVar("U", bound=team_types.BasePlayerDict)
+
+class PlayerItemTypes(typing.Protocol):
+    id: str
+    name: str
+    country_code: str
+    position: str | None
+
+
+ExportTypes = dict[str, typing.Any]
+
+
+T = typing.TypeVar("T", bound=BaseItem)
+U = typing.TypeVar("U", bound=PlayerItemTypes)
 
 
 class Competitions:
     def __init__(
         self,
-        fotmob: list[base_types.StatDict],
-        fbref: list[competitions_types.FBrefCompetitionDict],
-        transfermarkt: list[competitions_types.TransfermarktCompetitionDict],
+        fotmob: list[spiders.fotmob.competitions.Item],
+        fbref: list[spiders.fbref.competitions.Item],
+        transfermarkt: list[spiders.transfermarkt.competitions.Item],
         season: int | None = None,
     ) -> None:
         self._fotmob = fotmob
@@ -38,26 +41,26 @@ class Competitions:
         choices: typing.Sequence[T],
     ) -> T:
         for competition in choices:
-            if competition["id"] == query_id:
+            if competition.id == query_id:
                 return competition
         raise ValueError(f"Competition with id {query_id} not found")
 
     @property
-    def info(self) -> competitions_types.InfoDict:
+    def info(self) -> ExportTypes:
         """
         Return a dict that includes the following keys:
 
         * count (int): number of competitions
         * names (list[str]): names of competitions
         """
-        return competitions_types.InfoDict(
-            count=len(COMPETITIONS),
-            names=list(COMPETITIONS.keys()),
-        )
+        return {
+            "count": len(COMPETITIONS),
+            "names": list(COMPETITIONS.keys()),
+        }
 
     def get_items(
         self,
-    ) -> typing.Generator[competitions_types.CompetitionDict, typing.Any, None]:
+    ) -> typing.Generator[ExportTypes, typing.Any, None]:
         """
         Return a generator of dicts that include the following keys:
 
@@ -69,6 +72,7 @@ class Competitions:
         * fbref (dict): fbref competition
                 * id (str): fbref competition id
                 * name (str): fbref competition name
+                * path_name (str): fbref competition path name
                 * country_code (str): country code, three-letter code
         * transfermarkt (dict): transfermarkt competition
                 * id (str): transfermarkt competition id
@@ -86,17 +90,17 @@ class Competitions:
                 params["transfermarkt_id"], self._transfermarkt
             )
 
-            item = competitions_types.CompetitionDict(
-                id=fotmob_competition["id"],
-                name=name,
-                fotmob=fotmob_competition,
-                fbref=fbref_competition,
-                transfermarkt=transfermarkt_competition,
-            )
+            item = {
+                "id": fotmob_competition.id,
+                "name": name,
+                "fotmob": fotmob_competition.model_dump(),
+                "fbref": fbref_competition.model_dump(),
+                "transfermarkt": transfermarkt_competition.model_dump(),
+            }
             yield item
 
     @property
-    def items(self) -> list[competitions_types.CompetitionDict]:
+    def items(self) -> list[ExportTypes]:
         """
         Return a list of dicts that include the following keys:
 
@@ -108,6 +112,7 @@ class Competitions:
         * fbref (dict): fbref competition
                 * id (str): fbref competition id
                 * name (str): fbref competition name
+                * path_name (str): fbref competition path name
                 * country_code (str): country code, three-letter code
         * transfermarkt (dict): transfermarkt competition
                 * id (str): transfermarkt competition id
@@ -118,9 +123,7 @@ class Competitions:
 
     def get_params(
         self,
-    ) -> typing.Generator[
-        competitions_types.CompetitionParamsDict, typing.Any, None
-    ]:
+    ) -> typing.Generator[ExportTypes, typing.Any, None]:
         """
         Return a generator of dicts that include the following keys:
 
@@ -133,14 +136,14 @@ class Competitions:
             * season (int, optional): fotmob competition season
         """
         for item in self.get_items():
-            competition_params = competitions_types.CompetitionParamsDict(
-                fotmob_id=item["fotmob"]["id"],
-                fbref_id=item["fbref"]["id"],
-                fbref_path_name=item["fbref"]["path_name"],
-                official_name=item["name"],
-                transfermarkt_id=item["transfermarkt"]["id"],
-                transfermarkt_path_name=item["transfermarkt"]["path_name"],
-            )
+            competition_params = {
+                "fotmob_id": item["fotmob"]["id"],
+                "fbref_id": item["fbref"]["id"],
+                "fbref_path_name": item["fbref"]["path_name"],
+                "official_name": item["name"],
+                "transfermarkt_id": item["transfermarkt"]["id"],
+                "transfermarkt_path_name": item["transfermarkt"]["path_name"],
+            }
 
             if self._season is not None:
                 competition_params["season"] = self._season
@@ -151,10 +154,10 @@ class Competitions:
 class Competition:
     def __init__(
         self,
-        fotmob: competition_types.FotMobDict,
-        fbref: competition_types.FBrefDict,
-        official: competition_types.OfficialDict,
-        transfermarkt: competition_types.TransfermarktDict,
+        fotmob: spiders.fotmob.competition.Item,
+        fbref: spiders.fbref.competition.Item,
+        official: spiders.official.competition.Item,
+        transfermarkt: spiders.transfermarkt.competition.Item,
     ) -> None:
         self._fotmob = fotmob
         self._fbref = fbref
@@ -163,18 +166,18 @@ class Competition:
 
     def _find_team(
         self,
-        query: base_types.StatDict,
+        query: BaseItem,
         choices: typing.Sequence[T],
     ) -> T:
         team = process.extractOne(
             query,
             choices,
-            processor=lambda x: x["name"],
+            processor=lambda x: x.name,
         )[0]
         return team
 
     @property
-    def info(self) -> competition_types.InfoDict:
+    def info(self) -> ExportTypes:
         """
         Return a dict that includes the following keys:
 
@@ -188,23 +191,21 @@ class Competition:
         * market_values (str): Competition market values.
         * player_average_market_value (str): Competition player average market value.
         """
-        return competition_types.InfoDict(
-            id=self._fotmob["id"],
-            name=self._fotmob["name"],
-            logo=self._official["logo"],
-            type=self._fotmob["type"],
-            season=self._fotmob["season"],
-            country_code=self._fotmob["country_code"],
-            names=self._fotmob["names"] | {self._fbref["name"]},
-            market_values=self._transfermarkt["market_values"],
-            player_average_market_value=self._transfermarkt[
-                "player_average_market_value"
-            ],
-        )
+        return {
+            "id": self._fotmob.id,
+            "name": self._fotmob.name,
+            "logo": self._official.logo,
+            "type": self._fotmob.type,
+            "season": self._fotmob.season,
+            "country_code": self._fotmob.country_code,
+            "names": self._fotmob.names | {self._fbref.name},
+            "market_values": self._transfermarkt.market_values,
+            "player_average_market_value": self._transfermarkt.player_average_market_value,  # noqa: E501
+        }
 
     def get_teams(
         self,
-    ) -> typing.Generator[competition_types.TeamDict, typing.Any, None]:
+    ) -> typing.Generator[ExportTypes, typing.Any, None]:
         """
         Return a generator of dicts that include the following keys:
 
@@ -225,28 +226,26 @@ class Competition:
                 * shots (int): number of shots.
                 * xg (float): expected goals.
         """
-        for fotmob_team in self._fotmob["teams"]:
-            fbref_team = self._find_team(fotmob_team, self._fbref["teams"])
-            official_team = self._find_team(
-                fotmob_team, self._official["teams"]
-            )
+        for fotmob_team in self._fotmob.teams:
+            fbref_team = self._find_team(fotmob_team, self._fbref.teams)
+            official_team = self._find_team(fotmob_team, self._official.teams)
             transfermarkt_team = self._find_team(
-                fotmob_team, self._transfermarkt["teams"]
+                fotmob_team, self._transfermarkt.teams
             )
 
-            team = competition_types.TeamDict(
-                **fotmob_team,
-                country_code=official_team["country_code"],
-                market_values=transfermarkt_team["market_values"],
-                logo=official_team["logo"],
-                shooting=fbref_team["shooting"],
-            )
-            team["names"] |= fbref_team["names"]
+            team = {
+                **fotmob_team.model_dump(),
+                "country_code": official_team.country_code,
+                "market_values": transfermarkt_team.market_values,
+                "logo": official_team.logo,
+                "shooting": fbref_team.shooting.model_dump(),
+            }
+            team["names"] |= fbref_team.names
 
             yield team
 
     @property
-    def teams(self) -> list[competition_types.TeamDict]:
+    def teams(self) -> list[ExportTypes]:
         """
         Return a list of dicts that include the following keys:
 
@@ -271,7 +270,7 @@ class Competition:
 
     @staticmethod
     def sort_table_key(
-        team: competition_types.TableTeamDict,
+        team: ExportTypes,
     ) -> tuple[int, int, int, str]:
         """
         1. 首先按照积分降序排序，积分高的排在前面
@@ -289,7 +288,7 @@ class Competition:
         )
 
     @property
-    def table(self) -> list[competition_types.TableTeamDict]:
+    def table(self) -> list[ExportTypes]:
         """
         Return a list of dicts sorted by the standings that include the following keys:
 
@@ -306,19 +305,19 @@ class Competition:
         * logo (str): team logo.
         """
         teams = [
-            competition_types.TableTeamDict(
-                id=team["id"],
-                name=team["name"],
-                played=team["played"],
-                wins=team["wins"],
-                draws=team["draws"],
-                losses=team["losses"],
-                goals_for=team["goals_for"],
-                goals_against=team["goals_against"],
-                points=team["points"],
-                xg=team["shooting"]["xg"],
-                logo=team["logo"],
-            )
+            {
+                "id": team["id"],
+                "name": team["name"],
+                "played": team["played"],
+                "wins": team["wins"],
+                "draws": team["draws"],
+                "losses": team["losses"],
+                "goals_for": team["goals_for"],
+                "goals_against": team["goals_against"],
+                "points": team["points"],
+                "xg": team["shooting"]["xg"],
+                "logo": team["logo"],
+            }
             for team in self.get_teams()
         ]
         table = sorted(teams, key=self.sort_table_key)
@@ -326,7 +325,7 @@ class Competition:
 
     def get_matches(
         self,
-    ) -> typing.Generator[competition_types.MatchDict, typing.Any, None]:
+    ) -> typing.Generator[ExportTypes, typing.Any, None]:
         """
         Return a generator of dicts that include the following keys:
 
@@ -348,27 +347,26 @@ class Competition:
                 * name (str): team name.
                 * score (int | None): match score.
         """
-        for fotmob_match in self._fotmob["matches"]:
-            home = fotmob_match["home"]
-            away = fotmob_match["away"]
-            competition = fotmob_match["competition"]
-            competition["id"] = self.info["id"]
+        for fotmob_match in self._fotmob.matches:
+            home = fotmob_match.home
+            away = fotmob_match.away
+            competition = fotmob_match.competition
 
-            match = competition_types.MatchDict(
-                id=fotmob_match["id"],
-                name=fotmob_match["name"],
-                utc_time=fotmob_match["utc_time"],
-                finished=fotmob_match["finished"],
-                started=fotmob_match["started"],
-                cancelled=fotmob_match["cancelled"],
-                competition=competition,
-                home=home,
-                away=away,
-            )
+            match = {
+                "id": fotmob_match.id,
+                "name": fotmob_match.name,
+                "utc_time": fotmob_match.utc_time,
+                "finished": fotmob_match.finished,
+                "started": fotmob_match.started,
+                "cancelled": fotmob_match.cancelled,
+                "competition": competition.model_dump(),
+                "home": home.model_dump(),
+                "away": away.model_dump(),
+            }
             yield match
 
     @property
-    def matches(self) -> list[competition_types.MatchDict]:
+    def matches(self) -> list[ExportTypes]:
         """
         Return a list of dicts that include the following keys:
 
@@ -394,7 +392,7 @@ class Competition:
 
     def get_teams_params(
         self,
-    ) -> typing.Generator[competition_types.TeamParamsDict, typing.Any, None]:
+    ) -> typing.Generator[ExportTypes, typing.Any, None]:
         """
         Return a generator of dicts that include the following keys:
 
@@ -404,33 +402,33 @@ class Competition:
             * transfermarkt_id (str): transfermarkt team id
             * transfermarkt_path_name (str): transfermarkt team path name
         """
-        for fotmob_team in self._fotmob["teams"]:
+        for fotmob_team in self._fotmob.teams:
             fbref_team = self._find_team(
                 fotmob_team,
-                self._fbref["teams"],
+                self._fbref.teams,
             )
             transfermarkt_team = self._find_team(
                 fotmob_team,
-                self._transfermarkt["teams"],
+                self._transfermarkt.teams,
             )
 
-            team_params = competition_types.TeamParamsDict(
-                fotmob_id=fotmob_team["id"],
-                fbref_id=fbref_team["id"],
-                fbref_path_name=fbref_team["path_name"],
-                transfermarkt_id=transfermarkt_team["id"],
-                transfermarkt_path_name=transfermarkt_team["path_name"],
-            )
+            team_params = {
+                "fotmob_id": fotmob_team.id,
+                "fbref_id": fbref_team.id,
+                "fbref_path_name": fbref_team.path_name,
+                "transfermarkt_id": transfermarkt_team.id,
+                "transfermarkt_path_name": transfermarkt_team.path_name,
+            }
             yield team_params
 
 
 class Team:
     def __init__(
         self,
-        fotmob: team_types.FotMobDict,
-        fbref: team_types.FBrefDict,
-        transfermarkt: team_types.TransfermarktDict,
-        transfermarkt_staffs: list[team_types.TransfermarktStaffDict],
+        fotmob: spiders.fotmob.team.Item,
+        fbref: spiders.fbref.team.Item,
+        transfermarkt: spiders.transfermarkt.team.Item,
+        transfermarkt_staffs: list[spiders.transfermarkt.staffs.Item],
     ) -> None:
         self._fotmob = fotmob
         self._fbref = fbref
@@ -439,7 +437,7 @@ class Team:
 
     def _find_player(
         self,
-        query: team_types.BasePlayerDict,
+        query: PlayerItemTypes,
         choices: typing.Sequence[U],
     ) -> U:
         result = process.extractOne(
@@ -447,112 +445,112 @@ class Team:
             choices,
             scorer=mean_scorer,
             processor=lambda x: [
-                x["name"],
-                x["country_code"],
-                x["position"],
+                x.name,
+                x.country_code,
+                x.position,
             ],
             score_cutoff=MEMBERS_SIMILARITY_SCORE,
         )[0]
         return result
 
     @property
-    def info(self) -> team_types.InfoDict:
+    def info(self) -> ExportTypes:
         return {
-            "id": self._fotmob["id"],
-            "name": self._fotmob["name"],
-            "names": self._fotmob["names"] | self._fbref["names"],
-            "country_code": self._fotmob["country_code"],
-            "market_values": self._transfermarkt["market_values"],
+            "id": self._fotmob.id,
+            "name": self._fotmob.name,
+            "names": self._fotmob.names | self._fbref.names,
+            "country_code": self._fotmob.country_code,
+            "market_values": self._transfermarkt.market_values,
         }
 
     def get_staffs(
         self,
-    ) -> typing.Generator[team_types.StaffDict, typing.Any, None]:
+    ) -> typing.Generator[ExportTypes, typing.Any, None]:
         for transfermarkt_staff in self._transfermarkt_staffs:
-            yield team_types.StaffDict(
-                id=transfermarkt_staff["id"],
-                name=transfermarkt_staff["name"],
-                position=transfermarkt_staff["position"],
-            )
+            yield {
+                "id": transfermarkt_staff.id,
+                "name": transfermarkt_staff.name,
+                "position": transfermarkt_staff.position,
+            }
 
     @property
-    def staffs(self) -> list[team_types.StaffDict]:
+    def staffs(self) -> list[ExportTypes]:
         return list(self.get_staffs())
 
     def get_players(
         self,
-    ) -> typing.Generator[team_types.PlayerDict, typing.Any, None]:
-        for fotmob_player in self._fotmob["players"]:
+    ) -> typing.Generator[ExportTypes, typing.Any, None]:
+        for fotmob_player in self._fotmob.players:
             try:
                 fbref_player = self._find_player(
                     fotmob_player,
-                    self._fbref["players"],
+                    self._fbref.players,
                 )
                 transfermarkt_player = self._find_player(
                     fotmob_player,
-                    self._transfermarkt["players"],
+                    self._transfermarkt.players,
                 )
 
-                name = fotmob_player["name"]
-                shooting = fbref_player["shooting"]
-                player = team_types.PlayerDict(
-                    id=fotmob_player["id"],
-                    name=name,
-                    names={name} | fbref_player["names"],
-                    country=fotmob_player["country"],
-                    position=fotmob_player["position"],
-                    date_of_birth=transfermarkt_player["date_of_birth"],
-                    market_values=transfermarkt_player["market_values"],
-                    shooting=shooting,
-                )
+                name = fotmob_player.name
+                shooting = fbref_player.shooting
+                player = {
+                    "id": fotmob_player.id,
+                    "name": name,
+                    "names": {name} | fbref_player.names,
+                    "country": fotmob_player.country,
+                    "position": fotmob_player.position,
+                    "date_of_birth": transfermarkt_player.date_of_birth,
+                    "market_values": transfermarkt_player.market_values,
+                    "shooting": shooting.model_dump(),
+                }
                 yield player
             except TypeError:
                 pass
 
     @property
-    def players(self) -> list[team_types.PlayerDict]:
+    def players(self) -> list[ExportTypes]:
         return list(self.get_players())
 
     def get_players_params(
         self,
-    ) -> typing.Generator[team_types.PlayerParamsDict, typing.Any, None]:
-        for fotmob_player in self._fotmob["players"]:
+    ) -> typing.Generator[ExportTypes, typing.Any, None]:
+        for fotmob_player in self._fotmob.players:
             try:
                 fbref_player = self._find_player(
                     fotmob_player,
-                    self._fbref["players"],
+                    self._fbref.players,
                 )
                 transfermarkt_player = self._find_player(
                     fotmob_player,
-                    self._transfermarkt["players"],
+                    self._transfermarkt.players,
                 )
-                player_params = team_types.PlayerParamsDict(
-                    fotmob_id=fotmob_player["id"],
-                    fbref_id=fbref_player["id"],
-                    fbref_path_name=fbref_player["path_name"],
-                    transfermarkt_id=transfermarkt_player["id"],
-                    transfermarkt_path_name=transfermarkt_player["path_name"],
-                )
+                player_params = {
+                    "fotmob_id": fotmob_player.id,
+                    "fbref_id": fbref_player.id,
+                    "fbref_path_name": fbref_player.path_name,
+                    "transfermarkt_id": transfermarkt_player.id,
+                    "transfermarkt_path_name": transfermarkt_player.path_name,
+                }
                 yield player_params
             except TypeError:
                 pass
 
     def get_staffs_params(
         self,
-    ) -> typing.Generator[team_types.StaffParamsDict, typing.Any, None]:
+    ) -> typing.Generator[ExportTypes, typing.Any, None]:
         for transfermarkt_staff in self._transfermarkt_staffs:
-            yield team_types.StaffParamsDict(
-                transfermarkt_id=transfermarkt_staff["id"],
-                transfermarkt_path_name=transfermarkt_staff["path_name"],
-            )
+            yield {
+                "transfermarkt_id": transfermarkt_staff.id,
+                "transfermarkt_path_name": transfermarkt_staff.path_name,
+            }
 
 
 class Player:
     def __init__(
         self,
-        fotmob: player_types.FotMobDict,
-        fbref: player_types.FBrefDict,
-        transfermarkt: player_types.TransfermarktDict,
+        fotmob: spiders.fotmob.player.Item,
+        fbref: spiders.fbref.player.Item,
+        transfermarkt: spiders.transfermarkt.player.Item,
     ) -> None:
         self._fotmob = fotmob
         self._fbref = fbref
@@ -560,34 +558,34 @@ class Player:
 
 
 class Staff:
-    def __init__(self, transfermarkt: staff_types.TransfermarktDict) -> None:
+    def __init__(self, transfermarkt: spiders.transfermarkt.staff.Item) -> None:
         self._transfermarkt = transfermarkt
 
 
 class Matches:
     def __init__(
         self,
-        fotmob: list[matches_types.FotMobMatchDict],
-        fbref: list[base_types.StatDict],
+        fotmob: list[spiders.fotmob.matches.Item],
+        fbref: list[spiders.fbref.matches.Item],
     ) -> None:
         self._fotmob = fotmob
         self._fbref = fbref
 
     def _find_match(
         self,
-        query: base_types.StatDict,
+        query: BaseItem,
         choices: typing.Sequence[T],
     ) -> T:
         match = process.extractOne(
             query,
             choices,
-            processor=lambda x: x["name"],
+            processor=lambda x: x.name,
         )[0]
         return match
 
     def get_items(
         self,
-    ) -> typing.Generator[matches_types.MatchDict, typing.Any, None]:
+    ) -> typing.Generator[ExportTypes, typing.Any, None]:
         """
         Return a generator of dicts that include the following keys:
 
@@ -610,11 +608,10 @@ class Matches:
                 * score (int | None): match score.
         """
         for fotmob_match in self._fotmob:
-            match = matches_types.MatchDict(**fotmob_match)
-            yield match
+            yield fotmob_match.model_dump()
 
     @property
-    def items(self) -> list[matches_types.MatchDict]:
+    def items(self) -> list[ExportTypes]:
         """
         Return a list of dicts that include the following keys:
 
@@ -639,27 +636,28 @@ class Matches:
         return list(self.get_items())
 
     @property
-    def info(self) -> matches_types.InfoDict:
-        return matches_types.InfoDict(count=len(self.items))
+    def info(self) -> ExportTypes:
+        return {"count": len(self.items)}
 
     def get_params(
         self,
-    ) -> typing.Generator[matches_types.MatchParamsDict, typing.Any, None]:
+    ) -> typing.Generator[ExportTypes, typing.Any, None]:
         for fotmob_match in self._fotmob:
-            if not fotmob_match["cancelled"]:
+            if not fotmob_match.cancelled:
                 fbref_match = self._find_match(fotmob_match, self._fbref)
 
-                match_params = matches_types.MatchParamsDict(
-                    fotmob_id=fotmob_match["id"], fbref_id=fbref_match["id"]
-                )
+                match_params = {
+                    "fotmob_id": fotmob_match.id,
+                    "fbref_id": fbref_match.id,
+                }
                 yield match_params
 
 
 class Match:
     def __init__(
         self,
-        fotmob: base_types.StatDict,
-        fbref: base_types.StatDict,
+        fotmob: spiders.fotmob.match.Item,
+        fbref: spiders.fbref.match.Item,
     ) -> None:
         self._fotmob = fotmob
         self._fbref = fbref

@@ -2,7 +2,7 @@ import httpx
 
 from ...config import COMPETITIONS
 from ...scraper import BaseItem, BaseSpider
-from . import BASE_URL, parse_score
+from ._common import BASE_URL, parse_score
 
 
 class TeamItem(BaseItem):

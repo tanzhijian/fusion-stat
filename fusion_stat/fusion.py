@@ -38,9 +38,9 @@ class Fusion:
 
     async def get_competitions(self, season: int | None = None) -> Competitions:
         spiders = (
-            fotmob.Competitions(),
-            fbref.Competitions(),
-            transfermarkt.Competitions(),
+            fotmob.competitions.Spider(),
+            fbref.competitions.Spider(),
+            transfermarkt.competitions.Spider(),
         )
         (
             fotmob_competitions,
@@ -66,12 +66,12 @@ class Fusion:
         season: int | None = None,
     ) -> Competition:
         spiders = (
-            fotmob.Competition(id=fotmob_id, season=season),
-            fbref.Competition(
+            fotmob.competition.Spider(id=fotmob_id, season=season),
+            fbref.competition.Spider(
                 id=fbref_id, path_name=fbref_path_name, season=season
             ),
-            official.Competition(name=official_name, season=season),
-            transfermarkt.Competition(
+            official.competition.Spider(name=official_name, season=season),
+            transfermarkt.competition.Spider(
                 id=transfermarkt_id, path_name=transfermarkt_path_name
             ),
         )
@@ -98,12 +98,12 @@ class Fusion:
         transfermarkt_path_name: str,
     ) -> Team:
         spiders = (
-            fotmob.Team(id=fotmob_id),
-            fbref.Team(id=fbref_id, path_name=fbref_path_name),
-            transfermarkt.Team(
+            fotmob.team.Spider(id=fotmob_id),
+            fbref.team.Spider(id=fbref_id, path_name=fbref_path_name),
+            transfermarkt.team.Spider(
                 id=transfermarkt_id, path_name=transfermarkt_path_name
             ),
-            transfermarkt.Staffs(id=transfermarkt_id),
+            transfermarkt.staffs.Spider(id=transfermarkt_id),
         )
         (
             fotmob_team,
@@ -128,9 +128,9 @@ class Fusion:
         transfermarkt_path_name: str,
     ) -> Player:
         spiders = (
-            fotmob.Player(id=fotmob_id),
-            fbref.Player(id=fbref_id, path_name=fbref_path_name),
-            transfermarkt.Player(
+            fotmob.player.Spider(id=fotmob_id),
+            fbref.player.Spider(id=fbref_id, path_name=fbref_path_name),
+            transfermarkt.player.Spider(
                 id=transfermarkt_id, path_name=transfermarkt_path_name
             ),
         )
@@ -152,7 +152,7 @@ class Fusion:
         transfermarkt_path_name: str,
     ) -> Staff:
         spiders = (
-            transfermarkt.Staff(
+            transfermarkt.staff.Spider(
                 id=transfermarkt_id,
                 path_name=transfermarkt_path_name,
             ),
@@ -166,16 +166,16 @@ class Fusion:
         * date: "%Y-%m-%d", such as "2023-09-03"
         """
         spiders = (
-            fotmob.Matches(date=date),
-            fbref.Matches(date=date),
+            fotmob.matches.Spider(date=date),
+            fbref.matches.Spider(date=date),
         )
         fotmob_matches, fbref_matches = await self.engine.process(*spiders)
         return Matches(fotmob=fotmob_matches, fbref=fbref_matches)
 
     async def get_match(self, *, fotmob_id: str, fbref_id: str) -> Match:
         spiders = (
-            fotmob.Match(id=fotmob_id),
-            fbref.Match(id=fbref_id),
+            fotmob.match.Spider(id=fotmob_id),
+            fbref.match.Spider(id=fbref_id),
         )
         fotmob_match, fbref_match = await self.engine.process(*spiders)
         return Match(fotmob=fotmob_match, fbref=fbref_match)

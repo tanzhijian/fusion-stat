@@ -1,7 +1,7 @@
 import httpx
 
 from ...scraper import BaseItem, BaseSpider
-from . import BASE_URL, HEADERS
+from ._common import BASE_URL, HEADERS
 
 
 class Item(BaseItem):

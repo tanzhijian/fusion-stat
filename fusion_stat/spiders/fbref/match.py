@@ -2,7 +2,7 @@ import httpx
 from parsel import Selector
 
 from ...scraper import BaseItem, BaseSpider
-from . import BASE_URL
+from ._common import BASE_URL
 
 
 class Item(BaseItem):

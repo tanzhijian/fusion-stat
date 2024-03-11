@@ -3,7 +3,7 @@ from parsel import Selector
 
 from ...scraper import BaseItem, BaseSpider
 from ...utils import get_element_text
-from . import BASE_URL, HEADERS
+from ._common import BASE_URL, HEADERS
 
 
 class Item(BaseItem):

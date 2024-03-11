@@ -4,7 +4,7 @@ from parsel import Selector
 from ...config import COMPETITIONS
 from ...scraper import BaseItem, BaseSpider
 from ...utils import get_element_text
-from . import BASE_URL
+from ._common import BASE_URL
 
 
 class Item(BaseItem):
