@@ -15,9 +15,6 @@ class PlayerItemTypes(typing.Protocol):
     position: str | None
 
 
-ExportTypes = dict[str, typing.Any]
-
-
 T = typing.TypeVar("T", bound=BaseItem)
 U = typing.TypeVar("U", bound=PlayerItemTypes)
 
@@ -46,7 +43,7 @@ class Competitions:
         raise ValueError(f"Competition with id {query_id} not found")
 
     @property
-    def info(self) -> ExportTypes:
+    def info(self) -> dict[str, typing.Any]:
         """
         Return a dict that includes the following keys:
 
@@ -60,7 +57,7 @@ class Competitions:
 
     def get_items(
         self,
-    ) -> typing.Generator[ExportTypes, typing.Any, None]:
+    ) -> typing.Generator[dict[str, typing.Any], typing.Any, None]:
         """
         Return a generator of dicts that include the following keys:
 
@@ -100,7 +97,7 @@ class Competitions:
             yield item
 
     @property
-    def items(self) -> list[ExportTypes]:
+    def items(self) -> list[dict[str, typing.Any]]:
         """
         Return a list of dicts that include the following keys:
 
@@ -123,7 +120,7 @@ class Competitions:
 
     def get_params(
         self,
-    ) -> typing.Generator[ExportTypes, typing.Any, None]:
+    ) -> typing.Generator[dict[str, typing.Any], typing.Any, None]:
         """
         Return a generator of dicts that include the following keys:
 
@@ -177,7 +174,7 @@ class Competition:
         return team
 
     @property
-    def info(self) -> ExportTypes:
+    def info(self) -> dict[str, typing.Any]:
         """
         Return a dict that includes the following keys:
 
@@ -205,7 +202,7 @@ class Competition:
 
     def get_teams(
         self,
-    ) -> typing.Generator[ExportTypes, typing.Any, None]:
+    ) -> typing.Generator[dict[str, typing.Any], typing.Any, None]:
         """
         Return a generator of dicts that include the following keys:
 
@@ -245,7 +242,7 @@ class Competition:
             yield team
 
     @property
-    def teams(self) -> list[ExportTypes]:
+    def teams(self) -> list[dict[str, typing.Any]]:
         """
         Return a list of dicts that include the following keys:
 
@@ -270,7 +267,7 @@ class Competition:
 
     @staticmethod
     def sort_table_key(
-        team: ExportTypes,
+        team: dict[str, typing.Any],
     ) -> tuple[int, int, int, str]:
         """
         1. 首先按照积分降序排序，积分高的排在前面
@@ -288,7 +285,7 @@ class Competition:
         )
 
     @property
-    def table(self) -> list[ExportTypes]:
+    def table(self) -> list[dict[str, typing.Any]]:
         """
         Return a list of dicts sorted by the standings that include the following keys:
 
@@ -325,7 +322,7 @@ class Competition:
 
     def get_matches(
         self,
-    ) -> typing.Generator[ExportTypes, typing.Any, None]:
+    ) -> typing.Generator[dict[str, typing.Any], typing.Any, None]:
         """
         Return a generator of dicts that include the following keys:
 
@@ -366,7 +363,7 @@ class Competition:
             yield match
 
     @property
-    def matches(self) -> list[ExportTypes]:
+    def matches(self) -> list[dict[str, typing.Any]]:
         """
         Return a list of dicts that include the following keys:
 
@@ -392,7 +389,7 @@ class Competition:
 
     def get_teams_params(
         self,
-    ) -> typing.Generator[ExportTypes, typing.Any, None]:
+    ) -> typing.Generator[dict[str, typing.Any], typing.Any, None]:
         """
         Return a generator of dicts that include the following keys:
 
@@ -454,7 +451,7 @@ class Team:
         return result
 
     @property
-    def info(self) -> ExportTypes:
+    def info(self) -> dict[str, typing.Any]:
         return {
             "id": self._fotmob.id,
             "name": self._fotmob.name,
@@ -465,7 +462,7 @@ class Team:
 
     def get_staffs(
         self,
-    ) -> typing.Generator[ExportTypes, typing.Any, None]:
+    ) -> typing.Generator[dict[str, typing.Any], typing.Any, None]:
         for transfermarkt_staff in self._transfermarkt_staffs:
             yield {
                 "id": transfermarkt_staff.id,
@@ -474,12 +471,12 @@ class Team:
             }
 
     @property
-    def staffs(self) -> list[ExportTypes]:
+    def staffs(self) -> list[dict[str, typing.Any]]:
         return list(self.get_staffs())
 
     def get_players(
         self,
-    ) -> typing.Generator[ExportTypes, typing.Any, None]:
+    ) -> typing.Generator[dict[str, typing.Any], typing.Any, None]:
         for fotmob_player in self._fotmob.players:
             try:
                 fbref_player = self._find_player(
@@ -508,12 +505,12 @@ class Team:
                 pass
 
     @property
-    def players(self) -> list[ExportTypes]:
+    def players(self) -> list[dict[str, typing.Any]]:
         return list(self.get_players())
 
     def get_players_params(
         self,
-    ) -> typing.Generator[ExportTypes, typing.Any, None]:
+    ) -> typing.Generator[dict[str, typing.Any], typing.Any, None]:
         for fotmob_player in self._fotmob.players:
             try:
                 fbref_player = self._find_player(
@@ -537,7 +534,7 @@ class Team:
 
     def get_staffs_params(
         self,
-    ) -> typing.Generator[ExportTypes, typing.Any, None]:
+    ) -> typing.Generator[dict[str, typing.Any], typing.Any, None]:
         for transfermarkt_staff in self._transfermarkt_staffs:
             yield {
                 "transfermarkt_id": transfermarkt_staff.id,
@@ -585,7 +582,7 @@ class Matches:
 
     def get_items(
         self,
-    ) -> typing.Generator[ExportTypes, typing.Any, None]:
+    ) -> typing.Generator[dict[str, typing.Any], typing.Any, None]:
         """
         Return a generator of dicts that include the following keys:
 
@@ -611,7 +608,7 @@ class Matches:
             yield fotmob_match.model_dump()
 
     @property
-    def items(self) -> list[ExportTypes]:
+    def items(self) -> list[dict[str, typing.Any]]:
         """
         Return a list of dicts that include the following keys:
 
@@ -636,12 +633,12 @@ class Matches:
         return list(self.get_items())
 
     @property
-    def info(self) -> ExportTypes:
+    def info(self) -> dict[str, typing.Any]:
         return {"count": len(self.items)}
 
     def get_params(
         self,
-    ) -> typing.Generator[ExportTypes, typing.Any, None]:
+    ) -> typing.Generator[dict[str, typing.Any], typing.Any, None]:
         for fotmob_match in self._fotmob:
             if not fotmob_match.cancelled:
                 fbref_match = self._find_match(fotmob_match, self._fbref)
