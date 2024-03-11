@@ -3,8 +3,8 @@ import pytest
 
 from fusion_stat import Competitions
 from fusion_stat.config import COMPETITIONS
+from fusion_stat.scraper import BaseItem
 from fusion_stat.spiders import fbref, fotmob, transfermarkt
-from fusion_stat.types.base_types import StatDict
 from tests.utils import read_data
 
 
@@ -17,9 +17,9 @@ class TestCompetitions:
             "transfermarkt", "wettbewerbe_europa.html"
         )
 
-        fotmob_spider = fotmob.Competitions()
-        fbref_spider = fbref.Competitions()
-        transfermarkt_spider = transfermarkt.Competitions()
+        fotmob_spider = fotmob.competitions.Spider()
+        fbref_spider = fbref.competitions.Spider()
+        transfermarkt_spider = transfermarkt.competitions.Spider()
 
         return Competitions(
             fotmob=fotmob_spider.parse(httpx.Response(200, json=fotmob_data)),
@@ -35,9 +35,9 @@ class TestCompetitions:
         assert info["names"][0] == "Premier League"
 
     def test_find_competition(self, competitions: Competitions) -> None:
-        stats_dict = [StatDict(id="1", name="a")]
+        stats_dict = [BaseItem(id="1", name="a")]
         result = competitions._find_competition("1", stats_dict)
-        assert result["name"] == "a"
+        assert result.name == "a"
 
         with pytest.raises(ValueError):
             competitions._find_competition("a", stats_dict)

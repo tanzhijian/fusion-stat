@@ -1,10 +1,17 @@
 import httpx
 import pytest
+from pydantic import BaseModel
 
 from fusion_stat import Team
 from fusion_stat.spiders import fbref, fotmob, transfermarkt
-from fusion_stat.types import team_types
 from tests.utils import read_data
+
+
+class PlayerItem(BaseModel):
+    id: str
+    name: str
+    country_code: str
+    position: str | None
 
 
 class TestTeam:
@@ -19,12 +26,12 @@ class TestTeam:
             "transfermarkt", "ceapi_staff_team_11_.json"
         )
 
-        fotmob_spider = fotmob.Team(id="9825")
-        fbref_spider = fbref.Team(id="18bb7c10", path_name="Arsenal")
-        transfermarkt_spider = transfermarkt.Team(
+        fotmob_spider = fotmob.team.Spider(id="9825")
+        fbref_spider = fbref.team.Spider(id="18bb7c10", path_name="Arsenal")
+        transfermarkt_spider = transfermarkt.team.Spider(
             id="11", path_name="arsenal-fc"
         )
-        transfermarkt_staffs_spider = transfermarkt.Staffs(id="11")
+        transfermarkt_staffs_spider = transfermarkt.staffs.Spider(id="11")
 
         return Team(
             fotmob=fotmob_spider.parse(httpx.Response(200, json=fotmob_data)),
@@ -38,19 +45,13 @@ class TestTeam:
         )
 
     def test_find_player(self, team: Team) -> None:
-        query = team_types.BasePlayerDict(
-            id="1", name="ab", country_code="a", position="ab"
-        )
+        query = PlayerItem(id="1", name="ab", country_code="a", position="ab")
         choices = [
-            team_types.BasePlayerDict(
-                id="2", name="abc", country_code="a", position="abc"
-            ),
-            team_types.BasePlayerDict(
-                id="3", name="c", country_code="c", position="c"
-            ),
+            PlayerItem(id="2", name="abc", country_code="a", position="abc"),
+            PlayerItem(id="3", name="c", country_code="c", position="c"),
         ]
         result = team._find_player(query, choices)
-        assert result["id"] == "2"
+        assert result.id == "2"
 
     def test_info(self, team: Team) -> None:
         info = team.info

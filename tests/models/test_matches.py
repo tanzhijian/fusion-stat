@@ -2,8 +2,8 @@ import httpx
 import pytest
 
 from fusion_stat import Matches
+from fusion_stat.scraper import BaseItem
 from fusion_stat.spiders import fbref, fotmob
-from fusion_stat.types import base_types
 from tests.utils import read_data
 
 
@@ -13,8 +13,8 @@ class TestMatches:
         fotmob_data = read_data("fotmob", "matches?date=20230903.json")
         fbref_data = read_data("fbref", "matches_2023-09-03.html")
 
-        fotmob_spider = fotmob.Matches(date="2023-09-03")
-        fbref_spider = fbref.Matches(date="2023-09-03")
+        fotmob_spider = fotmob.matches.Spider(date="2023-09-03")
+        fbref_spider = fbref.matches.Spider(date="2023-09-03")
 
         return Matches(
             fotmob=fotmob_spider.parse(httpx.Response(200, json=fotmob_data)),
@@ -22,13 +22,13 @@ class TestMatches:
         )
 
     def test_find_team(self, matches: Matches) -> None:
-        query: base_types.StatDict = {"id": "1", "name": "ab"}
-        choices: list[base_types.StatDict] = [
-            {"id": "2", "name": "abc"},
-            {"id": "3", "name": "c"},
+        query = BaseItem(**{"id": "1", "name": "ab"})
+        choices = [
+            BaseItem(**{"id": "2", "name": "abc"}),
+            BaseItem(**{"id": "3", "name": "c"}),
         ]
         result = matches._find_match(query, choices)
-        assert result["id"] == "2"
+        assert result.id == "2"
 
     def test_get_items(self, matches: Matches) -> None:
         items = matches.get_items()

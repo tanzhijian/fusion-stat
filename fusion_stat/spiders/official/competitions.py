@@ -8,7 +8,7 @@ class Item(BaseItem):
     seasons: list[BaseItem]
 
 
-class Spider(BaseSpider):
+class PremierLeagueSpider(BaseSpider):
     @property
     def request(self) -> httpx.Request:
         return httpx.Request(

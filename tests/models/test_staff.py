@@ -12,7 +12,7 @@ class TestStaff:
         transfermarkt_data = read_data(
             "transfermarkt", "mikel-arteta_profil_trainer_47620.html"
         )
-        transfermarkt_spider = transfermarkt.Staff(
+        transfermarkt_spider = transfermarkt.staff.Spider(
             id="47620", path_name="mikel-arteta"
         )
         return Staff(

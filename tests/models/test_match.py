@@ -12,8 +12,8 @@ class TestMatch:
         fotmob_data = read_data("fotmob", "matchDetails?matchId=4193490.json")
         fbref_data = read_data("fbref", "matches_74125d47.html")
 
-        fotmob_spider = fotmob.Match(id="4193490")
-        fbref_spider = fbref.Match(id="74125d47")
+        fotmob_spider = fotmob.match.Spider(id="4193490")
+        fbref_spider = fbref.match.Spider(id="74125d47")
 
         return Match(
             fotmob=fotmob_spider.parse(httpx.Response(200, json=fotmob_data)),

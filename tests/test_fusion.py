@@ -72,10 +72,10 @@ class TestFusion:
             assert fbref_route.called
             assert pl_route.called
             assert transfermarkt_route.called
-        assert com._fotmob["name"]
-        assert com._fbref["name"]
-        assert com._official["name"]
-        assert com._transfermarkt["name"]
+        assert com._fotmob.name
+        assert com._fbref.name
+        assert com._official.name
+        assert com._transfermarkt.name
 
     @pytest.mark.anyio
     async def test_get_team(self, fusion: Fusion) -> None:
@@ -101,9 +101,9 @@ class TestFusion:
             assert fbref_route.called
             assert transfermarkt_route.called
             assert transfermarkt_staffs_route.called
-        assert team._fotmob["name"]
-        assert team._fbref["name"]
-        assert team._transfermarkt["name"]
+        assert team._fotmob.name
+        assert team._fbref.name
+        assert team._transfermarkt.name
         assert team._transfermarkt_staffs
 
     @pytest.mark.anyio
@@ -125,9 +125,9 @@ class TestFusion:
             assert fotmob_route.called
             assert fbref_route.called
             assert transfermarkt_route.called
-        assert player._fotmob["name"]
-        assert player._fbref["name"]
-        assert player._transfermarkt["name"]
+        assert player._fotmob.name
+        assert player._fbref.name
+        assert player._transfermarkt.name
 
     @pytest.mark.anyio
     async def test_get_staff(self, fusion: Fusion) -> None:
@@ -141,7 +141,7 @@ class TestFusion:
                 transfermarkt_path_name="mikel-arteta",
             )
             assert transfermarkt_route.called
-        assert staff._transfermarkt["name"]
+        assert staff._transfermarkt.name
 
     @pytest.mark.anyio
     async def test_get_matches(self, fusion: Fusion) -> None:
@@ -166,5 +166,5 @@ class TestFusion:
             )
             assert fotmob_route.called
             assert fbref_route.called
-        assert match._fotmob["name"]
-        assert match._fbref["name"]
+        assert match._fotmob.name
+        assert match._fbref.name

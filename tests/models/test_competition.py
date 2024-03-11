@@ -2,8 +2,8 @@ import httpx
 import pytest
 
 from fusion_stat import Competition
+from fusion_stat.scraper import BaseItem
 from fusion_stat.spiders import fbref, fotmob, official, transfermarkt
-from fusion_stat.types import base_types
 from tests.utils import read_data
 
 
@@ -38,10 +38,12 @@ class TestCompetition:
         transfermarkt_data = read_data(
             "transfermarkt", "premier-league_startseite_wettbewerb_GB1.html"
         )
-        fotmob_spider = fotmob.Competition(id="47")
-        fbref_spider = fbref.Competition(id="9", path_name="Premier-League")
-        official_spider = official.Competition(name="Premier League")
-        transfermarkt_spider = transfermarkt.Competition(
+        fotmob_spider = fotmob.competition.Spider(id="47")
+        fbref_spider = fbref.competition.Spider(
+            id="9", path_name="Premier-League"
+        )
+        official_spider = official.competition.Spider(name="Premier League")
+        transfermarkt_spider = transfermarkt.competition.Spider(
             id="GB1", path_name="premier-league"
         )
         return Competition(
@@ -56,13 +58,13 @@ class TestCompetition:
         )
 
     def test_find_team(self, competition: Competition) -> None:
-        query: base_types.StatDict = {"id": "1", "name": "ab"}
-        choices: list[base_types.StatDict] = [
-            {"id": "2", "name": "abc"},
-            {"id": "3", "name": "c"},
+        query = BaseItem(**{"id": "1", "name": "ab"})
+        choices = [
+            BaseItem(**{"id": "2", "name": "abc"}),
+            BaseItem(**{"id": "3", "name": "c"}),
         ]
         result = competition._find_team(query, choices)
-        assert result["id"] == "2"
+        assert result.id == "2"
 
     def test_info(self, competition: Competition) -> None:
         info = competition.info

@@ -4,7 +4,7 @@ import httpx
 import pytest
 import respx
 
-from fusion_stat.scraper import Downloader, Engine, Spider
+from fusion_stat.scraper import BaseSpider, Downloader, Engine
 
 response_json = httpx.Response(200, json={"name": "json"})
 response_text = httpx.Response(200, text="text")
@@ -12,7 +12,7 @@ JSON_URL = "https://example.com/json"
 TEXT_URL = "https://example.com/text"
 
 
-class SpiderJSON(Spider):
+class SpiderJSON(BaseSpider):
     @property
     def request(self) -> httpx.Request:
         return httpx.Request("GET", JSON_URL)
@@ -22,7 +22,7 @@ class SpiderJSON(Spider):
         return json["name"]
 
 
-class SpiderText(Spider):
+class SpiderText(BaseSpider):
     @property
     def request(self) -> httpx.Request:
         return httpx.Request("GET", TEXT_URL)

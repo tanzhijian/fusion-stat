@@ -15,9 +15,9 @@ class TestPlayer:
             "transfermarkt", "bukayo-saka_profil_spieler_433177.html"
         )
 
-        fotmob_spider = fotmob.Player(id="961995")
-        fbref_spider = fbref.Player(id="bc7dc64d")
-        transfermarkt_spider = transfermarkt.Player(
+        fotmob_spider = fotmob.player.Spider(id="961995")
+        fbref_spider = fbref.player.Spider(id="bc7dc64d")
+        transfermarkt_spider = transfermarkt.player.Spider(
             id="433177", path_name="bukayo-saka"
         )
 
