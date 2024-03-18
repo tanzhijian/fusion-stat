@@ -1,7 +1,7 @@
 import httpx
 import pytest
 
-from fusion_stat.config import COMPETITIONS
+from fusion_stat.config import CompetitionsConfig
 from fusion_stat.spiders import official
 from tests.utils import read_data
 
@@ -31,7 +31,7 @@ class TestCompetition:
 
 
 def test_select_competition() -> None:
-    for name in COMPETITIONS:
+    for _, name in CompetitionsConfig.data:
         spider = official.competition.Spider(name=name, season=2023)
         assert spider.name == name
 

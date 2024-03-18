@@ -3,13 +3,17 @@ import typing
 from rapidfuzz import process
 
 from . import spiders
-from .config import COMPETITIONS, MEMBERS_SIMILARITY_SCORE
+from .config import MEMBERS_SIMILARITY_SCORE
 from .scraper import BaseItem
 from .utils import mean_scorer
 
 
+class CompetitionItemTypes(typing.Protocol):
+    name: str
+    country_code: str
+
+
 class PlayerItemTypes(typing.Protocol):
-    id: str
     name: str
     country_code: str
     position: str | None
@@ -17,6 +21,7 @@ class PlayerItemTypes(typing.Protocol):
 
 T = typing.TypeVar("T", bound=BaseItem)
 U = typing.TypeVar("U", bound=PlayerItemTypes)
+E = typing.TypeVar("E", bound=CompetitionItemTypes)
 
 
 class Competitions:
@@ -34,13 +39,19 @@ class Competitions:
 
     def _find_competition(
         self,
-        query_id: str,
-        choices: typing.Sequence[T],
-    ) -> T:
-        for competition in choices:
-            if competition.id == query_id:
-                return competition
-        raise ValueError(f"Competition with id {query_id} not found")
+        query: CompetitionItemTypes,
+        choices: typing.Sequence[E],
+    ) -> E:
+        result = process.extractOne(
+            query,
+            choices,
+            scorer=mean_scorer,
+            processor=lambda x: [
+                x.name,
+                x.country_code,
+            ],
+        )[0]
+        return result
 
     @property
     def info(self) -> dict[str, typing.Any]:
@@ -51,8 +62,8 @@ class Competitions:
         * names (list[str]): names of competitions
         """
         return {
-            "count": len(COMPETITIONS),
-            "names": list(COMPETITIONS.keys()),
+            "count": len(self._fotmob),
+            "names": [com.name for com in self._fotmob],
         }
 
     def get_items(
@@ -76,20 +87,17 @@ class Competitions:
                 * name (str): transfermarkt competition name
                 * path_name (str): transfermarkt competition path name
         """
-        for name, params in COMPETITIONS.items():
-            fotmob_competition = self._find_competition(
-                params["fotmob_id"], self._fotmob
-            )
+        for fotmob_competition in self._fotmob:
             fbref_competition = self._find_competition(
-                params["fbref_id"], self._fbref
+                fotmob_competition, self._fbref
             )
             transfermarkt_competition = self._find_competition(
-                params["transfermarkt_id"], self._transfermarkt
+                fotmob_competition, self._transfermarkt
             )
 
             item = {
                 "id": fotmob_competition.id,
-                "name": name,
+                "name": fotmob_competition.name,
                 "fotmob": fotmob_competition.model_dump(),
                 "fbref": fbref_competition.model_dump(),
                 "transfermarkt": transfermarkt_competition.model_dump(),
@@ -563,10 +571,8 @@ class Matches:
     def __init__(
         self,
         fotmob: list[spiders.fotmob.matches.Item],
-        fbref: list[spiders.fbref.matches.Item],
     ) -> None:
         self._fotmob = fotmob
-        self._fbref = fbref
 
     def _find_match(
         self,
@@ -640,21 +646,15 @@ class Matches:
         self,
     ) -> typing.Generator[dict[str, typing.Any], typing.Any, None]:
         for fotmob_match in self._fotmob:
-            if not fotmob_match.cancelled:
-                fbref_match = self._find_match(fotmob_match, self._fbref)
-
-                match_params = {
-                    "fotmob_id": fotmob_match.id,
-                    "fbref_id": fbref_match.id,
-                }
-                yield match_params
+            match_params = {
+                "fotmob_id": fotmob_match.id,
+            }
+            yield match_params
 
 
 class Match:
     def __init__(
         self,
         fotmob: spiders.fotmob.match.Item,
-        fbref: spiders.fbref.match.Item,
     ) -> None:
         self._fotmob = fotmob
-        self._fbref = fbref

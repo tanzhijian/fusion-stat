@@ -3,7 +3,7 @@ import pytest
 
 from fusion_stat import Matches
 from fusion_stat.scraper import BaseItem
-from fusion_stat.spiders import fbref, fotmob
+from fusion_stat.spiders import fotmob
 from tests.utils import read_data
 
 
@@ -11,14 +11,11 @@ class TestMatches:
     @pytest.fixture(scope="class")
     def matches(self) -> Matches:
         fotmob_data = read_data("fotmob", "matches?date=20230903.json")
-        fbref_data = read_data("fbref", "matches_2023-09-03.html")
 
         fotmob_spider = fotmob.matches.Spider(date="2023-09-03")
-        fbref_spider = fbref.matches.Spider(date="2023-09-03")
 
         return Matches(
             fotmob=fotmob_spider.parse(httpx.Response(200, json=fotmob_data)),
-            fbref=fbref_spider.parse(httpx.Response(200, text=fbref_data)),
         )
 
     def test_find_team(self, matches: Matches) -> None:
@@ -48,7 +45,7 @@ class TestMatches:
         params = list(matches.get_params())
         # 有一场比赛取消了（马竞）导致生成的 params 少一场
         # 还没有踢的比赛 fbref 没有 id
-        assert len(params) == 18
+        # 暂时去除了 fbref 的数据所以数量与上面一致
+        assert len(params) == 19
         match = params[0]
         assert match["fotmob_id"] == "4193495"
-        assert match["fbref_id"] == "f9436d32"

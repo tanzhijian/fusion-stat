@@ -165,17 +165,11 @@ class Fusion:
 
         * date: "%Y-%m-%d", such as "2023-09-03"
         """
-        spiders = (
-            fotmob.matches.Spider(date=date),
-            fbref.matches.Spider(date=date),
-        )
-        fotmob_matches, fbref_matches = await self.engine.process(*spiders)
-        return Matches(fotmob=fotmob_matches, fbref=fbref_matches)
+        spiders = (fotmob.matches.Spider(date=date),)
+        (fotmob_matches,) = await self.engine.process(*spiders)
+        return Matches(fotmob=fotmob_matches)
 
-    async def get_match(self, *, fotmob_id: str, fbref_id: str) -> Match:
-        spiders = (
-            fotmob.match.Spider(id=fotmob_id),
-            fbref.match.Spider(id=fbref_id),
-        )
-        fotmob_match, fbref_match = await self.engine.process(*spiders)
-        return Match(fotmob=fotmob_match, fbref=fbref_match)
+    async def get_match(self, *, fotmob_id: str) -> Match:
+        spiders = (fotmob.match.Spider(id=fotmob_id),)
+        (fotmob_match,) = await self.engine.process(*spiders)
+        return Match(fotmob=fotmob_match)

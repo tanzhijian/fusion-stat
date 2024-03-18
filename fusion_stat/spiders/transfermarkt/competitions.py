@@ -1,13 +1,15 @@
 import httpx
 from parsel import Selector
+from rapidfuzz import process
 
-from ...config import COMPETITIONS
+from ...config import CompetitionsConfig, fifa_members
 from ...scraper import BaseItem, BaseSpider
 from ...utils import get_element_text
 from ._common import BASE_URL, HEADERS
 
 
 class Item(BaseItem):
+    country_code: str
     path_name: str
 
 
@@ -19,25 +21,36 @@ class Spider(BaseSpider):
         )
 
     def parse(self, response: httpx.Response) -> list[Item]:
-        competitions: list[Item] = []
-
         selector = Selector(response.text)
-        competitions_id = {
-            params["transfermarkt_id"] for params in COMPETITIONS.values()
-        }
+
+        choices: list[tuple[str, str, str, str]] = []
         trs = selector.xpath('//*[@id="yw1"]/table/tbody/tr')
         for tr in trs[1:]:
-            a = tr.xpath("./td[1]/table/tr/td[2]/a")
-            href_strs = get_element_text(a.xpath("./@href")).split("/")
-            id_ = href_strs[-1]
-            if id_ in competitions_id:
+            country = get_element_text(tr.xpath("./td[2]/img/@title"))
+            country_code = fifa_members[country].code
+
+            if country_code in CompetitionsConfig.countries:
+                a = tr.xpath("./td[1]/table/tr/td[2]/a")
+                href_strs = get_element_text(a.xpath("./@href")).split("/")
+                id_ = href_strs[-1]
                 name = get_element_text(a.xpath("./text()"))
                 path_name = href_strs[-4]
-                competitions.append(
-                    Item(
-                        id=id_,
-                        name=name,
-                        path_name=path_name,
-                    )
+                choices.append((country_code, name, id_, path_name))
+
+        competitions: list[Item] = []
+        for query in CompetitionsConfig.data:
+            result = process.extractOne(
+                query,
+                choices,
+                processor=lambda x: x[1],
+            )[0]
+            competitions.append(
+                Item(
+                    id=result[2],
+                    name=query[1],
+                    country_code=result[0],
+                    path_name=result[3],
                 )
+            )
+
         return competitions

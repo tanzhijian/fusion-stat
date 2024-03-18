@@ -146,25 +146,17 @@ class TestFusion:
     @pytest.mark.anyio
     async def test_get_matches(self, fusion: Fusion) -> None:
         fotmob_route = fotmob_mock("matches?date=20230903.json")
-        fbref_route = fbref_mock("matches_2023-09-03.html")
 
         with respx.mock:
             matches = await fusion.get_matches(date="2023-09-03")
             assert fotmob_route.called
-            assert fbref_route.called
         assert len(matches._fotmob) > 0
-        assert len(matches._fbref) > 0
 
     @pytest.mark.anyio
     async def test_get_match(self, fusion: Fusion) -> None:
         fotmob_route = fotmob_mock("matchDetails?matchId=4193490.json")
-        fbref_route = fbref_mock("matches_74125d47.html")
 
         with respx.mock:
-            match = await fusion.get_match(
-                fotmob_id="4193490", fbref_id="74125d47"
-            )
+            match = await fusion.get_match(fotmob_id="4193490")
             assert fotmob_route.called
-            assert fbref_route.called
         assert match._fotmob.name
-        assert match._fbref.name

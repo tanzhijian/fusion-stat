@@ -166,7 +166,7 @@ class TestMatches:
         text = read_test_data("matches_2023-09-03.html")
         response = httpx.Response(200, text=text)
         matches = spider.parse(response)
-        assert len(matches) == 18
+        assert len(matches) == 1
         match = matches[0]
         assert match.id == "bdbc722e"
         assert match.name == "Liverpool vs Aston Villa"

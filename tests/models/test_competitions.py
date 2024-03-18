@@ -2,8 +2,7 @@ import httpx
 import pytest
 
 from fusion_stat import Competitions
-from fusion_stat.config import COMPETITIONS
-from fusion_stat.scraper import BaseItem
+from fusion_stat.config import CompetitionsConfig
 from fusion_stat.spiders import fbref, fotmob, transfermarkt
 from tests.utils import read_data
 
@@ -34,14 +33,6 @@ class TestCompetitions:
         assert info["count"] == 5
         assert info["names"][0] == "Premier League"
 
-    def test_find_competition(self, competitions: Competitions) -> None:
-        stats_dict = [BaseItem(id="1", name="a")]
-        result = competitions._find_competition("1", stats_dict)
-        assert result.name == "a"
-
-        with pytest.raises(ValueError):
-            competitions._find_competition("a", stats_dict)
-
     def test_get_items(self, competitions: Competitions) -> None:
         items = competitions.get_items()
         competition = next(items)
@@ -61,7 +52,7 @@ class TestCompetitions:
         assert len(items) == 5
 
         for item in items:
-            assert item["name"] in COMPETITIONS
+            assert item["name"] in CompetitionsConfig.names
 
     def test_get_params(self, competitions: Competitions) -> None:
         params = competitions.get_params()
