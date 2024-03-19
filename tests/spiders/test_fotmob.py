@@ -117,7 +117,7 @@ class TestTeam:
         assert staff.country == "Spain"
         assert staff.country_code == "ESP"
 
-        assert len(team.players) == 25
+        assert len(team.players) == 26
         player = team.players[0]
         assert player.id == "562727"
         assert player.name == "David Raya"

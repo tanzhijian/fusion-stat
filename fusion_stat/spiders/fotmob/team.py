@@ -46,7 +46,7 @@ class Spider(BaseSpider):
 
         squad = json["squad"]
 
-        coach = squad[0][1][0]
+        coach = squad[0]["members"][0]
         staff = StaffItem(
             id=str(coach["id"]),
             name=coach["name"],
@@ -55,9 +55,9 @@ class Spider(BaseSpider):
         )
 
         players: list[PlayerItem] = []
-        for role in squad[1:]:
-            for player in role[1]:
-                position = player.get("role")
+        for group in squad[1:]:
+            for player in group["members"]:
+                position = player["role"]["fallback"]
                 # 这里稍候移到 models 验证
                 position = POSITIONS[position]
                 players.append(
