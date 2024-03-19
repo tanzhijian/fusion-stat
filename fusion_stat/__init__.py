@@ -1,4 +1,4 @@
-from .fusion import Fusion
+from .api import App
 from .models import (
     Competition,
     Competitions,
@@ -13,7 +13,7 @@ __version__ = "0.0.7"
 
 __all__ = (
     "__version__",
-    "Fusion",
+    "App",
     "Competitions",
     "Competition",
     "Team",

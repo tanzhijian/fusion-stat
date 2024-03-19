@@ -18,12 +18,12 @@ from .spiders import fbref, fotmob, official, transfermarkt
 U = typing.TypeVar("U")
 
 
-class Fusion:
+class App:
     def __init__(self, client: httpx.AsyncClient | None = None) -> None:
-        self.engine = Engine(client)
+        self._engine = Engine(client)
 
     async def close(self) -> None:
-        await self.engine.close()
+        await self._engine.close()
 
     async def __aenter__(self: U) -> U:
         return self
@@ -46,7 +46,7 @@ class Fusion:
             fotmob_competitions,
             fbref_competitions,
             transfermarkt_competitions,
-        ) = await self.engine.process(*spiders)
+        ) = await self._engine.process(*spiders)
         return Competitions(
             fotmob=fotmob_competitions,
             fbref=fbref_competitions,
@@ -80,7 +80,7 @@ class Fusion:
             fbref_competition,
             official_competition,
             transfermarkt_competition,
-        ) = await self.engine.process(*spiders)
+        ) = await self._engine.process(*spiders)
         return Competition(
             fotmob=fotmob_competition,
             fbref=fbref_competition,
@@ -110,7 +110,7 @@ class Fusion:
             fbref_team,
             transfermarkt_team,
             transfermarkt_staffs,
-        ) = await self.engine.process(*spiders)
+        ) = await self._engine.process(*spiders)
         return Team(
             fotmob=fotmob_team,
             fbref=fbref_team,
@@ -138,7 +138,7 @@ class Fusion:
             fotmob_player,
             fbref_player,
             transfermarkt_player,
-        ) = await self.engine.process(*spiders)
+        ) = await self._engine.process(*spiders)
         return Player(
             fotmob=fotmob_player,
             fbref=fbref_player,
@@ -157,7 +157,7 @@ class Fusion:
                 path_name=transfermarkt_path_name,
             ),
         )
-        (transfermarkt_staff,) = await self.engine.process(*spiders)
+        (transfermarkt_staff,) = await self._engine.process(*spiders)
         return Staff(transfermarkt=transfermarkt_staff)
 
     async def get_matches(self, *, date: str) -> Matches:
@@ -166,10 +166,10 @@ class Fusion:
         * date: "%Y-%m-%d", such as "2023-09-03"
         """
         spiders = (fotmob.matches.Spider(date=date),)
-        (fotmob_matches,) = await self.engine.process(*spiders)
+        (fotmob_matches,) = await self._engine.process(*spiders)
         return Matches(fotmob=fotmob_matches)
 
     async def get_match(self, *, fotmob_id: str) -> Match:
         spiders = (fotmob.match.Spider(id=fotmob_id),)
-        (fotmob_match,) = await self.engine.process(*spiders)
+        (fotmob_match,) = await self._engine.process(*spiders)
         return Match(fotmob=fotmob_match)
