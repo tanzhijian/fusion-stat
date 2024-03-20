@@ -27,7 +27,7 @@ jobs:
         poetry install
     - name: Lint with Ruff
       run: |
-        poetry run ruff .
+        poetry run ruff check .
     - name: Type Check with Mypy
       run: |
         poetry run mypy .
