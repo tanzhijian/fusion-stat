@@ -11,22 +11,22 @@ pip install fusion-stat
 ## Usage
 
 ```python
-from fusion_stat import Fusion
+from fusion_stat import App
 ```
 
 You can use it like this
 
 ```python
-async with Fusion() as fusion:
-    competitions = await fusion.get_competitions()
+async with App() as app:
+    competitions = await app.get_competitions()
 ```
 
 or
 
 ```python
-fusion = Fusion()
-competitions = await fusion.get_competitions()
-await fusion.close()
+app = App()
+competitions = await app.get_competitions()
+await app.close()
 ```
 
 ```python
@@ -48,8 +48,8 @@ The client uses httpx.AsyncClient, you can also customize parameters.
 import httpx
 
 client = httpx.AsyncClient()
-async with Fusion(client=client) as fusion:
-    competition = await fusion.get_competition(**pl_params)
+async with App(client=client) as app:
+    competition = await app.get_competition(**pl_params)
 ```
 
 ```python
@@ -63,24 +63,24 @@ competition.info
      'season': '2023/2024',
      'country_code': 'ENG',
      'names': {'Premier League'},
-     'market_values': '€10.96bn',
-     'player_average_market_value': '€19.54m'}
+     'market_values': '€11.09bn',
+     'player_average_market_value': '€20.85m'}
 
 ```python
 competition.teams[1]
 ```
 
-    {'id': '8456',
-     'name': 'Manchester City',
-     'names': {'Man City', 'Manchester City'},
-     'played': 20,
-     'wins': 13,
-     'draws': 4,
-     'losses': 3,
-     'goals_for': 48,
-     'goals_against': 23,
-     'points': 43,
+    {'id': '8650',
+     'name': 'Liverpool',
+     'names': {'Liverpool'},
+     'played': 28,
+     'wins': 19,
+     'draws': 7,
+     'losses': 2,
+     'goals_for': 65,
+     'goals_against': 26,
+     'points': 64,
      'country_code': 'ENG',
-     'market_values': '€1.29bn',
-     'logo': 'https://resources.premierleague.com/premierleague/badges/rb/t43.svg',
-     'shooting': {'shots': 333, 'xg': 39.7}}
+     'market_values': '€921.40m',
+     'logo': 'https://resources.premierleague.com/premierleague/badges/rb/t14.svg',
+     'shooting': {'shots': 534, 'xg': 62.6}}
