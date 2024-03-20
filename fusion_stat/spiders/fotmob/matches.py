@@ -3,7 +3,7 @@ import typing
 import httpx
 from rapidfuzz import process
 
-from ...config import CompetitionsConfig
+from ...config import COMPETITIONS_SCORE_CUTOFF, CompetitionsConfig
 from ...scraper import BaseItem, BaseSpider
 from ._common import BASE_URL, parse_score
 
@@ -51,14 +51,22 @@ class Spider(BaseSpider):
 
         matches: list[Item] = []
         for query in CompetitionsConfig.data:
+            # 暂时用 .replace(" ", "") 消除了
+            # 'Premier League', 'Premier League U18'
+            # 所引发的匹配错误，后续会更新更好的方法
             result = process.extractOne(
                 query,
                 choices,
-                processor=lambda x: x[1],
-            )[0]
-            for node in result[3]:
-                match = self._parse_match(result[0], result[1], result[2], node)
-                matches.append(match)
+                processor=lambda x: x[1].replace(" ", ""),
+                score_cutoff=COMPETITIONS_SCORE_CUTOFF,
+            )
+            if result is not None:
+                choice = result[0]
+                for node in choice[3]:
+                    match = self._parse_match(
+                        choice[0], choice[1], choice[2], node
+                    )
+                    matches.append(match)
         return matches
 
     def _parse_match(

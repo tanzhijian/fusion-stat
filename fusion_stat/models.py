@@ -3,7 +3,7 @@ import typing
 from rapidfuzz import process
 
 from . import spiders
-from .config import MEMBERS_SIMILARITY_SCORE
+from .config import MEMBERS_SCORE_CUFOFF
 from .scraper import BaseItem
 from .utils import mean_scorer
 
@@ -454,7 +454,7 @@ class Team:
                 x.country_code,
                 x.position,
             ],
-            score_cutoff=MEMBERS_SIMILARITY_SCORE,
+            score_cutoff=MEMBERS_SCORE_CUFOFF,
         )[0]
         return result
 

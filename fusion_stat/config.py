@@ -1,6 +1,7 @@
 from fifacodes import Members
 
-MEMBERS_SIMILARITY_SCORE = 80
+COMPETITIONS_SCORE_CUTOFF = 90
+MEMBERS_SCORE_CUFOFF = 80
 
 
 class CompetitionsConfig:
