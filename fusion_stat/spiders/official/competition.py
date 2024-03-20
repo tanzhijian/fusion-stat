@@ -88,7 +88,8 @@ class BundesligaSpider(BaseSpider):
 
             img = card.xpath(".//img")
             name = get_element_text(img.xpath("./@alt"))
-            logo = f"{BaseURL.bundesliga}{get_element_text(img.xpath("./@src")[0])}"
+            logo_path = get_element_text(img.xpath("./@src")[0])
+            logo = f"{BaseURL.bundesliga}{logo_path}"
 
             teams.append(
                 TeamItem(
@@ -208,9 +209,8 @@ class Ligue1Spider(BaseSpider):
             id_ = get_element_text(team.xpath("./@href")).split("=")[-1]
 
             img = team.xpath(".//img")
-            logo = (
-                f"{BaseURL.ligue_1}{get_element_text(img.xpath("./@data-src"))}"
-            )
+            logo_path = get_element_text(img.xpath("./@data-src"))
+            logo = f"{BaseURL.ligue_1}{logo_path}"
 
             name = get_element_text(img.xpath("./@alt"))
             name = self._fix_name(name)
