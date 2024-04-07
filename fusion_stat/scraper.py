@@ -34,7 +34,14 @@ class Downloader:
             self.client = client
 
     async def _get(self, request: httpx.Request) -> httpx.Response:
-        response = await self.client.send(request)
+        # 暂时用来修复 merge_headers 引发的错误
+        client_request = self.client.build_request(
+            "GET",
+            request.url,
+            headers=request.headers,
+        )
+
+        response = await self.client.send(client_request)
         response.raise_for_status()
         return response
 
