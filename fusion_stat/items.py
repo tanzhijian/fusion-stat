@@ -14,11 +14,11 @@ class BaseItem(BaseModel):
         ...
 
 
-class CompetitionItem(BaseItem):
+class BaseCompetitionItem(BaseItem):
     country_code: str = Field(exclude=True)
     season: int = Field(exclude=True)
-    teams: list["TeamItem"] | None = Field(default=None, exclude=True)
-    matches: list["MatchItem"] | None = Field(default=None, exclude=True)
+    teams: list["BaseTeamItem"] | None = Field(default=None, exclude=True)
+    matches: list["BaseMatchItem"] | None = Field(default=None, exclude=True)
 
     def convert_model(self) -> Competition:
         optional = {}
@@ -39,10 +39,10 @@ class CompetitionItem(BaseItem):
         )
 
 
-class TeamItem(BaseItem):
+class BaseTeamItem(BaseItem):
     country_code: str = Field(exclude=True)
-    staffs: list["StaffItem"] | None = Field(default=None, exclude=True)
-    players: list["PlayerItem"] | None = Field(default=None, exclude=True)
+    staffs: list["BaseStaffItem"] | None = Field(default=None, exclude=True)
+    players: list["BasePlayerItem"] | None = Field(default=None, exclude=True)
 
     def convert_model(self) -> Team:
         optional = {}
@@ -62,7 +62,7 @@ class TeamItem(BaseItem):
         )
 
 
-class StaffItem(BaseItem):
+class BaseStaffItem(BaseItem):
     country_code: str = Field(exclude=True)
     position: str = Field(exclude=True)
 
@@ -76,7 +76,7 @@ class StaffItem(BaseItem):
         )
 
 
-class PlayerItem(BaseItem):
+class BasePlayerItem(BaseItem):
     country_code: str = Field(exclude=True)
     position: str = Field(exclude=True)
 
@@ -90,11 +90,11 @@ class PlayerItem(BaseItem):
         )
 
 
-class MatchItem(BaseItem):
+class BaseMatchItem(BaseItem):
     date: str = Field(exclude=True)
-    competition: CompetitionItem
-    home: TeamItem
-    away: TeamItem
+    competition: BaseCompetitionItem
+    home: BaseTeamItem
+    away: BaseTeamItem
 
     def convert_model(self) -> Match:
         return Match(
