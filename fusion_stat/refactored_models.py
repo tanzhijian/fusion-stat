@@ -7,7 +7,7 @@ from .config import MEMBERS_SCORE_CUFOFF
 from .utils import mean_scorer
 
 
-class _Base(ABC):
+class Base(ABC):
     def __init__(
         self,
         *,
@@ -24,7 +24,7 @@ class _Base(ABC):
         ...
 
 
-class Competition(_Base):
+class Competition(Base):
     def __init__(
         self,
         *,
@@ -32,11 +32,13 @@ class Competition(_Base):
         name: str,
         items: dict[str, typing.Any],
         country_code: str,
+        season: int,
         teams: typing.Sequence["Team"] | None = None,
         matches: typing.Sequence["Match"] | None = None,
     ) -> None:
         super().__init__(id=id, name=name, items=items)
         self.country_code = country_code
+        self.season = season
         self.teams = teams
         self.matches = matches
 
@@ -62,6 +64,7 @@ class Competition(_Base):
             name=self.name,
             items=items,
             country_code=self.country_code,
+            season=self.season,
             teams=teams,
             matches=matches,
         )
@@ -101,7 +104,7 @@ class Competition(_Base):
         return results
 
 
-class Team(_Base):
+class Team(Base):
     def __init__(
         self,
         *,
@@ -192,7 +195,7 @@ class Team(_Base):
         return results
 
 
-class Staff(_Base):
+class Staff(Base):
     def __init__(
         self,
         *,
@@ -217,7 +220,7 @@ class Staff(_Base):
         )
 
 
-class Player(_Base):
+class Player(Base):
     def __init__(
         self,
         *,
@@ -242,18 +245,20 @@ class Player(_Base):
         )
 
 
-class Match(_Base):
+class Match(Base):
     def __init__(
         self,
         *,
         id: str,
         name: str,
         items: dict[str, typing.Any],
+        date: str,
         competition: Competition,
         home: Team,
         away: Team,
     ) -> None:
         super().__init__(id=id, name=name, items=items)
+        self.date = date
         self.competition = competition
         self.home = home
         self.away = away
@@ -269,6 +274,7 @@ class Match(_Base):
             id=self.id,
             name=self.name,
             items=items,
+            date=self.date,
             competition=competition,
             home=home,
             away=away,
