@@ -260,11 +260,16 @@ class Match(_Base):
 
     def add(self, new: "Match") -> "Match":
         items = self.items | new.items
+
+        competition = self.competition.add(new.competition)
+        home = self.home.add(new.home)
+        away = self.away.add(new.away)
+
         return Match(
             id=self.id,
             name=self.name,
             items=items,
-            competition=self.competition,
-            home=self.home,
-            away=self.away,
+            competition=competition,
+            home=home,
+            away=away,
         )
