@@ -45,16 +45,16 @@ class Competition(Base):
     def add(self, new: "Competition") -> "Competition":
         items = self.items | new.items
 
-        if new.teams is not None and self.teams is not None:
+        if new.teams and self.teams:
             teams = self._concat_teams(new.teams)
-        elif self.teams is None:
+        elif not self.teams:
             teams = new.teams
         else:
             teams = self.teams
 
-        if new.matches is not None and self.matches is not None:
+        if new.matches and self.matches:
             matches = self._concat_matches(new.matches)
-        elif self.matches is None:
+        elif not self.matches:
             matches = new.matches
         else:
             matches = self.matches
@@ -123,16 +123,16 @@ class Team(Base):
     def add(self, new: "Team") -> "Team":
         items = self.items | new.items
 
-        if new.players is not None and self.players is not None:
+        if new.players and self.players:
             players = self._concat_players(new.players)
-        elif self.players is None:
+        elif not self.players:
             players = new.players
         else:
             players = self.players
 
-        if new.staffs is not None and self.staffs is not None:
+        if new.staffs and self.staffs:
             staffs = self._concat_staffs(new.staffs)
-        elif self.staffs is None:
+        elif not self.staffs:
             staffs = new.staffs
         else:
             staffs = self.staffs

@@ -17,8 +17,8 @@ class BaseItem(BaseModel):
 class CompetitionItem(BaseItem):
     country_code: str = Field(exclude=True)
     season: int = Field(exclude=True)
-    teams: list["TeamItem"] = Field(default=[], exclude=True)
-    matches: list["MatchItem"] = Field(default=[], exclude=True)
+    teams: list["TeamItem"] | None = Field(default=None, exclude=True)
+    matches: list["MatchItem"] | None = Field(default=None, exclude=True)
 
     def convert_model(self) -> Competition:
         optional = {}
@@ -41,8 +41,8 @@ class CompetitionItem(BaseItem):
 
 class TeamItem(BaseItem):
     country_code: str = Field(exclude=True)
-    staffs: list["StaffItem"] = Field(default=[], exclude=True)
-    players: list["PlayerItem"] = Field(default=[], exclude=True)
+    staffs: list["StaffItem"] | None = Field(default=None, exclude=True)
+    players: list["PlayerItem"] | None = Field(default=None, exclude=True)
 
     def convert_model(self) -> Team:
         optional = {}
