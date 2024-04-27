@@ -13,10 +13,13 @@ class Base(ABC):
         *,
         id: str,
         name: str,
-        items: dict[str, typing.Any],
+        items: dict[str, typing.Any] | None = None,
     ) -> None:
         self.id = id
         self.name = name
+
+        if items is None:
+            items = {}
         self.items = items
 
     @abstractmethod
@@ -30,7 +33,7 @@ class Competition(Base):
         *,
         id: str,
         name: str,
-        items: dict[str, typing.Any],
+        items: dict[str, typing.Any] | None = None,
         country_code: str,
         season: int,
         teams: typing.Sequence["Team"] | None = None,
@@ -110,7 +113,7 @@ class Team(Base):
         *,
         id: str,
         name: str,
-        items: dict[str, typing.Any],
+        items: dict[str, typing.Any] | None = None,
         country_code: str,
         players: typing.Sequence["Player"] | None = None,
         staffs: typing.Sequence["Staff"] | None = None,
@@ -201,7 +204,7 @@ class Staff(Base):
         *,
         id: str,
         name: str,
-        items: dict[str, typing.Any],
+        items: dict[str, typing.Any] | None = None,
         country_code: str,
         position: str,
     ) -> None:
@@ -226,7 +229,7 @@ class Player(Base):
         *,
         id: str,
         name: str,
-        items: dict[str, typing.Any],
+        items: dict[str, typing.Any] | None = None,
         country_code: str,
         position: str,
     ) -> None:
@@ -251,7 +254,7 @@ class Match(Base):
         *,
         id: str,
         name: str,
-        items: dict[str, typing.Any],
+        items: dict[str, typing.Any] | None = None,
         date: str,
         competition: Competition,
         home: Team,
