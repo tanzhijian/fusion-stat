@@ -55,12 +55,6 @@ class Competitions:
 
     @property
     def info(self) -> dict[str, typing.Any]:
-        """
-        Return a dict that includes the following keys:
-
-        * count (int): number of competitions
-        * names (list[str]): names of competitions
-        """
         return {
             "count": len(self._fotmob),
             "names": [com.name for com in self._fotmob],
@@ -69,24 +63,6 @@ class Competitions:
     def get_items(
         self,
     ) -> typing.Generator[dict[str, typing.Any], typing.Any, None]:
-        """
-        Return a generator of dicts that include the following keys:
-
-        * id (str): competition id
-        * name (str): config competition name
-        * fotmob (dict): fotmob competition
-                * id (str): fotmob competition id
-                * name (str): fotmob competition name
-        * fbref (dict): fbref competition
-                * id (str): fbref competition id
-                * name (str): fbref competition name
-                * path_name (str): fbref competition path name
-                * country_code (str): country code, three-letter code
-        * transfermarkt (dict): transfermarkt competition
-                * id (str): transfermarkt competition id
-                * name (str): transfermarkt competition name
-                * path_name (str): transfermarkt competition path name
-        """
         for fotmob_competition in self._fotmob:
             fbref_competition = self._find_competition(
                 fotmob_competition, self._fbref
@@ -106,40 +82,11 @@ class Competitions:
 
     @property
     def items(self) -> list[dict[str, typing.Any]]:
-        """
-        Return a list of dicts that include the following keys:
-
-        * id (str): competition id
-        * name (str): config competition name
-        * fotmob (dict): fotmob competition
-                * id (str): fotmob competition id
-                * name (str): fotmob competition name
-        * fbref (dict): fbref competition
-                * id (str): fbref competition id
-                * name (str): fbref competition name
-                * path_name (str): fbref competition path name
-                * country_code (str): country code, three-letter code
-        * transfermarkt (dict): transfermarkt competition
-                * id (str): transfermarkt competition id
-                * name (str): transfermarkt competition name
-                * path_name (str): transfermarkt competition path name
-        """
         return list(self.get_items())
 
     def get_params(
         self,
     ) -> typing.Generator[dict[str, typing.Any], typing.Any, None]:
-        """
-        Return a generator of dicts that include the following keys:
-
-            * fotmob_id (str): fotmob competition id
-            * fbref_id (str): fbref competition id
-            * fbref_path_name (str): fbref competition path name
-            * official_name (str): config competition name
-            * transfermarkt_id (str): transfermarkt competition id
-            * transfermarkt_path_name (str): transfermarkt competition path name
-            * season (int, optional): fotmob competition season
-        """
         for item in self.get_items():
             competition_params = {
                 "fotmob_id": item["fotmob"]["id"],
@@ -183,19 +130,6 @@ class Competition:
 
     @property
     def info(self) -> dict[str, typing.Any]:
-        """
-        Return a dict that includes the following keys:
-
-        * id (str): competition id.
-        * name (str): competition name.
-        * logo (str): Competition logo.
-        * type (str): Competition type.
-        * season (str): Competition season.
-        * country_code (str): country code, three-letter code
-        * names (set[str]): All competition names.
-        * market_values (str): Competition market values.
-        * player_average_market_value (str): Competition player average market value.
-        """
         return {
             "id": self._fotmob.id,
             "name": self._fotmob.name,
@@ -211,26 +145,6 @@ class Competition:
     def get_teams(
         self,
     ) -> typing.Generator[dict[str, typing.Any], typing.Any, None]:
-        """
-        Return a generator of dicts that include the following keys:
-
-        * id (str): team id.
-        * name (str): team name.
-        * names (set[str]): All team names.
-        * played (int): number of matches played.
-        * wins (int): number of matches won.
-        * draws (int): number of matches drawn.
-        * losses (int): number of matches lost.
-        * goals_for (int): number of goals scored.
-        * goals_against (int): number of goals conceded.
-        * points (int): number of points.
-        * logo (str): team logo.
-        * country_code (str): country code, three-letter code
-        * market_values (str): team market values.
-        * shooting (dict): shooting data.
-                * shots (int): number of shots.
-                * xg (float): expected goals.
-        """
         for fotmob_team in self._fotmob.teams:
             fbref_team = self._find_team(fotmob_team, self._fbref.teams)
             official_team = self._find_team(fotmob_team, self._official.teams)
@@ -251,107 +165,11 @@ class Competition:
 
     @property
     def teams(self) -> list[dict[str, typing.Any]]:
-        """
-        Return a list of dicts that include the following keys:
-
-        * id (str): team id.
-        * name (str): team name.
-        * names (set[str]): All team names.
-        * played (int): number of matches played.
-        * wins (int): number of matches won.
-        * draws (int): number of matches drawn.
-        * losses (int): number of matches lost.
-        * goals_for (int): number of goals scored.
-        * goals_against (int): number of goals conceded.
-        * points (int): number of points.
-        * logo (str): team logo.
-        * country_code (str): country code, three-letter code
-        * market_values (str): team market values.
-        * shooting (dict): shooting data.
-                * shots (int): number of shots.
-                * xg (float): expected goals.
-        """
         return list(self.get_teams())
-
-    @staticmethod
-    def sort_table_key(
-        team: dict[str, typing.Any],
-    ) -> tuple[int, int, int, str]:
-        """
-        1. 首先按照积分降序排序，积分高的排在前面
-        2. 如果两个或多个球队的积分相同，则根据以下规则进行排序：
-            1. 净胜球降序排序
-            2. 如果净胜球也相同，则根据进球数降序排序
-            3. 如果进球数也相同，则根据球队的名称（字母顺序）升序排序
-        """
-        goal_difference = team["goals_for"] - team["goals_against"]
-        return (
-            -team["points"],
-            -goal_difference,
-            -team["goals_for"],
-            team["name"],
-        )
-
-    @property
-    def table(self) -> list[dict[str, typing.Any]]:
-        """
-        Return a list of dicts sorted by the standings that include the following keys:
-
-        * id (str): team id.
-        * name (str): team name.
-        * played (int): number of matches played.
-        * wins (int): number of matches won.
-        * draws (int): number of matches drawn.
-        * losses (int): number of matches lost.
-        * goals_for (int): number of goals scored.
-        * goals_against (int): number of goals conceded.
-        * points (int): number of points.
-        * xg (float): expected goals.
-        * logo (str): team logo.
-        """
-        teams = [
-            {
-                "id": team["id"],
-                "name": team["name"],
-                "played": team["played"],
-                "wins": team["wins"],
-                "draws": team["draws"],
-                "losses": team["losses"],
-                "goals_for": team["goals_for"],
-                "goals_against": team["goals_against"],
-                "points": team["points"],
-                "xg": team["shooting"]["xg"],
-                "logo": team["logo"],
-            }
-            for team in self.get_teams()
-        ]
-        table = sorted(teams, key=self.sort_table_key)
-        return table
 
     def get_matches(
         self,
     ) -> typing.Generator[dict[str, typing.Any], typing.Any, None]:
-        """
-        Return a generator of dicts that include the following keys:
-
-        * id (str): match id.
-        * name (str): match name.
-        * utc_time (str): match kickoff time.
-        * finished (bool): whether the match is finished or not.
-        * started (bool): whether the match has started or not.
-        * cancelled (bool): whether the match is cancelled or not.
-        * competition (dict): competition data.
-                * id (str): competition id.
-                * name (str): competition name.
-        * home (dict): home team data.
-                * id (str): team id.
-                * name (str): team name.
-                * score (int | None): match score.
-        * away (dict): away team data.
-                * id (str): team id.
-                * name (str): team name.
-                * score (int | None): match score.
-        """
         for fotmob_match in self._fotmob.matches:
             home = fotmob_match.home
             away = fotmob_match.away
@@ -372,41 +190,11 @@ class Competition:
 
     @property
     def matches(self) -> list[dict[str, typing.Any]]:
-        """
-        Return a list of dicts that include the following keys:
-
-        * id (str): match id.
-        * name (str): match name.
-        * utc_time (str): match kickoff time.
-        * finished (bool): whether the match is finished or not.
-        * started (bool): whether the match has started or not.
-        * cancelled (bool): whether the match is cancelled or not.
-        * competition (dict): competition data.
-                * id (str): competition id.
-                * name (str): competition name.
-        * home (dict): home team data.
-                * id (str): team id.
-                * name (str): team name.
-                * score (int | None): match score.
-        * away (dict): away team data.
-                * id (str): team id.
-                * name (str): team name.
-                * score (int | None): match score.
-        """
         return list(self.get_matches())
 
     def get_teams_params(
         self,
     ) -> typing.Generator[dict[str, typing.Any], typing.Any, None]:
-        """
-        Return a generator of dicts that include the following keys:
-
-            * fotmob_id (str): fotmob team id
-            * fbref_id (str): fbref team id
-            * fbref_path_name (str): fbref team path name
-            * transfermarkt_id (str): transfermarkt team id
-            * transfermarkt_path_name (str): transfermarkt team path name
-        """
         for fotmob_team in self._fotmob.teams:
             fbref_team = self._find_team(
                 fotmob_team,
@@ -586,61 +374,19 @@ class Matches:
         )[0]
         return match
 
+    @property
+    def info(self) -> dict[str, typing.Any]:
+        return {"count": len(self.items)}
+
     def get_items(
         self,
     ) -> typing.Generator[dict[str, typing.Any], typing.Any, None]:
-        """
-        Return a generator of dicts that include the following keys:
-
-        * id (str): match id.
-        * name (str): match name.
-        * utc_time (str): match kickoff time.
-        * finished (bool): whether the match is finished or not.
-        * started (bool): whether the match has started or not.
-        * cancelled (bool): whether the match is cancelled or not.
-        * competition (dict): competition data.
-                * id (str): competition id.
-                * name (str): competition name.
-        * home (dict): home team data.
-                * id (str): team id.
-                * name (str): team name.
-                * score (int | None): match score.
-        * away (dict): away team data.
-                * id (str): team id.
-                * name (str): team name.
-                * score (int | None): match score.
-        """
         for fotmob_match in self._fotmob:
             yield fotmob_match.model_dump()
 
     @property
     def items(self) -> list[dict[str, typing.Any]]:
-        """
-        Return a list of dicts that include the following keys:
-
-        * id (str): match id.
-        * name (str): match name.
-        * utc_time (str): match kickoff time.
-        * finished (bool): whether the match is finished or not.
-        * started (bool): whether the match has started or not.
-        * cancelled (bool): whether the match is cancelled or not.
-        * competition (dict): competition data.
-                * id (str): competition id.
-                * name (str): competition name.
-        * home (dict): home team data.
-                * id (str): team id.
-                * name (str): team name.
-                * score (int | None): match score.
-        * away (dict): away team data.
-                * id (str): team id.
-                * name (str): team name.
-                * score (int | None): match score.
-        """
         return list(self.get_items())
-
-    @property
-    def info(self) -> dict[str, typing.Any]:
-        return {"count": len(self.items)}
 
     def get_params(
         self,
